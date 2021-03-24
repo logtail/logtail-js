@@ -2,6 +2,25 @@
 # yarn lockfile v1
 
 
+"@logtail/core@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.1.1.tgz#e9e82fbdca4d74cc7957c6d57a86fa0c9ca564f4"
+  dependencies:
+    "@logtail/tools" "^0.1.1"
+    "@logtail/types" "^0.1.1"
+
+"@logtail/tools@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.1.1.tgz#029c39c4f98ad4f2abd0fbe2a162057926028b19"
+  dependencies:
+    "@logtail/types" "^0.1.1"
+
+"@logtail/types@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.1.1.tgz#8865b47d4aa7c0846b446ca60cdfe29f8638b94c"
+  dependencies:
+    js "^0.1.0"
+
 "@types/bl@*":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@types/bl/-/bl-4.1.0.tgz#fadef609edc9be15e7941aa61bf309df3dc9b135"
@@ -27,6 +46,10 @@
 "@types/node@*":
   version "14.14.35"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.35.tgz#42c953a4e2b18ab931f72477e7012172f4ffa313"
+
+"@types/stack-trace@^0.0.29":
+  version "0.0.29"
+  resolved "https://registry.yarnpkg.com/@types/stack-trace/-/stack-trace-0.0.29.tgz#eb7a7c60098edb35630ed900742a5ecb20cfcb4d"
 
 ansi-styles@^3.2.1:
   version "3.2.1"
@@ -95,6 +118,12 @@ color-convert@^1.9.0:
 color-name@1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.3.tgz#a7d0558bd89c42f795dd42328f740831ca53bc25"
+
+commander@~1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-1.1.1.tgz#50d1651868ae60eccff0a2d9f34595376bc6b041"
+  dependencies:
+    keypress "0.1.x"
 
 concat-map@0.0.1:
   version "0.0.1"
@@ -301,6 +330,12 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
 
+js@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/js/-/js-0.1.0.tgz#e1d0afd55ea39c2b28da304e8143eaf2c133f366"
+  dependencies:
+    commander "~1.1.1"
+
 json-parse-better-errors@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/json-parse-better-errors/-/json-parse-better-errors-1.0.2.tgz#bb867cfb3450e69107c131d1c514bab3dc8bcaa9"
@@ -308,6 +343,10 @@ json-parse-better-errors@^1.0.1:
 json-stringify-safe@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
+
+keypress@0.1.x:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/keypress/-/keypress-0.1.0.tgz#4a3188d4291b66b4f65edb99f806aa9ae293592a"
 
 load-json-file@^4.0.0:
   version "4.0.0"
@@ -560,6 +599,10 @@ spdx-expression-parse@^3.0.0:
 spdx-license-ids@^3.0.0:
   version "3.0.7"
   resolved "https://registry.yarnpkg.com/spdx-license-ids/-/spdx-license-ids-3.0.7.tgz#e9c18a410e5ed7e12442a549fbd8afa767038d65"
+
+stack-trace@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/stack-trace/-/stack-trace-0.0.10.tgz#547c70b347e8d32b4e108ea1a2a159e5fdde19c0"
 
 string.prototype.padend@^3.0.0:
   version "3.1.2"

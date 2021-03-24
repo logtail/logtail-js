@@ -1,6 +1,8 @@
 import { Duplex, Writable } from "stream";
+import { dirname, relative } from "path";
 
 import fetch from "cross-fetch";
+import stackTrace, { StackFrame } from 'stack-trace';
 // import Msgpack from "msgpack5";
 
 import { ILogtailLog, Context, ILogtailOptions, LogLevel } from "@logtail/types";
@@ -71,6 +73,8 @@ export class Node extends Base {
     context: TContext = {} as TContext
   ) {
     // Process/sync the log, per `Base` logic
+    context = { ...this.getStackContext(), ...context };
+    console.log(context);
     const processedLog = await super.log(message, level, context);
 
     // Push the processed log to the stream, for piping
@@ -90,5 +94,38 @@ export class Node extends Base {
   public pipe(stream: Writable | Duplex) {
     this._writeStream = stream;
     return stream;
+  }
+
+  /**
+   * Determines the file name and the line number from which the log
+   * was initiated (if we're able to tell).
+   *
+   * @returns Context The caller's filename and the line number
+   */
+  private getStackContext(): Context {
+    const stackFrame = this.getCallingFrame();
+    if (stackFrame === null) return {};
+
+    return {
+      fileName: this.relativeToMainModule(stackFrame.getFileName()),
+      lineNumber: stackFrame.getLineNumber()
+    };
+  }
+
+  private getCallingFrame(): StackFrame | null {
+    const stack = stackTrace.get();
+    if (stack === null) return null;
+
+    const logtailTypeName = stack[0].getTypeName();
+    for (let frame of stack) {
+      if (frame.getTypeName() !== logtailTypeName) return frame;
+    }
+
+    return null;
+  }
+
+  private relativeToMainModule(fileName: string): string {
+    const rootPath = dirname(require.main?.filename ?? "");
+    return relative(rootPath, fileName);
   }
 }
