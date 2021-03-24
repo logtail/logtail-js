@@ -44,7 +44,7 @@
     "@logtail/types": "^0.1.0",
     "@types/msgpack5": "^3.4.1",
     "cross-fetch": "^3.0.4",
-    "msgpack5": "^4.2.1",
-    "minimatch": "^3.0.4"
+    "minimatch": "^3.0.4",
+    "msgpack5": "^4.2.1"
   }
 }
