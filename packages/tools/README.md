@@ -1,14 +1,12 @@
 # 🪵 Logtail - JS lib tools
 
-![Beta: Ready for testing](https://img.shields.io/badge/early_release-beta-green.svg)
-![Speed: Blazing](https://img.shields.io/badge/speed-blazing%20%F0%9F%94%A5-brightgreen.svg)
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 
-**New to Logtail?** [Here's a low-down on logging in Javascript.](https://github.com/logtail/logtail-js)
+**New to Logtail?** [Here's a low-down on logging in JavaScript.](https://github.com/logtail/logtail-js)
 
 ## `@logtail/tools`
 
-This library provides helper tools used by the [Javascript logger](https://github.com/logtail/logtail-js).
+This library provides helper tools used by the [JavaScript logger](https://github.com/logtail/logtail-js).
 
 ## Tools
 

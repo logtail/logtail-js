@@ -1,10 +1,8 @@
 # 🪵 Logtail - Node.js logging
 
-![Beta: Ready for testing](https://img.shields.io/badge/early_release-beta-green.svg)
-![Speed: Blazing](https://img.shields.io/badge/speed-blazing%20%F0%9F%94%A5-brightgreen.svg)
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 
-**New to Logtail?** [Here's a low-down on logging in Javascript.](https://github.com/logtail/logtail-js)
+**New to Logtail?** [Here's a low-down on logging in JavaScript.](https://github.com/logtail/logtail-js)
 
 ## `@logtail/node`
 
@@ -38,7 +36,7 @@ const { Logtail } = require("@logtail/node");
 
 ## Creating a client
 
-Simply pass your [Logtail.com](https://logtail.com) organization API + source keys as parameters to a new `Logtail` instance (you can grab both from the Logtail.com console):
+Simply pass your [Logtail.com](https://logtail.com) source access token as a parameter to a new `Logtail` instance (you can grab it from Logtail.com):
 
 ```typescript
 const logtail = new Logtail("logtail-access-token");

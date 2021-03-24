@@ -1,10 +1,8 @@
 # 🪵 Logtail - logging core
 
-![Beta: Ready for testing](https://img.shields.io/badge/early_release-beta-green.svg)
-![Speed: Blazing](https://img.shields.io/badge/speed-blazing%20%F0%9F%94%A5-brightgreen.svg)
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 
-**New to Logtail?** [Here's a low-down on logging in Javascript.](https://github.com/logtail/logtail-js)
+**New to Logtail?** [Here's a low-down on logging in JavaScript.](https://github.com/logtail/logtail-js)
 
 ## `@logtail/core`
 
@@ -27,12 +25,11 @@ import { ILogtailOptions, ILogtailLog } from "@logtail/types";
 class CustomLogger extends Base {
   // Constructor must take a Logtail.com access token, and (optional) options
   public constructor(
-    orgApiKey: string,
-    sourceKey: string,
+    accessToken: string,
     options?: Partial<ILogtailOptions>
   ) {
     // Make sure you pass the source access token to the parent constructor!
-    super(accessToken, sourceKey, options);
+    super(accessToken, options);
 
     // Create a custom sync method
     this.setSync(async (logs: ILogtailLog[]) => {

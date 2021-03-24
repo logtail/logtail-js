@@ -1,14 +1,12 @@
-# 🪵 Logtail - Shared Typescript types
+# 🪵 Logtail - Shared TypeScript types
 
-![Beta: Ready for testing](https://img.shields.io/badge/early_release-beta-green.svg)
-![Speed: Blazing](https://img.shields.io/badge/speed-blazing%20%F0%9F%94%A5-brightgreen.svg)
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 
-**New to Logtail?** [Here's a low-down on logging in Javascript.](https://github.com/logtail/logtail-js)
+**New to Logtail?** [Here's a low-down on logging in JavaScript.](https://github.com/logtail/logtail-js)
 
 ## `@logtail/types`
 
-The Logtail JS library packages are written in Typescript.
+The Logtail JS library packages are written in TypeScript.
 
 Various types are shared between multiple packages. Those shared types have been separated out into their own package, to make it easier for importing.
 
@@ -16,7 +14,7 @@ That's what you'll find in this package.
 
 ## Importing types
 
-You can import a shared type into a Typescript project by importing directly from this package:
+You can import a shared type into a TypeScript project by importing directly from this package:
 
 ```typescript
 // For example, `ILogtailLog`

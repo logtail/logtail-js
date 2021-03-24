@@ -2,7 +2,7 @@
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 
-**New to Logtail?** [Here's a low-down on logging in Javascript.](https://github.com/logtail/logtail-js)
+**New to Logtail?** [Here's a low-down on logging in JavaScript.](https://github.com/logtail/logtail-js)
 
 ## `@logtail/koa`
 
