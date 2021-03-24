@@ -1,7 +1,7 @@
 {
   "name": "@logtail/tools",
   "version": "0.1.0",
-  "description": "Javascript logging tools",
+  "description": "JavaScript logging tools",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
   "types": "dist/es6/index.d.ts",
@@ -10,6 +10,9 @@
     "src",
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build:cjs": "tsc",
     "build:es6": "tsc -p tsconfig.es6.json",
@@ -39,5 +42,6 @@
   },
   "dependencies": {
     "@logtail/types": "^0.1.0"
-  }
+  },
+  "gitHead": "3affb92cc7948369c10bb01bf06ff55020f858b3"
 }

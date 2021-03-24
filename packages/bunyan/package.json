@@ -24,6 +24,9 @@
     "type": "git",
     "url": "git+https://github.com/logtail/logtail-js.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build:cjs": "tsc",
     "build:es6": "tsc -p tsconfig.es6.json",
@@ -47,5 +50,6 @@
   },
   "dependencies": {
     "@logtail/types": "^0.1.0"
-  }
+  },
+  "gitHead": "3affb92cc7948369c10bb01bf06ff55020f858b3"
 }
