@@ -1,0 +1,55 @@
+{
+  "name": "@logtail/browser",
+  "version": "0.1.0",
+  "description": "Logtail.com browser logging",
+  "keywords": [
+    "Logtail",
+    "logging",
+    "logger",
+    "browser"
+  ],
+  "author": "Logtail <hello@logtail.com>",
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/browser#readme",
+  "license": "ISC",
+  "main": "dist/cjs/index.js",
+  "module": "dist/es6/index.js",
+  "types": "dist/es6/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/logtail/logtail-js.git"
+  },
+  "scripts": {
+    "build:cjs": "tsc",
+    "build:es6": "tsc -p tsconfig.es6.json",
+    "build:umd": "webpack",
+    "build": "run-p build:*",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/logtail/logtail-js/issues"
+  },
+  "devDependencies": {
+    "@logtail/types": "^0.1.0",
+    "@types/nock": "^10.0.3",
+    "@types/node": "^12.7.2",
+    "@types/webpack": "^4.32.2",
+    "nock": "^10.0.6",
+    "npm-run-all": "^4.1.5",
+    "ts-loader": "^6.0.4",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.7"
+  },
+  "dependencies": {
+    "@logtail/core": "^0.1.0",
+    "@logtail/tools": "^0.1.0",
+    "cross-fetch": "^3.0.4"
+  }
+}

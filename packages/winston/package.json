@@ -1,0 +1,51 @@
+{
+  "name": "@logtail/winston",
+  "version": "0.1.0",
+  "description": "Logtail.com - Winston transport",
+  "keywords": [
+    "Logtail",
+    "logger",
+    "logging",
+    "node",
+    "winston"
+  ],
+  "author": "Logtail <hello@logtail.com>",
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/winston#readme",
+  "license": "ISC",
+  "main": "dist/cjs/index.js",
+  "module": "dist/es6/index.js",
+  "types": "dist/es6/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "src",
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/logtail/logtail-js.git"
+  },
+  "scripts": {
+    "build:cjs": "tsc",
+    "build:es6": "tsc -p tsconfig.es6.json",
+    "build": "run-p build:*",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/logtail/logtail-js/issues"
+  },
+  "devDependencies": {
+    "@logtail/node": "^0.1.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^3.5.3",
+    "winston": "^3.2.1"
+  },
+  "peerDependencies": {
+    "@logtail/node": "^0.1.0",
+    "winston": ">=3.2.1"
+  },
+  "dependencies": {
+    "@logtail/types": "^0.1.0",
+    "winston-transport": "^4.3.0"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "@logtail/tools",
+  "version": "0.1.0",
+  "description": "Javascript logging tools",
+  "main": "dist/cjs/index.js",
+  "module": "dist/es6/index.js",
+  "types": "dist/es6/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build:cjs": "tsc",
+    "build:es6": "tsc -p tsconfig.es6.json",
+    "build": "run-p build:*",
+    "prepublish": "npm run build",
+    "test": "jest"
+  },
+  "author": "Logtail <hello@logtail.com>",
+  "repository": "https://github.com/logtail/logtail-js/tree/master/packages/tools",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/logtail/logtail-js/issues"
+  },
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/tools#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.17",
+    "@types/nock": "^10.0.3",
+    "@types/node": "^12.7.2",
+    "@types/source-map": "^0.5.7",
+    "cross-fetch": "^3.0.4",
+    "jest": "^24.9.0",
+    "nock": "^10.0.6",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "@logtail/types": "^0.1.0"
+  }
+}

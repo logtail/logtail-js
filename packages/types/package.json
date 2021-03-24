@@ -1,0 +1,43 @@
+{
+  "name": "@logtail/types",
+  "version": "0.1.0",
+  "description": "Logtail.com - Typescript types",
+  "keywords": [
+    "Logtail",
+    "logging",
+    "logger",
+    "typescript",
+    "types"
+  ],
+  "author": "Logtail <hello@logtail.com>",
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/types#readme",
+  "license": "ISC",
+  "main": "dist/cjs/types.js",
+  "module": "dist/es6/types.js",
+  "types": "dist/es6/types.d.ts",
+  "sideEffects": false,
+  "files": [
+    "src",
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/logtail/logtail-js.git"
+  },
+  "scripts": {
+    "build:cjs": "tsc",
+    "build:es6": "tsc -p tsconfig.es6.json",
+    "build": "run-p build:*",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/logtail/logtail-js/issues"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  },
+  "dependencies": {
+    "js": "^0.1.0"
+  }
+}

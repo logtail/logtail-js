@@ -1,0 +1,53 @@
+{
+  "name": "@logtail/koa",
+  "version": "0.1.0",
+  "description": "Logtail.com - Koa logger",
+  "keywords": [
+    "Logtail",
+    "logger",
+    "logging",
+    "Node"
+  ],
+  "author": "Logtail <hello@logtail.com>",
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/koa#readme",
+  "license": "ISC",
+  "main": "dist/cjs/index.js",
+  "module": "dist/es6/index.js",
+  "types": "dist/es6/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/logtail/logtail-js.git"
+  },
+  "scripts": {
+    "build:cjs": "tsc",
+    "build:es6": "tsc -p tsconfig.es6.json",
+    "build": "run-p build:*",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/logtail/logtail-js/issues"
+  },
+  "devDependencies": {
+    "@logtail/node": "^0.1.0",
+    "@logtail/types": "^0.1.0",
+    "@types/koa": "^2.0.49",
+    "@types/koa-router": "^7.0.42",
+    "@types/supertest": "^2.0.8",
+    "koa": "^2.6.2",
+    "koa-router": "^7.4.0",
+    "npm-run-all": "^4.1.5",
+    "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "rambda": "^2.14.5"
+  },
+  "peerDependencies": {
+    "@logtail/node": "^0.1.0",
+    "koa": ">=2.8.1"
+  }
+}

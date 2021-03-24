@@ -1,0 +1,1 @@
+export { LogtailTransport } from "./winston";
