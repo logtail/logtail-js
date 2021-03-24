@@ -8,7 +8,7 @@ import KoaLogtail from "./koa";
 // Mock out a KoaLogtail + Koa instance
 function getServer(): [KoaLogtail, Koa] {
   // Init new Koa Logtail instance
-  const logtail = new KoaLogtail("test", "someSource", {
+  const logtail = new KoaLogtail("test", {
     // Override `batchInterval` to test logs faster
     batchInterval: 1
   });
