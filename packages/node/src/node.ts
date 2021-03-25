@@ -94,8 +94,20 @@ export class Node extends Base {
     if (stackFrame === null) return {};
 
     return {
-      fileName: this.relativeToMainModule(stackFrame.getFileName()),
-      lineNumber: stackFrame.getLineNumber()
+      context: {
+        runtime: {
+          file: this.relativeToMainModule(stackFrame.getFileName()),
+          type: stackFrame.getTypeName(),
+          method: stackFrame.getMethodName(),
+          function: stackFrame.getFunctionName(),
+          line: stackFrame.getLineNumber(),
+          column: stackFrame.getColumnNumber(),
+        },
+        system: {
+          pid: process.pid,
+          main_file: require.main?.filename ?? ''
+        }
+      }
     };
   }
 
