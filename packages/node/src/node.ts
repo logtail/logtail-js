@@ -1,12 +1,12 @@
 import { Duplex, Writable } from "stream";
-import { dirname, relative } from "path";
 
 import fetch from "cross-fetch";
-import stackTrace, { StackFrame } from 'stack-trace';
 import { encode } from "@msgpack/msgpack";
 
 import { ILogtailLog, Context, ILogtailOptions, LogLevel } from "@logtail/types";
 import { Base } from "@logtail/core";
+
+import { getStackContext } from "./context";
 
 export class Node extends Base {
   /**
@@ -61,7 +61,7 @@ export class Node extends Base {
     context: TContext = {} as TContext
   ) {
     // Process/sync the log, per `Base` logic
-    context = { ...this.getStackContext(), ...context };
+    context = { ...getStackContext(), ...context };
     const processedLog = await super.log(message, level, context);
 
     // Push the processed log to the stream, for piping
@@ -81,51 +81,6 @@ export class Node extends Base {
   public pipe(stream: Writable | Duplex) {
     this._writeStream = stream;
     return stream;
-  }
-
-  /**
-   * Determines the file name and the line number from which the log
-   * was initiated (if we're able to tell).
-   *
-   * @returns Context The caller's filename and the line number
-   */
-  private getStackContext(): Context {
-    const stackFrame = this.getCallingFrame();
-    if (stackFrame === null) return {};
-
-    return {
-      context: {
-        runtime: {
-          file: this.relativeToMainModule(stackFrame.getFileName()),
-          type: stackFrame.getTypeName(),
-          method: stackFrame.getMethodName(),
-          function: stackFrame.getFunctionName(),
-          line: stackFrame.getLineNumber(),
-          column: stackFrame.getColumnNumber(),
-        },
-        system: {
-          pid: process.pid,
-          main_file: require.main?.filename ?? ''
-        }
-      }
-    };
-  }
-
-  private getCallingFrame(): StackFrame | null {
-    const stack = stackTrace.get();
-    if (stack === null) return null;
-
-    const logtailTypeName = stack[0].getTypeName();
-    for (let frame of stack) {
-      if (frame.getTypeName() !== logtailTypeName) return frame;
-    }
-
-    return null;
-  }
-
-  private relativeToMainModule(fileName: string): string {
-    const rootPath = dirname(require.main?.filename ?? "");
-    return relative(rootPath, fileName);
   }
 
   private encodeAsMsgpack(logs: ILogtailLog[]): Buffer {
