@@ -61,7 +61,7 @@ export class Node extends Base {
     context: TContext = {} as TContext
   ) {
     // Process/sync the log, per `Base` logic
-    context = { ...getStackContext(), ...context };
+    context = { ...getStackContext(this), ...context };
     const processedLog = await super.log(message, level, context);
 
     // Push the processed log to the stream, for piping

@@ -1,6 +1,7 @@
 import { Context } from "@logtail/types";
 import { dirname, relative } from "path";
 import stackTrace, { StackFrame } from 'stack-trace';
+import { Node } from "./node";
 
 /**
  * Determines the file name and the line number from which the log
@@ -8,8 +9,8 @@ import stackTrace, { StackFrame } from 'stack-trace';
  *
  * @returns Context The caller's filename and the line number
  */
-export function getStackContext(): Context {
-  const stackFrame = getCallingFrame();
+export function getStackContext(logtail: Node): Context {
+  const stackFrame = getCallingFrame(logtail);
   if (stackFrame === null) return {};
 
   return {
@@ -30,13 +31,10 @@ export function getStackContext(): Context {
   };
 }
 
-function getCallingFrame(): StackFrame | null {
-  const stack = stackTrace.get();
-  if (stack === null) return null;
-
-  const logtailTypeName = stack[0].getTypeName();
-  for (let frame of stack) {
-    if (frame.getTypeName() !== logtailTypeName) return frame;
+function getCallingFrame(logtail: Node): StackFrame | null {
+  for (let fn of [logtail.warn, logtail.error, logtail.info, logtail.log]) {
+    const stack = stackTrace.get(fn as any);
+    if (stack.length > 0) return stack[0];
   }
 
   return null;
