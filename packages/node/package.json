@@ -45,11 +45,10 @@
   "dependencies": {
     "@logtail/core": "^0.1.1",
     "@logtail/types": "^0.1.1",
-    "@types/msgpack5": "^3.4.1",
+    "@msgpack/msgpack": "^2.5.1",
     "@types/stack-trace": "^0.0.29",
     "cross-fetch": "^3.0.4",
     "minimatch": "^3.0.4",
-    "msgpack5": "^4.2.1",
     "stack-trace": "^0.0.10"
   },
   "gitHead": "3affb92cc7948369c10bb01bf06ff55020f858b3"

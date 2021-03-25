@@ -3,13 +3,10 @@ import { dirname, relative } from "path";
 
 import fetch from "cross-fetch";
 import stackTrace, { StackFrame } from 'stack-trace';
-// import Msgpack from "msgpack5";
+import { encode } from "@msgpack/msgpack";
 
 import { ILogtailLog, Context, ILogtailOptions, LogLevel } from "@logtail/types";
 import { Base } from "@logtail/core";
-
-// Namespace the msgpack library
-// const msgpack = Msgpack();
 
 export class Node extends Base {
   /**
@@ -31,16 +28,11 @@ export class Node extends Base {
         {
           method: "POST",
           headers: {
-            // "Content-Type": "application/msgpack",
-            "Content-Type": "application/json",
+            "Content-Type": "application/msgpack",
             Authorization: `Bearer ${this._accessToken}`,
             "User-Agent": "logtail-js(node)"
           },
-          // body: logs.map(log => `${log.level}: ${log.message}`).join("\n")
-          // body: msgpack.encode(logsWithSchema).slice()
-
-          // TODO - using JSON for now; switch to msgpack later
-          body: JSON.stringify(logs)
+          body: this.encodeAsMsgpack(logs)
         }
       );
 
@@ -48,10 +40,6 @@ export class Node extends Base {
         return logs;
       }
 
-      /**
-       * TODO: if status is 50x throw custom ServerError
-       * to be used in retry logic
-       */
       throw new Error(res.statusText);
     };
 
@@ -74,7 +62,6 @@ export class Node extends Base {
   ) {
     // Process/sync the log, per `Base` logic
     context = { ...this.getStackContext(), ...context };
-    console.log(context);
     const processedLog = await super.log(message, level, context);
 
     // Push the processed log to the stream, for piping
@@ -127,5 +114,12 @@ export class Node extends Base {
   private relativeToMainModule(fileName: string): string {
     const rootPath = dirname(require.main?.filename ?? "");
     return relative(rootPath, fileName);
+  }
+
+  private encodeAsMsgpack(logs: ILogtailLog[]): Buffer {
+    const logsWithISODateFormat = logs.map((log) => ({ ...log, dt: log.dt.toISOString() }));
+    const encoded = encode(logsWithISODateFormat);
+    const buffer = Buffer.from(encoded.buffer, encoded.byteOffset, encoded.byteLength)
+    return buffer;
   }
 }
