@@ -1,6 +1,6 @@
 {
   "name": "@logtail/browser",
-  "version": "0.1.1",
+  "version": "0.1.7",
   "description": "Logtail.com browser logging",
   "keywords": [
     "Logtail",
@@ -51,8 +51,8 @@
     "webpack-cli": "^3.3.7"
   },
   "dependencies": {
-    "@logtail/core": "^0.1.1",
-    "@logtail/tools": "^0.1.1",
+    "@logtail/core": "^0.1.7",
+    "@logtail/tools": "^0.1.7",
     "cross-fetch": "^3.0.4"
   },
   "gitHead": "3affb92cc7948369c10bb01bf06ff55020f858b3"
