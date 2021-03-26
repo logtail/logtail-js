@@ -46,7 +46,7 @@ You can [create a client](https://github.com/logtail/logtail-js/tree/master/pack
 import winston from "winston";
 
 // Create a Logtail client
-const logtail = new Logtail("logtail-access-token");
+const logtail = new Logtail("logtail-source-token");
 
 // Create a Winston logger - passing in the Logtail transport
 const logger = winston.createLogger({

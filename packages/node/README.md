@@ -36,10 +36,10 @@ const { Logtail } = require("@logtail/node");
 
 ## Creating a client
 
-Simply pass your [Logtail.com](https://logtail.com) source access token as a parameter to a new `Logtail` instance (you can grab it from Logtail.com):
+Simply pass your [Logtail.com](https://logtail.com) source token as a parameter to a new `Logtail` instance (you can grab it from Logtail.com):
 
 ```typescript
-const logtail = new Logtail("logtail-access-token");
+const logtail = new Logtail("logtail-source-token");
 ```
 
 ## Documentation
@@ -70,7 +70,7 @@ import { Logtail } from "@logtail/node";
 const logsTxt = fs.createWriteStream("./logs.txt");
 
 // Create a new Logtail instance, and pipe output to `logs.txt`
-const logtail = new Logtail("logtail-access-token");
+const logtail = new Logtail("logtail-source-token");
 logtail.pipe(logsTxt);
 
 // When you next log, `logs.txt` will get a JSON string copy

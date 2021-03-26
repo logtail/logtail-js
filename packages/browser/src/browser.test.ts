@@ -30,7 +30,7 @@ describe("browser tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const browser = new Browser("valid access token");
+    const browser = new Browser("valid source token");
     const echoedLog = await browser.log(message);
     expect(echoedLog.message).toEqual(expectedLog.message);
 
@@ -40,7 +40,7 @@ describe("browser tests", () => {
   it("should throw error if logtail sends non 200 status code", async done => {
     nock("https://in.logtail.com").post('/').reply(401);
 
-    const browser = new Browser("invalid access token");
+    const browser = new Browser("invalid source token");
     const message: string = String(Math.random);
     await expect(browser.log(message)).rejects.toThrow();
 

@@ -16,10 +16,10 @@ export class Node extends Base {
   private _writeStream?: Writable | Duplex;
 
   public constructor(
-    accessToken: string,
+    sourceToken: string,
     options?: Partial<ILogtailOptions>
   ) {
-    super(accessToken, options);
+    super(sourceToken, options);
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
@@ -29,7 +29,7 @@ export class Node extends Base {
           method: "POST",
           headers: {
             "Content-Type": "application/msgpack",
-            Authorization: `Bearer ${this._accessToken}`,
+            Authorization: `Bearer ${this._sourceToken}`,
             "User-Agent": "logtail-js(node)"
           },
           body: this.encodeAsMsgpack(logs)

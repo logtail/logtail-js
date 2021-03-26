@@ -27,7 +27,7 @@ describe("node tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const node = new Node("valid access token");
+    const node = new Node("valid source token");
     const echoedLog = await node.log(message);
     expect(echoedLog.message).toEqual(expectedLog.message);
   });
@@ -37,7 +37,7 @@ describe("node tests", () => {
       .post('/')
       .reply(401);
 
-    const node = new Node("invalid access token");
+    const node = new Node("invalid source token");
     const message: string = String(Math.random);
     await expect(node.log(message)).rejects.toThrow();
   });

@@ -8,10 +8,10 @@ import { Base } from "@logtail/core";
 
 export class Browser extends Base {
   public constructor(
-    accessToken: string,
+    sourceToken: string,
     options?: Partial<ILogtailOptions>
   ) {
-    super(accessToken, options);
+    super(sourceToken, options);
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
@@ -21,7 +21,7 @@ export class Browser extends Base {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${this._accessToken}`
+            Authorization: `Bearer ${this._sourceToken}`
             // Awaiting: https://bugs.chromium.org/p/chromium/issues/detail?id=571722
             // "User-Agent": getUserAgent()
           },

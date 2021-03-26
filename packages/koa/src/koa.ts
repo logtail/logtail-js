@@ -50,11 +50,11 @@ class KoaLogtail extends Logtail {
   protected _koaOptions: IKoaOptions;
 
   public constructor(
-    accessToken: string,
+    sourceToken: string,
     logtailOpt?: Partial<ILogtailOptions>,
     koaOpt?: Partial<IKoaOptions>
   ) {
-    super(accessToken, logtailOpt);
+    super(sourceToken, logtailOpt);
 
     // Set Koa-specific logging options
     this._koaOptions = { ...defaultKoaOpt, ...koaOpt };

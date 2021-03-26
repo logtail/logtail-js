@@ -43,7 +43,7 @@ You can [create a client](https://github.com/logtail/logtail-js/tree/master/pack
 import bunyan from "bunyan";
 
 // Create a Logtail client
-const logtail = new Logtail("logtail-access-token");
+const logtail = new Logtail("logtail-source-token");
 
 // Create a Bunyan logger - passing in the Logtail stream
 const logger = bunyan.createLogger({

@@ -49,7 +49,7 @@ You can instantiate the client in the same way, whether you use a module bundler
 Simply pass your [Logtail.com](https://logtail.com) organization API + source keys as parameters to a new `Logtail` instance (you can grab both from the Logtail.com console):
 
 ```typescript
-const logtail = new Logtail("logtail-access-token");
+const logtail = new Logtail("logtail-source-token");
 ```
 
 ## Documentation

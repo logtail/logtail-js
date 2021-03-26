@@ -34,10 +34,10 @@ const { Logtail } = require("@logtail/koa");
 
 ## Creating a client
 
-Simply pass your [Logtail.com](https://logtail.com) source access token as a parameter to a new `Logtail` instance:
+Simply pass your [Logtail.com](https://logtail.com) source token as a parameter to a new `Logtail` instance:
 
 ```typescript
-const logtail = new Logtail("logtail-access-token");
+const logtail = new Logtail("logtail-source-token");
 ```
 
 `Logtail` accepts two optional, additional parameters:
@@ -63,7 +63,7 @@ const koaOptions = {
 };
 
 const logtail = new Logtail(
-  "logtail-access-token",
+  "logtail-source-token",
   logtailOptions,
   koaOptions
 );
@@ -81,7 +81,7 @@ import { Logtail } from "@logtail/koa";
 const koa = new Koa();
 
 // Create a new Logtail client
-const logtail = new Logtail("logtail-access-token");
+const logtail = new Logtail("logtail-source-token");
 
 // Attach Koa to enable HTTP request logging
 logtail.attach(koa);
@@ -121,7 +121,7 @@ Nested object properties are separated using a period (`.`)
 
 ## How logging works
 
-All HTTP requests handled by Koa will be logged automatically, and synced with the [Logtail.com](https://logtail.com) service, to the source defined by your Logtail source access token.
+All HTTP requests handled by Koa will be logged automatically, and synced with the [Logtail.com](https://logtail.com) service, to the source defined by your Logtail source token.
 
 ### Successful requests
 

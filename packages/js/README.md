@@ -34,10 +34,10 @@ In ES6/Typescript, you can then import either the `Browser` or `Node` class as r
 import { Browser, Node } from "@logtail/js";
 
 // `Browser` is equivalent to the `Logtail` class exported by @logtail/browser
-const clientLogger = new Browser("logtail-access-token");
+const clientLogger = new Browser("logtail-source-token");
 
 // And the same with `Node` and @logtail/node
-const serverLogger = new Node("logtail-access-token");
+const serverLogger = new Node("logtail-source-token");
 ```
 
 For CommonJS, require the package instead:

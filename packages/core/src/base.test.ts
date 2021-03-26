@@ -2,11 +2,11 @@ import Base from "./base";
 import { ILogtailLog, LogLevel } from "@logtail/types";
 
 describe("base class tests", () => {
-  it("should initialize with access token", () => {
-    const accessToken = "testing";
-    const base = new Base(accessToken);
+  it("should initialize with source token", () => {
+    const sourceToken = "testing";
+    const base = new Base(sourceToken);
 
-    expect((base as any)._accessToken).toEqual(accessToken);
+    expect((base as any)._sourceToken).toEqual(sourceToken);
   });
 
   it("should throw if a `sync` method is missing", async () => {

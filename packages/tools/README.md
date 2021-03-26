@@ -57,7 +57,7 @@ import Logtail from "@logtail/logger";
 import { makeThrottle } from "@logtail/tools";
 
 // Create a new Logtail instance
-const logtail = new Logtail("accessToken");
+const logtail = new Logtail("sourceToken");
 
 // Guarantee a pipeline will run a max of 2x at once
 const throttle = makeThrottle(2);

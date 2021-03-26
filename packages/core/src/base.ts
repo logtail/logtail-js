@@ -33,8 +33,8 @@ const defaultOptions: ILogtailOptions = {
  * Logtail core class for logging to the Logtail.com service
  */
 class Logtail {
-  // Logtail source access token
-  protected _accessToken: string;
+  // Logtail source token
+  protected _sourceToken: string;
 
   // Logtail library options
   protected _options: ILogtailOptions;
@@ -59,20 +59,20 @@ class Logtail {
   /**
    * Initializes a new Logtail instance
    *
-   * @param accessToken: string - Private source access token for logging to Logtail.com
+   * @param sourceToken: string - Private source token for logging to Logtail.com
    * @param options?: ILogtailOptions - Optionally specify Logtail options
    */
   public constructor(
-    accessToken: string,
+    sourceToken: string,
     options?: Partial<ILogtailOptions>
   ) {
-    // First, check we have a valid source access token
-    if (typeof accessToken !== "string" || accessToken === "") {
-      throw new Error("Logtail source access token missing");
+    // First, check we have a valid source token
+    if (typeof sourceToken !== "string" || sourceToken === "") {
+      throw new Error("Logtail source token missing");
     }
 
-    // Store the source access token, to use for syncing with Logtail.com
-    this._accessToken = accessToken;
+    // Store the source token, to use for syncing with Logtail.com
+    this._sourceToken = sourceToken;
 
     // Merge default and user options
     this._options = { ...defaultOptions, ...options };

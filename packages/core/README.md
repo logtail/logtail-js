@@ -23,17 +23,17 @@ import { Base } from "@logtail/core";
 import { ILogtailOptions, ILogtailLog } from "@logtail/types";
 
 class CustomLogger extends Base {
-  // Constructor must take a Logtail.com access token, and (optional) options
+  // Constructor must take a Logtail.com source token, and (optional) options
   public constructor(
-    accessToken: string,
+    sourceToken: string,
     options?: Partial<ILogtailOptions>
   ) {
-    // Make sure you pass the source access token to the parent constructor!
-    super(accessToken, options);
+    // Make sure you pass the source token to the parent constructor!
+    super(sourceToken, options);
 
     // Create a custom sync method
     this.setSync(async (logs: ILogtailLog[]) => {
-      // Sync the `log` somehow ... `this._accessToken` contains your Logtail source access token
+      // Sync the `log` somehow ... `this._sourceToken` contains your Logtail source token
 
       // ....
 

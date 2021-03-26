@@ -11,8 +11,8 @@ var core_1 = require("@logtail/core");
 // const msgpack = Msgpack();
 var Node = (function (_super) {
     __extends(Node, _super);
-    function Node(accessToken, options) {
-        _super.call(this, accessToken, options);
+    function Node(sourceToken, options) {
+        _super.call(this, sourceToken, options);
         /**
          * Override `Base` log to enable Node.js streaming
          *
@@ -31,7 +31,7 @@ var Node = (function (_super) {
                     headers: {
                         // "Content-Type": "application/msgpack",
                         "Content-Type": "application/json",
-                        Authorization: "Bearer " + this._accessToken,
+                        Authorization: "Bearer " + this._sourceToken,
                         "User-Agent": "logtail-js(node)"
                     },
                     // body: logs.map(log => `${log.level}: ${log.message}`).join("\n")
