@@ -40,7 +40,7 @@ export enum LogLevel {
 /**
  * Context type - a string/number/bool/Date, or a nested object of the same
  */
-export type ContextKey = string | number | boolean | Date;
+export type ContextKey = string | number | boolean | Date | null;
 export type Context = { [key: string]: ContextKey | Context };
 
 /**
