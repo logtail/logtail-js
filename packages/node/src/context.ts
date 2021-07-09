@@ -40,8 +40,10 @@ function getCallingFrame(logtail: Node): StackFrame | null {
   return null;
 }
 
-function relativeToMainModule(fileName: string): string {
-  if (fileName.startsWith("file:/")) {
+function relativeToMainModule(fileName: string): string | null {
+  if (typeof(fileName) !== "string") {
+    return null;
+  } else if (fileName.startsWith("file:/")) {
     const url = new URL(fileName);
     return url.pathname;
   } else {
