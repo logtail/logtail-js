@@ -26,7 +26,7 @@ const defaultOptions: ILogtailOptions = {
   syncMax: 5,
 
   // If true, errors/failed logs should be ignored
-  ignoreExceptions: false
+  ignoreExceptions: true
 };
 
 /**
@@ -196,6 +196,8 @@ class Logtail {
       // Catch any errors - re-throw if `ignoreExceptions` == false
       if (!this._options.ignoreExceptions) {
         throw e;
+      } else {
+        console.error(e);
       }
     }
 
