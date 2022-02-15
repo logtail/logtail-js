@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@logtail/js": "^0.1.10"
+  }
+}
