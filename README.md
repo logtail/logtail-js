@@ -90,7 +90,7 @@ To help you get started with using Logtail in your projects, we have prepared a 
 
 ## Download and install the example project
 
-You can download the example project from GitHub directly or you can clone it to a select directory. Then run the following command to install all dependencies (`@logtail/js`):
+You can download the [example project](https://github.com/logtail/logtail-js/tree/master/example-project) from GitHub directly or you can clone it to a select directory. Then run the following command to install all dependencies (`@logtail/js`):
 
 ```bash
 npm install
@@ -117,7 +117,7 @@ This will generate a total of 4 logs, which will be displayed in your Logtail li
 
 ## Explore how example project works
 
-Learn how to setup JavaScript logging by exploring the workings of the example project in detail.
+Learn how to setup JavaScript logging by exploring the workings of the [example project](https://github.com/logtail/logtail-js/tree/master/example-project) in detail.
 
 ---
 
