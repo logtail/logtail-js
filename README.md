@@ -7,7 +7,6 @@
 [![npm version](https://badge.fury.io/js/@logtail%2Fnode.svg)](https://badge.fury.io/js/@logtail%2Fnode)
 [![npm version](https://badge.fury.io/js/@logtail%2Fbrowser.svg)](https://badge.fury.io/js/@logtail%2Fbrowser)
 [![npm version](https://badge.fury.io/js/@logtail%2Fjs.svg)](https://badge.fury.io/js/@logtail%2Fjs)
-![Logtail python client](https://github.com/logtail/logtail-python/actions/workflows/main.yml/badge.svg?branch=master)
 
 Collect logs from both the Node.js backend and your frontend.
 
