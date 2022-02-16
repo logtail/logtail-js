@@ -27,12 +27,7 @@ Output:
 All done! You can check your logs now.
 ```
 
-This will generate a total of 4 logs, which will be displayed in your Logtail live tail view.
-
-## Explore how example project works
-
-Learn how to setup JavaScript logging by exploring the workings of the example project in detail.
-  
+This will generate a total of 4 logs, which will be displayed in your Logtail live tail view. Detail explanation follows below.
   
 # Logging
 
