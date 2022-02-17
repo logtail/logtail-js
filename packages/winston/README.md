@@ -77,7 +77,7 @@ Modify `tsconfig.json` with:
   "esModuleInterop": true
 ```
 
-Thanks @Nightbr for submitting this!
+Thanks [@Nightbr](https://github.com/Nightbr) for submitting this!
 
 
 ## LICENSE
