@@ -84,9 +84,35 @@ export class Node extends Base {
   }
 
   private encodeAsMsgpack(logs: ILogtailLog[]): Buffer {
-    const logsWithISODateFormat = logs.map((log) => ({ ...log, dt: log.dt.toISOString() }));
+    const logsWithISODateFormat = logs.map((log) => ({ ...this.sanitizeForEncoding(log), dt: log.dt.toISOString() }));
     const encoded = encode(logsWithISODateFormat);
     const buffer = Buffer.from(encoded.buffer, encoded.byteOffset, encoded.byteLength)
     return buffer;
+  }
+
+  private sanitizeForEncoding(value: any): any {
+    if (value === null || typeof value === "boolean" || typeof value === "number" || typeof value === "string") {
+      return value;
+    } else if (value instanceof Date) {
+      return value.toISOString();
+    } else if (Array.isArray(value)) {
+      return value.map((item) => this.sanitizeForEncoding(item));
+    } else if (typeof value === "object") {
+      let logClone: { [key: string]: any } = {};
+
+      Object.entries(value).forEach(item => {
+        let key = item[0];
+        let value = item[1];
+
+        let result = this.sanitizeForEncoding(value);
+        if (result !== undefined){
+          logClone[key] = result;
+        }
+      });
+
+      return logClone;
+    } else {
+      return undefined;
+    }
   }
 }
