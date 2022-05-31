@@ -44,7 +44,7 @@ function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackCon
   if (stackContextHint) {
     let reversedFrames = frames.reverse();
     let index = reversedFrames.findIndex((frame) => {
-      return frame.getFileName().includes(stackContextHint.fileName) && stackContextHint.methodNames.includes(frame.getMethodName())
+      return frame.getFileName()?.includes(stackContextHint.fileName) && stackContextHint.methodNames.includes(frame.getMethodName())
     });
 
     if (index > 0) return reversedFrames[index - 1];

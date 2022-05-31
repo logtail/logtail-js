@@ -1,6 +1,6 @@
 import bunyan, { LogLevelString } from "bunyan";
 import { Logtail } from "@logtail/node";
-import { LogLevel } from "@logtail/types";
+import {Context, LogLevel} from "@logtail/types";
 
 import { LogtailStream } from "./bunyan";
 
@@ -124,5 +124,18 @@ describe("Bunyan tests", () => {
     });
     const logger = createLogger(logtail);
     logger.info({ foo: "bar", some: { nested: "stuff" } }, "i am the message");
+  });
+
+  it("should include correct context fields", async done => {
+    const logtail = new Logtail("test");
+    logtail.setSync(async logs => {
+      const context = logs[0].context as Context;
+      const runtime = context.runtime as Context;
+      expect(runtime.file).toEqual("bunyan.test.ts")
+      done();
+      return logs;
+    });
+    const logger = createLogger(logtail);
+    logger.info("message with context");
   });
 });

@@ -1,6 +1,6 @@
 import winston, { LogEntry } from "winston";
 import { Logtail } from "@logtail/node";
-import { LogLevel, ILogtailLog } from "@logtail/types";
+import {LogLevel, ILogtailLog, Context} from "@logtail/types";
 
 import { LogtailTransport } from "./winston";
 
@@ -190,5 +190,32 @@ describe("Winston logging tests", () => {
 
     expect(logs[0]["request_id"]).toBe(123);
     expect(logs[0]["component"]).toBe("server");
+  });
+
+  it("should include correct context fields", async () => {
+    const logtail = new Logtail("test");
+    const logged = new Promise<ILogtailLog[]>(resolve => {
+      logtail.setSync(async logs => {
+        resolve(logs);
+        return logs;
+      });
+    });
+
+    // Create a Winston logger
+    const logger = winston.createLogger({
+      level: LogLevel.Info,
+      transports: [new LogtailTransport(logtail)],
+      defaultMeta: {
+        component: "server"
+      }
+    });
+
+    logger.info("message with context");
+
+    const logs = await logged;
+
+    const context = logs[0].context as Context;
+    const runtime = context.runtime as Context;
+    expect(runtime.file).toEqual("winston.test.ts")
   });
 });
