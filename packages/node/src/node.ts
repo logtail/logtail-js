@@ -98,13 +98,13 @@ export class Node extends Base {
     } else if (Array.isArray(value)) {
       return value.map((item) => this.sanitizeForEncoding(item));
     } else if (typeof value === "object") {
-      let logClone: { [key: string]: any } = {};
+      const logClone: { [key: string]: any } = {};
 
       Object.entries(value).forEach(item => {
-        let key = item[0];
-        let value = item[1];
+        const key = item[0];
+        const value = item[1];
 
-        let result = this.sanitizeForEncoding(value);
+        const result = this.sanitizeForEncoding(value);
         if (result !== undefined){
           logClone[key] = result;
         }
