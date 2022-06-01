@@ -2,7 +2,9 @@ import { LogEntry } from "winston";
 import Transport from "winston-transport";
 
 import { Logtail } from "@logtail/node";
-import { LogLevel } from "@logtail/types";
+import {LogLevel, StackContextHint} from "@logtail/types";
+
+const stackContextHint = { fileName: "node_modules/winston", methodNames: [ "log", "error", "warn", "info", "http", "verbose", "debug", "silly" ] };
 
 export class LogtailTransport extends Transport {
   public constructor(private _logtail: Logtail) {
@@ -39,7 +41,7 @@ export class LogtailTransport extends Transport {
     }
 
     // Log out to Logtail
-    void this._logtail.log(message, logLevel, meta);
+    void this._logtail.log(message, logLevel, meta, stackContextHint as StackContextHint);
 
     // Winston callback...
     cb();

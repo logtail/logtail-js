@@ -1,7 +1,9 @@
 import { Writable } from "stream";
 
 import { Logtail } from "@logtail/node";
-import { Context, LogLevel } from "@logtail/types";
+import {Context, LogLevel, StackContextHint} from "@logtail/types";
+
+const stackContextHint = { fileName: "node_modules/bunyan", methodNames: [ "fatal", "error", "warn", "info", "debug", "trace" ] };
 
 import { getLogLevel } from "./helpers";
 
@@ -54,7 +56,7 @@ export class LogtailStream extends Writable {
     }
 
     // Log to Logtail
-    void this._logtail.log(log.msg, level, meta);
+    void this._logtail.log(log.msg, level, meta, stackContextHint as StackContextHint);
 
     next();
   }

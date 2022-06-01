@@ -37,7 +37,7 @@ describe("node tests", () => {
       .post('/')
       .reply(401);
 
-    const node = new Node("invalid source token");
+    const node = new Node("invalid source token", { ignoreExceptions: false });
     const message: string = String(Math.random);
     await expect(node.log(message)).rejects.toThrow();
   });

@@ -3,7 +3,7 @@ import { Duplex, Writable } from "stream";
 import fetch from "cross-fetch";
 import { encode } from "@msgpack/msgpack";
 
-import { ILogtailLog, Context, ILogtailOptions, LogLevel } from "@logtail/types";
+import { ILogtailLog, Context, StackContextHint, ILogtailOptions, LogLevel } from "@logtail/types";
 import { Base } from "@logtail/core";
 
 import { getStackContext } from "./context";
@@ -58,10 +58,11 @@ export class Node extends Base {
   public async log<TContext extends Context>(
     message: string,
     level?: LogLevel,
-    context: TContext = {} as TContext
+    context: TContext = {} as TContext,
+    stackContextHint?: StackContextHint
   ) {
     // Process/sync the log, per `Base` logic
-    context = { ...getStackContext(this), ...context };
+    context = { ...getStackContext(this, stackContextHint), ...context };
     const processedLog = await super.log(message, level, context);
 
     // Push the processed log to the stream, for piping

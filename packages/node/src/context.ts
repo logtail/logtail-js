@@ -1,4 +1,4 @@
-import { Context } from "@logtail/types";
+import { Context, StackContextHint } from "@logtail/types";
 import { dirname, relative } from "path";
 import stackTrace, { StackFrame } from 'stack-trace';
 import { Node } from "./node";
@@ -9,8 +9,8 @@ import { Node } from "./node";
  *
  * @returns Context The caller's filename and the line number
  */
-export function getStackContext(logtail: Node): Context {
-  const stackFrame = getCallingFrame(logtail);
+export function getStackContext(logtail: Node, stackContextHint?: StackContextHint): Context {
+  const stackFrame = getCallingFrame(logtail, stackContextHint);
   if (stackFrame === null) return {};
 
   return {
@@ -31,13 +31,26 @@ export function getStackContext(logtail: Node): Context {
   };
 }
 
-function getCallingFrame(logtail: Node): StackFrame | null {
+function getCallingFrame(logtail: Node, stackContextHint?: StackContextHint): StackFrame | null {
   for (let fn of [logtail.warn, logtail.error, logtail.info, logtail.log]) {
     const stack = stackTrace.get(fn as any);
-    if (stack.length > 0) return stack[0];
+    if (stack.length > 0) return getRelevantStackFrame(stack, stackContextHint);
   }
 
   return null;
+}
+
+function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackContextHint): StackFrame {
+  if (stackContextHint) {
+    let reversedFrames = frames.reverse();
+    let index = reversedFrames.findIndex((frame) => {
+      return frame.getFileName()?.includes(stackContextHint.fileName) && stackContextHint.methodNames.includes(frame.getMethodName())
+    });
+
+    if (index > 0) return reversedFrames[index - 1];
+  }
+
+  return frames[0];
 }
 
 function relativeToMainModule(fileName: string): string | null {
