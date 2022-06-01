@@ -180,11 +180,15 @@ class Logtail {
       };
     }
 
-    // Pass the log through the middleware pipeline
-    const transformedLog = await this._middleware.reduceRight(
-      (fn, pipedLog) => fn.then(pipedLog),
-      Promise.resolve(log as ILogtailLog)
-    );
+    let transformedLog = log as ILogtailLog | null;
+    for (const middleware of this._middleware) {
+      let newTransformedLog = await middleware(transformedLog as ILogtailLog);
+      if (newTransformedLog == null) {
+        // Don't push the log if it was filtered out in a middleware
+        return transformedLog as ILogtailLog & TContext;
+      }
+      transformedLog = newTransformedLog;
+    }
 
     try {
       // Push the log through the batcher, and sync
