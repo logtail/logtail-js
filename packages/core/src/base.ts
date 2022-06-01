@@ -183,7 +183,10 @@ class Logtail {
     let transformedLog = log as ILogtailLog | null;
     for (const middleware of this._middleware) {
       let newTransformedLog = await middleware(transformedLog as ILogtailLog);
-      if (newTransformedLog == null) return transformedLog as ILogtailLog & TContext;
+      if (newTransformedLog == null) {
+        // Don't push the log if it was filtered out in a middleware
+        return transformedLog as ILogtailLog & TContext;
+      }
       transformedLog = newTransformedLog;
     }
 
