@@ -1,6 +1,6 @@
 {
   "name": "@logtail/winston",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Logtail.com - Winston transport",
   "keywords": [
     "Logtail",
