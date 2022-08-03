@@ -7,8 +7,8 @@ import {LogLevel, StackContextHint} from "@logtail/types";
 const stackContextHint = { fileName: "node_modules/winston", methodNames: [ "log", "error", "warn", "info", "http", "verbose", "debug", "silly" ] };
 
 export class LogtailTransport extends Transport {
-  public constructor(private _logtail: Logtail) {
-    super();
+  public constructor(private _logtail: Logtail, opts?: Transport.TransportStreamOptions) {
+    super(opts);
   }
 
   public log(info: LogEntry, cb: Function) {
