@@ -95,6 +95,11 @@ export class Node extends Base {
     if (value === null || typeof value === "boolean" || typeof value === "number" || typeof value === "string") {
       return value;
     } else if (value instanceof Date) {
+      // Date instances can be invalid & toISOString() will fail
+      if (isNaN(value.getTime())) {
+        return value.toString();
+      }
+
       return value.toISOString();
     } else if (Array.isArray(value)) {
       return value.map((item) => this.sanitizeForEncoding(item));
