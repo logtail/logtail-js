@@ -1,6 +1,8 @@
 import { Duplex, Writable } from "stream";
 
-import fetch from "cross-fetch";
+import crossFetch from "cross-fetch";
+const fetch = globalThis.fetch || crossFetch;
+
 import { encode } from "@msgpack/msgpack";
 
 import { ILogtailLog, Context, StackContextHint, ILogtailOptions, LogLevel } from "@logtail/types";
