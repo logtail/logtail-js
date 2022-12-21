@@ -8,6 +8,9 @@ import { Base } from "@logtail/core";
 
 import { getStackContext } from "./context";
 
+const CONTEXT_OBJECT_MAX_DEPTH_DEFAULT : number = 20;
+const CONTEXT_OBJECT_MAX_DEPTH_WARN : boolean = process.env.LOGTAIL_CONTEXT_OBJECT_MAX_DEPTH_WARN === 'true';
+
 export class Node extends Base {
   /**
    * Readable/Duplex stream where JSON stringified logs of type `ILogtailLog`
@@ -85,13 +88,14 @@ export class Node extends Base {
   }
 
   private encodeAsMsgpack(logs: ILogtailLog[]): Buffer {
-    const logsWithISODateFormat = logs.map((log) => ({ ...this.sanitizeForEncoding(log), dt: log.dt.toISOString() }));
+    const maxDepth = this._options.contextObjectMaxDepth;
+    const logsWithISODateFormat = logs.map((log) => ({ ...this.sanitizeForEncoding(log, maxDepth), dt: log.dt.toISOString() }));
     const encoded = encode(logsWithISODateFormat);
     const buffer = Buffer.from(encoded.buffer, encoded.byteOffset, encoded.byteLength)
     return buffer;
   }
 
-  private sanitizeForEncoding(value: any): any {
+  private sanitizeForEncoding(value: any, maxDepth: number): any {
     if (value === null || typeof value === "boolean" || typeof value === "number" || typeof value === "string") {
       return value;
     } else if (value instanceof Date) {
@@ -102,7 +106,12 @@ export class Node extends Base {
 
       return value.toISOString();
     } else if (Array.isArray(value)) {
-      return value.map((item) => this.sanitizeForEncoding(item));
+      return value.map((item) => this.sanitizeForEncoding(item, maxDepth-1));
+    } else if (typeof value === "object" && maxDepth < 1) {
+      if (this._options.contextObjectMaxDepthWarn) {
+        console.warn(`[Logtail] Max depth of ${this._options.contextObjectMaxDepth} reached when serializing logs. Please do not use circular references and excessive object depth in your logs.`);
+      }
+      return value.toString();// result in "[object Object]" : we refused to serialize deeper
     } else if (typeof value === "object") {
       const logClone: { [key: string]: any } = {};
 
@@ -110,7 +119,7 @@ export class Node extends Base {
         const key = item[0];
         const value = item[1];
 
-        const result = this.sanitizeForEncoding(value);
+        const result = this.sanitizeForEncoding(value, maxDepth-1);
         if (result !== undefined){
           logClone[key] = result;
         }

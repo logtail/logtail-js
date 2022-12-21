@@ -229,7 +229,9 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing exceptions";
     const e = new Error("Should NOT be ignored!");
-    const base = new Base("testing");
+    const base = new Base("testing", {
+      ignoreExceptions: false
+    });
 
     // Add a mock sync method which throws an error
     base.setSync(async () => {

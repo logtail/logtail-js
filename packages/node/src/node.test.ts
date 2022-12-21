@@ -4,7 +4,7 @@ import * as fs from "fs";
 import { PassThrough, Writable } from "stream";
 
 import nock from "nock";
-import { ILogtailLog, LogLevel } from "@logtail/types";
+import { ILogtailLog, ILogtailOptions, LogLevel } from "@logtail/types";
 
 import { Node } from "./node";
 
@@ -40,6 +40,34 @@ describe("node tests", () => {
     const node = new Node("invalid source token", { ignoreExceptions: false });
     const message: string = String(Math.random);
     await expect(node.log(message)).rejects.toThrow();
+  });
+
+  it("should warn and echo log even with circular reference as context", async () => {
+
+    // Set default options for Logtail but with warn message
+    const defaultOptions: ILogtailOptions = {
+      endpoint: "https://in.logtail.com",
+      batchSize: 1000,
+      batchInterval: 1000,
+      syncMax: 5,
+      ignoreExceptions: true,
+      contextObjectMaxDepth: 50,
+      contextObjectMaxDepthWarn: true
+    };
+
+    nock("https://in.logtail.com")
+      .post('/')
+      .reply(201);
+
+    let circularContext: any = { val: 42 };
+    let docBis: any = { val: circularContext };
+    circularContext.val = docBis;
+
+    const message: string = String(Math.random());
+    const expectedLog = getRandomLog(message);
+    const node = new Node("valid source token", defaultOptions);
+    const echoedLog = await node.log(message, LogLevel.Info, circularContext);
+    expect(echoedLog.message).toEqual(expectedLog.message);
   });
 
   it("should enable piping logs to a writable stream", async () => {

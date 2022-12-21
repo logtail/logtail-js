@@ -28,6 +28,16 @@ export interface ILogtailOptions {
    * Boolean to specify whether thrown errors/failed logs should be ignored
    */
   ignoreExceptions: boolean;
+
+  /**
+   * Maximum depth (number of attribute levels) of a context object
+   **/
+  contextObjectMaxDepth: number;
+
+  /**
+   * Boolean to produce a warn log when context object max depth is reached
+   **/
+  contextObjectMaxDepthWarn: boolean;
 }
 
 export enum LogLevel {

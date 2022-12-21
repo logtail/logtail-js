@@ -26,7 +26,13 @@ const defaultOptions: ILogtailOptions = {
   syncMax: 5,
 
   // If true, errors/failed logs should be ignored
-  ignoreExceptions: true
+  ignoreExceptions: true,
+
+  // maximum depth (number of attribute levels) of a context object
+  contextObjectMaxDepth: 50,
+
+  // produce a warn log when context object max depth is reached
+  contextObjectMaxDepthWarn: false
 };
 
 /**
