@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
     "lint": "prettier -c \"packages/**\"",
     "lint:save": "prettier --write \"packages/**\"",
     "test": "jest"

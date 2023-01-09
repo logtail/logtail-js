@@ -17,7 +17,7 @@
     "build:cjs": "tsc",
     "build:es6": "tsc -p tsconfig.es6.json",
     "build": "run-p build:*",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "jest"
   },
   "author": "Logtail <hello@logtail.com>",
