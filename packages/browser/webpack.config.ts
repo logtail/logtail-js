@@ -8,7 +8,8 @@ const umdConfig: webpack.Configuration = {
   output: {
     libraryTarget: "umd",
     path: path.join(__dirname, "dist", "umd"),
-    filename: "logtail.js"
+    filename: "logtail.js",
+    hashFunction: 'sha512'
   },
   optimization: {
     usedExports: true
