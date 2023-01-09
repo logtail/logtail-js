@@ -102,9 +102,7 @@ export class Node extends Base {
       }
 
       return value.toISOString();
-    } else if (Array.isArray(value)) {
-      return value.map((item) => this.sanitizeForEncoding(item, maxDepth-1, visitedObjects));
-    } else if (typeof value === "object" && (maxDepth < 1 || visitedObjects.has(value))) {
+    } else if ((typeof value === "object" || Array.isArray(value)) && (maxDepth < 1 || visitedObjects.has(value))) {
       if (visitedObjects.has(value)) {
         console.warn(`[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.`);
       } else if (this._options.contextObjectMaxDepthWarn) {
@@ -112,6 +110,12 @@ export class Node extends Base {
       }
 
       return value.toString(); // results in "[object Object]"
+    } else if (Array.isArray(value)) {
+      visitedObjects.add(value);
+      const sanitizedArray = value.map((item) => this.sanitizeForEncoding(item, maxDepth-1, visitedObjects));
+      visitedObjects.delete(value);
+
+      return sanitizedArray
     } else if (typeof value === "object") {
       const logClone: { [key: string]: any } = {};
 
