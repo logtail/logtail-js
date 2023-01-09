@@ -83,6 +83,19 @@ import { Browser as Logtail } from "@logtail/js";
 
 ---
 
+# Contributing
+
+We are using `yarn` to manage dependencies.
+
+1. `yarn install` to install dependencies
+2. Run `yarn bootstrap` to install and cross-link packages in `packages/*`
+3. To run tests
+   1. Run `yarn test` to run all tests
+   2. To run tests for a single package use `yarn test package/node` to run tests only from the node package for example
+4. Run `npx lerna build` to build all packages
+
+---
+
 # Example project
 
 To help you get started with using Logtail in your projects, we have prepared a simple program that showcases the usage of Logtail logger. Before proceeding make sure you have `npm` and [Node.js](https://nodejs.org/en/download/) installed.
@@ -116,7 +129,7 @@ This will generate a total of 4 logs, which will be displayed in your Logtail li
 
 ## Explore how example project works
 
-Learn how to setup JavaScript logging by exploring the workings of the [example project](https://github.com/logtail/logtail-js/tree/master/example-project) in detail.
+Learn how to setup JavaScript logging by exploring the workings of the [example project](example-project) in detail.
 
 ---
 

@@ -1,0 +1,50 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 12.x, 14.x, 16.x ]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
+          cache-dependency-path: |
+            yarn.lock
+            packages/browser/yarn.lock
+            packages/bunyan/yarn.lock
+            packages/core/yarn.lock
+            packages/js/yarn.lock
+            packages/koa/yarn.lock
+            packages/node/yarn.lock
+            packages/tools/yarn.lock
+            packages/types/yarn.lock
+            packages/winston/yarn.lock
+
+      - name: Setup yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Bootstrap packages
+        run: yarn bootstrap
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Run tests
+        run: yarn test
