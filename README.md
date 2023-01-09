@@ -116,7 +116,7 @@ This will generate a total of 4 logs, which will be displayed in your Logtail li
 
 ## Explore how example project works
 
-Learn how to setup JavaScript logging by exploring the workings of the [example project](https://github.com/logtail/logtail-js/tree/master/example-project) in detail.
+Learn how to setup JavaScript logging by exploring the workings of the [example project](example-project) in detail.
 
 ---
 
