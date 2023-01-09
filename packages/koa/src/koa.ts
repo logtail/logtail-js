@@ -100,7 +100,7 @@ class KoaLogtail extends Logtail {
       } else if (ctx.status.toString().startsWith("5")) {
         logLevel = LogLevel.Error;
       }
-    } catch (e: any) {
+    } catch (e) {
       // Error was thrown in middleware / HTTP request handling
       logLevel = LogLevel.Error;
       msg = this._koaOptions.errorMessageFormatter(ctx, e);
