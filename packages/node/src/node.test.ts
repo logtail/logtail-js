@@ -42,6 +42,21 @@ describe("node tests", () => {
     await expect(node.log(message)).rejects.toThrow();
   });
 
+  it("should warn and echo log even with circular reference as context", async () => {
+    nock("https://in.logtail.com")
+        .post('/')
+        .reply(201);
+
+    let circularContext: any = { foo: { value: 42 } };
+    circularContext.foo.bar = circularContext;
+
+    const message: string = String(Math.random());
+    const expectedLog = getRandomLog(message);
+    const node = new Node("valid source token");
+    const echoedLog = await node.log(message, LogLevel.Info, circularContext);
+    expect(echoedLog.message).toEqual(expectedLog.message);
+  });
+
   it("should enable piping logs to a writable stream", async () => {
     // Create a writable stream
     const writeStream = new Writable({
