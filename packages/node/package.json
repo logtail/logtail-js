@@ -1,6 +1,6 @@
 {
   "name": "@logtail/node",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Logtail.com - Node.js logger",
   "keywords": [
     "Logtail",
@@ -43,12 +43,12 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@logtail/core": "^0.1.12",
-    "@logtail/types": "^0.1.12",
+    "@logtail/core": "^0.1.15",
+    "@logtail/types": "^0.1.15",
     "@msgpack/msgpack": "^2.5.1",
-    "@types/stack-trace": "^0.0.29",
-    "@types/babel__traverse": "7.0.4",
     "@types/babel__core": "7.0.4",
+    "@types/babel__traverse": "7.0.4",
+    "@types/stack-trace": "^0.0.29",
     "cross-fetch": "^3.0.4",
     "minimatch": "^3.0.4",
     "stack-trace": "^0.0.10"

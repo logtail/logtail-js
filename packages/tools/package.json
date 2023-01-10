@@ -1,6 +1,6 @@
 {
   "name": "@logtail/tools",
-  "version": "0.1.12",
+  "version": "0.1.15",
   "description": "JavaScript logging tools",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
@@ -28,12 +28,12 @@
   },
   "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/tools#readme",
   "devDependencies": {
+    "@types/babel__core": "7.0.4",
+    "@types/babel__traverse": "7.0.4",
     "@types/jest": "^24.0.17",
     "@types/nock": "^10.0.3",
     "@types/node": "^12.7.2",
     "@types/source-map": "^0.5.7",
-    "@types/babel__traverse": "7.0.4",
-    "@types/babel__core": "7.0.4",
     "cross-fetch": "^3.0.4",
     "jest": "^24.9.0",
     "nock": "^10.0.6",
@@ -43,7 +43,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@logtail/types": "^0.1.12"
+    "@logtail/types": "^0.1.15"
   },
   "gitHead": "3affb92cc7948369c10bb01bf06ff55020f858b3"
 }
