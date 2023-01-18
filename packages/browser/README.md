@@ -37,7 +37,7 @@ const { Logtail } = require("@logtail/browser");
 If you're not using a Node.js module bundler, you can log in any client-side app by dropping in a `<script>` tag:
 
 ```
-<script src="https://unpkg.com/@logtail/browser@0.31.0/dist/umd/logtail.js"></script>
+<script src="https://unpkg.com/@logtail/browser@0.1.15/dist/umd/logtail.js"></script>
 ```
 
 This will place the `Logtail` class on `window.Logtail`.
