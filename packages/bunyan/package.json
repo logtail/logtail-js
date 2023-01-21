@@ -48,7 +48,7 @@
   },
   "peerDependencies": {
     "@logtail/node": "^0.1.0",
-    "bunyan": ">= 2.0.0"
+    "bunyan": ">= 1.8.12"
   },
   "dependencies": {
     "@logtail/types": "^0.1.15"
