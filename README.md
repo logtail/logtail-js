@@ -7,7 +7,7 @@
 [![npm @logtail/js](https://img.shields.io/npm/v/@logtail/js?color=success&label=npm%20%40logtail%2Fjs)](https://www.npmjs.com/package/@logtail/js)
 [![npm @logtail/node](https://img.shields.io/npm/v/@logtail/node?color=success&label=npm%20%40logtail%2Fnode)](https://www.npmjs.com/package/@logtail/node)
 [![npm @logtail/browser](https://img.shields.io/npm/v/@logtail/browser?color=success&label=npm%20%40logtail%2Fbrowser)](https://www.npmjs.com/package/@logtail/browser)
-*TODO: Put all the other packages here*
+*TODO: Put all the other packages here if it is going to look ok*
 
 [Logtail](https://betterstack.com/logtail) is a hosted service that centralizes all of your logs into one place. Allowing for analysis, correlation and filtering with SQL. Actionable Grafana dashboards and collaboration come built-in. Logtail works with [any language or platform and any data source](https://docs.logtail.com/). 
 (TODO: review/redo this copy)
