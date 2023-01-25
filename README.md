@@ -15,7 +15,7 @@ Experience SQL-compatible structured log management based on ClickHouse. [Learn 
 [Getting started ↗](https://betterstack.com/docs/logs/javascript/)
 
 ## Need help?
-Please let us know at [hello@logtail.com](mailto:hello@logtail.com). We're happy to help!
+Please let us know at [hello@beterstack.com](mailto:hello@beterstack.com). We're happy to help!
 
 ---
 
