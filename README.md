@@ -1,4 +1,4 @@
-# Logtail - JavaScript Logging Made Easy (*TODO: review/redo this copy*)
+# Logtail by Better Stack - JavaScript Logging Made Easy (*TODO: review/redo this copy*)
   
 [![Logtail dashboard](https://user-images.githubusercontent.com/19272921/154085622-59997d5a-3f91-4bc9-a815-3b8ead16d28d.jpeg)](https://betterstack.com/logtail)
 
