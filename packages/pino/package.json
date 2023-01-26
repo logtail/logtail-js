@@ -12,7 +12,7 @@
     "transport"
   ],
   "repository": "github.com/logtail/logtail-js.git",
-  "author": "Logtail <hello@logtail.com>",
+  "author": "Better Stack <hello@betterstack.com>",
   "license": "ISC",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
