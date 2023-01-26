@@ -5,9 +5,10 @@ import { LogLevel } from "@logtail/types";
  * @param level number - Pino log level
  */
 export function getLogLevel(level: number): LogLevel {
-  // If level <=, consider it 'tracing' and move on
+
+  // TODO: Trace 10
   if (level <= 10) {
-    throw new Error();
+    return LogLevel.Debug;
   }
 
   // Debug
