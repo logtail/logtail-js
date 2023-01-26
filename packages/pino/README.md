@@ -17,4 +17,4 @@ Please let us know at [hello@beterstack.com](mailto:hello@beterstack.com). We're
 
 ---
 
-[ISC license](LICENSE.md), [contributing guidelines](CONTRIBUTING.md).
+[ISC license](LICENSE.md), [contributing guidelines](../../CONTRIBUTING.md).
