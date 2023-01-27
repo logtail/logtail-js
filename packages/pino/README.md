@@ -6,11 +6,11 @@
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 [![npm @logtail/pino](https://img.shields.io/npm/v/@logtail/pino?color=success&label=npm%20%40logtail%2Fpino)](https://www.npmjs.com/package/@logtail/pino)
 
-Experience SQL-compatible structured log management based on ClickHouse. [Learn more ↗](https://logtail.com/)
+Experience SQL-compatible structured log management based on ClickHouse. [Learn more ⇗](https://logtail.com/)
 
 ## Documentation
 
-[Getting started ↗](https://betterstack.com/docs/logs/javascript)
+[Getting started ⇗](https://betterstack.com/docs/logs/javascript)
 
 ## Need help?
 Please let us know at [hello@betterstack.com](mailto:hello@betterstack.com). We're happy to help!
