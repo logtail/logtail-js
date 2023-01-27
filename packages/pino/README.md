@@ -10,10 +10,10 @@ Experience SQL-compatible structured log management based on ClickHouse. [Learn 
 
 ## Documentation
 
-[Getting started ↗](https://betterstack.com/docs/logs/javascript)
+[Getting started ⬈](https://betterstack.com/docs/logs/javascript)
 
 ## Need help?
-Please let us know at [hello@beterstack.com](mailto:hello@beterstack.com). We're happy to help!
+Please let us know at [hello@betterstack.com](mailto:hello@betterstack.com). We're happy to help!
 
 ---
 
