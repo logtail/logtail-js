@@ -1,6 +1,6 @@
 {
   "name": "@logtail/pino",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Logtail Pino transport by Better Stack",
   "keywords": [
     "Better Stack",
@@ -19,6 +19,9 @@
   "types": "dist/es6/index.d.ts",
   "bugs": {
     "url": "https://github.com/logtail/logtail-js/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@logtail/node": "^0.1.15",
