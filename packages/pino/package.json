@@ -1,6 +1,6 @@
 {
   "name": "@logtail/pino",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Logtail Pino transport by Better Stack",
   "keywords": [
     "Better Stack",
@@ -11,8 +11,13 @@
     "pino",
     "transport"
   ],
-  "repository": "github.com/logtail/logtail-js.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/logtail/logtail-js.git",
+    "directory": "packages/pino"
+  },
   "author": "Better Stack <hello@betterstack.com>",
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/pino#readme",
   "license": "ISC",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
