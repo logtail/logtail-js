@@ -34,11 +34,11 @@
     "typescript": "^3.9.7"
   },
   "peerDependencies": {
-    "@logtail/node": "^0.1.0"
+    "pino": "^7.0.0"
   },
   "dependencies": {
-    "@logtail/types": "^0.1.15",
-    "pino": "^8.8.0"
+    "@logtail/node": "^0.1.15",
+    "@logtail/types": "^0.1.15"
   },
   "scripts": {
     "build:cjs": "tsc",
