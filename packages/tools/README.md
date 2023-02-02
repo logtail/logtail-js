@@ -50,7 +50,7 @@ The `throttle` function has this signature:
 throttle(fn: T): (...args: InferArgs<T>[]) => Promise<InferArgs<T>>
 ```
 
-**Usage example**
+#### Usage example
 
 ```typescript
 import Logtail from "@logtail/logger";

@@ -1,71 +1,20 @@
-# 🪵 Logtail - Bunyan writable stream
+# [Logtail](https://betterstack.com/logtail) JavaScript Bunyan stream by [Better Stack](https://betterstack.com/)
 
-[![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
+[![Logtail dashboard](https://user-images.githubusercontent.com/19272921/154085622-59997d5a-3f91-4bc9-a815-3b8ead16d28d.jpeg)](https://betterstack.com/logtail)
 
-**New to Logtail?** [Here's a low-down on logging in JavaScript.](https://github.com/logtail/logtail-js)
 
-## `@logtail/bunyan`
+[![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](https://github.com/logtail/logtail-js/blob/master/LICENSE.md)
+[![npm @logtail/bunyan](https://img.shields.io/npm/v/@logtail/bunyan?color=success&label=npm%20%40logtail%2Fbunyan)](https://www.npmjs.com/package/@logtail/bunyan)
 
-This NPM library provides a [Bunyan](https://github.com/trentm/node-bunyan) writable stream that transmits logs to Logtail.com via the `@logtail/node` logger.
+Experience SQL-compatible structured log management based on ClickHouse. [Learn more ⇗](https://logtail.com/)
 
-Here's how to get started:
+## Documentation
 
-## Installation
+[Getting started ⇗](https://betterstack.com/docs/logs/javascript/bunyan)
 
-Install the Node.js Logtail logger and the Bunyan stream plugin via NPM:
+## Need help?
+Please let us know at [hello@betterstack.com](mailto:hello@betterstack.com). We're happy to help!
 
-```
-npm i @logtail/node @logtail/bunyan
-```
+---
 
-## Importing
-
-In ES6/Typescript, import both the `Logtail` logger class and the Logtail Bunyan stream class:
-
-```typescript
-import { Logtail } from "@logtail/node";
-import { LogtailStream } from "@logtail/bunyan";
-```
-
-For CommonJS, require the packages instead:
-
-```js
-const { Logtail } = require("@logtail/node");
-const { LogtailStream } = require("@logtail/bunyan");
-```
-
-## Creating a client/stram
-
-You can [create a client](https://github.com/logtail/logtail-js/tree/master/packages/node#creating-a-client) the usual way for `@logtail/node`, and then pass it into a new instance of `LogtailStream`:
-
-```typescript
-// Assuming you've imported the Logtail packages above, also import Bunyan...
-import bunyan from "bunyan";
-
-// Create a Logtail client
-const logtail = new Logtail("logtail-source-token");
-
-// Create a Bunyan logger - passing in the Logtail stream
-const logger = bunyan.createLogger({
-  name: "Example logger",
-  level: "debug",
-  streams: [
-    {
-      stream: new LogtailStream(logtail),
-    },
-  ],
-});
-
-// Log as normal in Bunyan - your logs will sync with Logtail.com!
-logger.info("Hello from Bunyan");
-```
-
-## Log levels
-
-Logtail will log at the `debug` level and above. Trace logs or any log level below `20` will be ignored.
-
-The `fatal` log level is transformed to `error` in the Logtail logger.
-
-## LICENSE
-
-[ISC](LICENSE.md)
+[ISC license](https://github.com/logtail/logtail-js/blob/master/LICENSE.md), [contributing guidelines](https://github.com/logtail/logtail-js/blob/master/CONTRIBUTING.md).

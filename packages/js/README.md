@@ -1,71 +1,20 @@
-# 🪵 Logtail - Node.js + browser logging
+# [Logtail](https://betterstack.com/logtail) JavaScript client by [Better Stack](https://betterstack.com/)
 
-![Beta: Ready for testing](https://img.shields.io/badge/early_release-beta-green.svg)
-![Speed: Blazing](https://img.shields.io/badge/speed-blazing%20%F0%9F%94%A5-brightgreen.svg)
-[![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
+[![Logtail dashboard](https://user-images.githubusercontent.com/19272921/154085622-59997d5a-3f91-4bc9-a815-3b8ead16d28d.jpeg)](https://betterstack.com/logtail)
 
-**New to Logtail?** [Here's a low-down on logging in JavaScript.](https://github.com/logtail/logtail-js)
 
-## `@logtail/js`
+[![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](https://github.com/logtail/logtail-js/blob/master/LICENSE.md)
+[![npm @logtail/js](https://img.shields.io/npm/v/@logtail/js?color=success&label=npm%20%40logtail%2Fjs)](https://www.npmjs.com/package/@logtail/js)
 
-This NPM library contains the following two packages:
+Experience SQL-compatible structured log management based on ClickHouse. [Learn more ⇗](https://logtail.com/)
 
-### [@logtail/browser](https://github.com/logtail/logtail-js/tree/master/packages/browser)
+## Documentation
 
-### [@logtail/node](https://github.com/logtail/logtail-js/tree/master/packages/node)
+[Getting started ⇗](https://betterstack.com/docs/logs/javascript/)
 
-It's provided for convenience, as an alternative to installing multiple packages for universal / isomorphic apps.
+## Need help?
+Please let us know at [hello@betterstack.com](mailto:hello@betterstack.com). We're happy to help!
 
-## Usage
+---
 
-Here's how to get started:
-
-### Any Node.js environment (including Webpack/Rollup)
-
-First, install the package via NPM:
-
-```
-npm i @logtail/js
-```
-
-In ES6/Typescript, you can then import either the `Browser` or `Node` class as required for your environment:
-
-```typescript
-import { Browser, Node } from "@logtail/js";
-
-// `Browser` is equivalent to the `Logtail` class exported by @logtail/browser
-const clientLogger = new Browser("logtail-source-token");
-
-// And the same with `Node` and @logtail/node
-const serverLogger = new Node("logtail-source-token");
-```
-
-For CommonJS, require the package instead:
-
-```js
-const { Browser, Node } = require("@logtail/js");
-```
-
-## Logging
-
-Both the Node.js and browser logging classes provide a `.log()` function for logging to [Logtail.com](https://logtail.com)
-
-See the readme for the [Node.js](https://github.com/logtail/logtail-js/tree/master/packages/node) and [browser](https://github.com/logtail/logtail-js/tree/master/packages/browser) logging for the full API.
-
-## FAQ
-
-**Why install this instead of each package separately?**
-
-`@logtail/js` combines the latest `@logtail/browser` and `@logtail/node` packages.
-
-This is useful for apps that contain both Node.js (server) and browser (client) logging. It makes your `package.json` a bit cleaner to maintain just one package, instead of two.
-
-**Why are there different classes for the browser and Node?**
-
-The [browser](https://github.com/logtail/logtail-js/tree/master/packages/browser) and [Node.js](https://github.com/logtail/logtail-js/tree/master/packages/node) APIs both have a `.log()` method and both extend the [core JS logger](https://github.com/logtail/logtail-js/tree/master/packages/core).
-
-But, each have their own optimizations for how they sync logs with Logtail.com, and extra methods to take advantage of unique Node.js and browser features not available in the other environment.
-
-### LICENSE
-
-[ISC](LICENSE.md)
+[ISC license](https://github.com/logtail/logtail-js/blob/master/LICENSE.md), [contributing guidelines](https://github.com/logtail/logtail-js/blob/master/CONTRIBUTING.md).

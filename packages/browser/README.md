@@ -1,66 +1,20 @@
-# 🪵 Logtail - Browser logging
+# [Logtail](https://betterstack.com/logtail) JavaScript browser logger by [Better Stack](https://betterstack.com/)
 
-[![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
+[![Logtail dashboard](https://user-images.githubusercontent.com/19272921/154085622-59997d5a-3f91-4bc9-a815-3b8ead16d28d.jpeg)](https://betterstack.com/logtail)
 
-**New to Logtail?** [Here's a low-down on logging in JavaScript.](https://github.com/logtail/logtail-js)
 
-## `@logtail/browser`
+[![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](https://github.com/logtail/logtail-js/blob/master/LICENSE.md)
+[![npm @logtail/browser](https://img.shields.io/npm/v/@logtail/browser?color=success&label=npm%20%40logtail%2Fbrowser)](https://www.npmjs.com/package/@logtail/browser)
 
-This NPM library is for logging in the browser.
-
-Here's how to get started:
-
-## Installation
-
-### Using Webpack / Rollup
-
-If you're using a module bundler like Webpack or Rollup, you can install the package directly from NPM:
-
-```
-npm i @logtail/browser
-```
-
-In ES6/Typescript, import the `Logtail` class:
-
-```typescript
-import { Logtail } from "@logtail/browser";
-```
-
-For CommonJS, require the package:
-
-```js
-const { Logtail } = require("@logtail/browser");
-```
-
-### Via a `<script>` tag
-
-If you're not using a Node.js module bundler, you can log in any client-side app by dropping in a `<script>` tag:
-
-```
-<script src="https://unpkg.com/@logtail/browser@0.1.15/dist/umd/logtail.js"></script>
-```
-
-This will place the `Logtail` class on `window.Logtail`.
-
-## Creating a client
-
-You can instantiate the client in the same way, whether you use a module bundler or the `<script>` tag method.
-
-Simply pass your [Logtail.com](https://logtail.com) organization API + source keys as parameters to a new `Logtail` instance (you can grab both from the Logtail.com console):
-
-```typescript
-const logtail = new Logtail("logtail-source-token");
-```
+Experience SQL-compatible structured log management based on ClickHouse. [Learn more ⇗](https://logtail.com/)
 
 ## Documentation
 
-This browser library extends [`@logtail/core`](https://github.com/logtail/logtail-js/tree/master/packages/core), which provides a simple API for logging, adding middleware and more.
+[Getting started ⇗](https://betterstack.com/docs/logs/javascript/)
 
-Visit the relevant readme section for more info/how-to:
+## Need help?
+Please let us know at [hello@betterstack.com](mailto:hello@betterstack.com). We're happy to help!
 
-- [Logging](https://github.com/logtail/logtail-js/tree/master/packages/core#logging)
-- [Middleware](https://github.com/logtail/logtail-js/tree/master/packages/core#middleware)
+---
 
-## LICENSE
-
-[ISC](LICENSE.md)
+[ISC license](https://github.com/logtail/logtail-js/blob/master/LICENSE.md), [contributing guidelines](https://github.com/logtail/logtail-js/blob/master/CONTRIBUTING.md).
