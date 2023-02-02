@@ -19,4 +19,4 @@ Please let us know at [hello@betterstack.com](mailto:hello@betterstack.com). We'
 
 ---
 
-[ISC license](LICENSE.md), [contributing guidelines](CONTRIBUTING.md).
+[ISC license](https://github.com/logtail/logtail-js/blob/master/LICENSE.md), [contributing guidelines](https://github.com/logtail/logtail-js/blob/master/CONTRIBUTING.md).
