@@ -1,6 +1,6 @@
 {
   "name": "@logtail/koa",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Logtail.com - Koa logger",
   "keywords": [
     "Logtail",
@@ -36,8 +36,8 @@
     "url": "https://github.com/logtail/logtail-js/issues"
   },
   "devDependencies": {
-    "@logtail/node": "^0.1.15",
-    "@logtail/types": "^0.1.15",
+    "@logtail/node": "^0.1.16",
+    "@logtail/types": "^0.1.16",
     "@types/babel__core": "7.0.4",
     "@types/babel__traverse": "7.0.4",
     "@types/koa": "^2.0.49",
