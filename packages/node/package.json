@@ -9,7 +9,7 @@
     "Node"
   ],
   "author": "Logtail <hello@logtail.com>",
-  "homepage": "https://github.com/logtail/logtail-js/tree/master/node#readme",
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/node#readme",
   "license": "ISC",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",

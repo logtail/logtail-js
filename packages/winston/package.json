@@ -10,7 +10,7 @@
     "winston"
   ],
   "author": "Logtail <hello@logtail.com>",
-  "homepage": "https://github.com/logtail/logtail-js/tree/master/winston#readme",
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/winston#readme",
   "license": "ISC",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
