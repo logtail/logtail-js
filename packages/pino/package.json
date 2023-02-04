@@ -1,6 +1,6 @@
 {
   "name": "@logtail/pino",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Logtail Pino transport by Better Stack",
   "keywords": [
     "Better Stack",
@@ -37,7 +37,7 @@
     "pino": "^7.0.0 || ^8.0.0"
   },
   "dependencies": {
-    "@logtail/node": "^0.1.16",
+    "@logtail/node": "^0.1.17",
     "@logtail/types": "^0.1.16",
     "pino-abstract-transport": "^1.0.0"
   },
