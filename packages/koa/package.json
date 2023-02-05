@@ -49,7 +49,7 @@
     "supertest": "^4.0.2"
   },
   "dependencies": {
-    "rambda": "^2.14.5"
+    "rambda": "^2.14.5",
     "@logtail/node": "^0.1.0"
   },
   "peerDependencies": {
