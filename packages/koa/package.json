@@ -50,9 +50,9 @@
   },
   "dependencies": {
     "rambda": "^2.14.5"
+    "@logtail/node": "^0.1.0"
   },
   "peerDependencies": {
-    "@logtail/node": "^0.1.0",
     "koa": ">=2.8.1"
   },
   "gitHead": "3affb92cc7948369c10bb01bf06ff55020f858b3"
