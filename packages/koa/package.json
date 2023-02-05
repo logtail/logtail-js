@@ -1,6 +1,6 @@
 {
   "name": "@logtail/koa",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Logtail.com - Koa logger",
   "keywords": [
     "Logtail",
@@ -49,8 +49,8 @@
     "supertest": "^4.0.2"
   },
   "dependencies": {
-    "rambda": "^2.14.5",
-    "@logtail/node": "^0.1.0"
+    "@logtail/node": "^0.1.0",
+    "rambda": "^2.14.5"
   },
   "peerDependencies": {
     "koa": ">=2.8.1"
