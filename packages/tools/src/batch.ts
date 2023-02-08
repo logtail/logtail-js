@@ -60,7 +60,7 @@ export default function makeBatch(
    */
   async function setupTimeout() {
     if (!timeout) {
-      timeout = setTimeout(async function() {
+      timeout = setTimeout(async function () {
         await flush();
       }, flushTimeout);
     }
@@ -70,25 +70,30 @@ export default function makeBatch(
    * Batcher which takes a process function
    * @param fn - Any function to process list
    */
-  return function(fn: Function) {
-    cb = fn;
+  return {
+    initPusher: function (fn: Function) {
+      cb = fn;
 
-    /*
-     * Pushes each log into list
-     * @param log: ILogtailLog - Any object to push into list
-     */
-    return async function(log: ILogtailLog): Promise<ILogtailLog> {
-      return new Promise<ILogtailLog>(async (resolve, reject) => {
-        buffer.push({ log, resolve, reject });
+      /*
+       * Pushes each log into list
+       * @param log: ILogtailLog - Any object to push into list
+       */
+      return async function (log: ILogtailLog): Promise<ILogtailLog> {
+        return new Promise<ILogtailLog>(async (resolve, reject) => {
+          buffer.push({log, resolve, reject});
 
-        if (buffer.length >= size) {
-          await flush();
-        } else {
-          await setupTimeout();
-        }
+          if (buffer.length >= size) {
+            await flush();
+          } else {
+            await setupTimeout();
+          }
 
-        return resolve;
-      });
-    };
+          return resolve;
+        });
+      };
+    },
+    flush: function (): Promise<void> {
+      return flush();
+    }
   };
 }

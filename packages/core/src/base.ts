@@ -48,6 +48,9 @@ class Logtail {
   // Batch function
   protected _batch: any;
 
+  // Flush function
+  protected _flush: any;
+
   // Middleware
   protected _middleware: Middleware[] = [];
 
@@ -97,9 +100,11 @@ class Logtail {
       this._options.batchInterval
     );
 
-    this._batch = batcher((logs: any) => {
+    this._batch = batcher.initPusher((logs: any) => {
       return throttler(logs);
     });
+
+    this._flush = batcher.flush;
   }
 
   /* PRIVATE METHODS */
@@ -110,6 +115,13 @@ class Logtail {
   }
 
   /* PUBLIC METHODS */
+
+  /**
+   * Flush batched logs to Logtail
+   */
+  public async flush() {
+    return this._flush()
+  }
 
   /**
    * Number of entries logged

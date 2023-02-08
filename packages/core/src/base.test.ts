@@ -86,6 +86,35 @@ describe("base class tests", () => {
     expect(base.synced).toEqual(1);
   });
 
+  it("should sync after calling flush", async () => {
+    // New Base with very long batch interval and size
+    const base = new Base("testing", { batchInterval: 10000, batchSize: 5 });
+
+    // Create a sync function that resolves after 50ms
+    base.setSync(async log => {
+      return new Promise<ILogtailLog[]>(resolve => {
+        setTimeout(() => {
+          resolve(log);
+        }, 50);
+      });
+    });
+
+    // Fire the log event, and store the pending promise
+    const pending = base.log("Test");
+
+    // The log count should be 1
+    expect(base.logged).toEqual(1);
+
+    // ... but synced should still be zero
+    expect(base.synced).toEqual(0);
+
+    // Trigger flush
+    await base.flush()
+
+    // After flush, synced should be now be 1
+    expect(base.synced).toEqual(1);
+  });
+
   it("should add a pipeline function", async () => {
     // Fixtures
     const firstMessage = "First message";
