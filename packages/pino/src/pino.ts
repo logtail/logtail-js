@@ -21,10 +21,9 @@ export interface IPinoLogtailOptions {
 }
 
 export async function logtailTransport(options: IPinoLogtailOptions) {
-  // FIXME: error handling for no source token 
-  const logtail = new Logtail(options.sourceToken)
+  const logtail = new Logtail(options.sourceToken, options.options)
 
-  return build(async (source: any) => {
+  const buildFunc = async (source: any) => {
     for await (let obj of source) {
       // Log should have string `msg` key, > 0 length
       if (typeof obj.msg !== "string" || !obj.msg.length) {
@@ -61,5 +60,9 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
       // Log to Logtail
       logtail.log(obj.msg, level, meta);
     }
-  })
+  };
+  const closeFunc = async () => {
+    return await logtail.flush();
+  };
+  return build(buildFunc, { close: closeFunc })
 }
