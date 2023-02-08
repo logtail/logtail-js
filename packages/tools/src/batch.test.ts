@@ -45,7 +45,7 @@ describe("batch tests", () => {
     const sendTimeout = 10;
 
     const batcher = makeBatch(size, sendTimeout);
-    const logger = batcher(async (batch: ILogtailLog[]) => {
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
       called();
       try {
         await fetch("http://example.com");
@@ -86,7 +86,7 @@ describe("batch tests", () => {
     const batch = makeBatch(batchSize, 5000);
 
     // The batcher should be throttled
-    const batcher = batch((logs: any) => {
+    const batcher = batch.initPusher((logs: any) => {
       expect(logs.length).toEqual(batchSize);
       return throttler(logs);
     });
@@ -110,5 +110,36 @@ describe("batch tests", () => {
       ((numberOfLogs / batchSize) * throttleResolveAfter) / maxThrottle;
 
     expect(end).toBeGreaterThanOrEqual(expectedTime);
+  });
+
+  it("should send after flush (with long timeout)", async done => {
+    nock("http://example.com")
+        .get("/")
+        .reply(200, new Promise(res => setTimeout(() => res(200), 1003)));
+
+    const called = jest.fn();
+    const size = 50;
+    const sendTimeout = 10000;
+
+    const batcher = makeBatch(size, sendTimeout);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      called();
+      try {
+        await fetch("http://example.com");
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    logNumberTimes(logger, 5)
+    expect(called).toHaveBeenCalledTimes(0);
+    try {
+      await batcher.flush()
+    } catch (e) {
+      throw e;
+    }
+    expect(called).toHaveBeenCalledTimes(1);
+    nock.restore();
+    done();
   });
 });
