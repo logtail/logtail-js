@@ -92,8 +92,6 @@ export default function makeBatch(
         });
       };
     },
-    flush: function (): Promise<void> {
-      return flush();
-    }
+    flush
   };
 }
