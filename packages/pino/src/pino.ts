@@ -44,8 +44,8 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
 
       // Carry over any additional data fields
       Object.keys(obj)
-          .filter(key => ["time", "msg", "level", "v"].indexOf(key) < 0)
-          .forEach(key => (meta[key] = obj[key]));
+        .filter(key => ["time", "msg", "level", "v"].indexOf(key) < 0)
+        .forEach(key => (meta[key] = obj[key]));
 
       // Determine the log level
       let level: LogLevel;
