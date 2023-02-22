@@ -32,7 +32,7 @@ export function getStackContext(logtail: Node, stackContextHint?: StackContextHi
 }
 
 function getCallingFrame(logtail: Node, stackContextHint?: StackContextHint): StackFrame | null {
-  for (let fn of [logtail.warn, logtail.error, logtail.info, logtail.log]) {
+  for (let fn of [logtail.warn, logtail.error, logtail.info, logtail.debug, logtail.log]) {
     const stack = stackTrace.get(fn as any);
     if (stack.length > 0) return getRelevantStackFrame(stack, stackContextHint);
   }
