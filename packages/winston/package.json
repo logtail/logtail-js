@@ -44,7 +44,7 @@
     "winston": "^3.2.1"
   },
   "peerDependencies": {
-    "@logtail/node": "^0.1.0",
+    "@logtail/node": "^0.2.0",
     "winston": ">=3.2.1"
   },
   "dependencies": {
