@@ -1,12 +1,12 @@
-import { Duplex, Writable } from "stream";
+import {Duplex, Writable} from "stream";
 
 import fetch from "cross-fetch";
-import { encode } from "@msgpack/msgpack";
+import {encode} from "@msgpack/msgpack";
 
-import { ILogtailLog, Context, StackContextHint, ILogtailOptions, LogLevel } from "@logtail/types";
-import { Base } from "@logtail/core";
+import {Context, ILogLevel, ILogtailLog, ILogtailOptions, LogLevel, StackContextHint} from "@logtail/types";
+import {Base} from "@logtail/core";
 
-import { getStackContext } from "./context";
+import {getStackContext} from "./context";
 
 export class Node extends Base {
   /**
@@ -57,7 +57,7 @@ export class Node extends Base {
    */
   public async log<TContext extends Context>(
     message: string,
-    level?: LogLevel,
+    level?: ILogLevel,
     context: TContext = {} as TContext,
     stackContextHint?: StackContextHint
   ) {

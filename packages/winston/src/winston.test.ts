@@ -67,10 +67,6 @@ describe("Winston logging tests", () => {
     });
   }
 
-  it("should default to 'info' level when using custom logging", async () => {
-    return testLevel("xyz", LogLevel.Info, { xyz: 42 });
-  });
-
   it("should sync multiple logs", async done => {
     // Create multiple log entries
     const entries: LogEntry[] = [

@@ -1,4 +1,5 @@
 import {
+  ILogLevel,
   ILogtailLog,
   ILogtailOptions,
   Context,
@@ -154,7 +155,7 @@ class Logtail {
    */
   public async log<TContext extends Context>(
     message: Message,
-    level: LogLevel = LogLevel.Info,
+    level: ILogLevel = LogLevel.Info,
     context: TContext = {} as TContext
   ): Promise<ILogtailLog & TContext> {
     // Check that we have a sync function

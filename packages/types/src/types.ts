@@ -46,6 +46,7 @@ export interface ILogtailOptions {
   contextObjectCircularRefWarn: boolean;
 }
 
+export type ILogLevel = LogLevel | string;
 export enum LogLevel {
   // core log levels - available as functions
   Error = "error",
@@ -73,7 +74,7 @@ export type StackContextHint = { fileName: string, methodNames: [string] };
  */
 export interface ILogtailLog {
   dt: Date;
-  level: LogLevel;
+  level: ILogLevel;
   message: string;
   [key: string]: ContextKey | Context;
 }

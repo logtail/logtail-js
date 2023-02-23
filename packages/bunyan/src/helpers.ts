@@ -1,35 +1,15 @@
-import { LogLevel } from "@logtail/types";
+import { LogLevel, ILogLevel } from "@logtail/types";
 
 /**
  * Return a Logtail `LogLevel` based on the Bunyan level
  * @param level string|number - Bunyan log level
  */
-export function getLogLevel(level: number | string): LogLevel {
+export function getLogLevel(level: number | string): ILogLevel {
   // Are we dealing with a string log level?
   if (typeof level === "string") {
-    switch (level.toLowerCase()) {
-      // Fatal
-      case "fatal":
-        return LogLevel.Fatal;
-
-      // Error
-      case "error":
-        return LogLevel.Error;
-
-      // Warn
-      case "warn":
-        return LogLevel.Warn;
-
-      // Debug
-      case "debug":
-        return LogLevel.Debug;
-
-      // Trace
-      case "trace":
-        return LogLevel.Trace;
-
-    }
-  } else if (typeof level === "number") {
+    return level.toLowerCase()
+  }
+  if (typeof level === "number") {
     // Trace
     if (level <= 10) {
       return LogLevel.Trace;
@@ -54,11 +34,9 @@ export function getLogLevel(level: number | string): LogLevel {
     if (level <= 50) {
       return LogLevel.Error;
     }
-
     // Everything above this level is considered fatal
     return LogLevel.Fatal;
   }
-
   // By default, return info
   return LogLevel.Info;
 }
