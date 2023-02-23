@@ -1,6 +1,6 @@
 {
   "name": "@logtail/types",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Logtail.com - Typescript types",
   "keywords": [
     "Logtail",
@@ -43,5 +43,5 @@
   "dependencies": {
     "js": "^0.1.0"
   },
-  "gitHead": "3affb92cc7948369c10bb01bf06ff55020f858b3"
+  "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
