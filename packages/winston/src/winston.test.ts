@@ -11,8 +11,9 @@ const message = "Something to do with something";
  * Test a Winston level vs. Logtail level
  * @param level - Winston log level
  * @param logLevel LogLevel - Logtail log level
+ * @param levels Use custom log levels
  */
-async function testLevel(level: string, logLevel: LogLevel) {
+async function testLevel(level: string, logLevel: LogLevel, levels?: {[key:string]: number}) {
   // Sample log
   const log: LogEntry = {
     level,
@@ -31,7 +32,9 @@ async function testLevel(level: string, logLevel: LogLevel) {
   // Create a Winston logger
   const logger = winston.createLogger({
     level,
-    transports: [new LogtailTransport(logtail)]
+    transports: [new LogtailTransport(logtail)],
+    // use custom levels if passed
+    levels: levels || winston.config.npm.levels,
   });
 
   // Log it!
@@ -45,29 +48,27 @@ async function testLevel(level: string, logLevel: LogLevel) {
   // Message should match
   expect(logs[0].message).toBe(log.message);
 
-  // Log level should be 'info'
+  // Log level should be 'logLevel'
   expect(logs[0].level).toBe(logLevel);
 }
 
 describe("Winston logging tests", () => {
-  it("should log at the 'debug' level", async () => {
-    return testLevel("debug", LogLevel.Debug);
-  });
-
-  it("should log at the 'info' level", async () => {
-    return testLevel("info", LogLevel.Info);
-  });
-
-  it("should log at the 'warn' level", async () => {
-    return testLevel("warn", LogLevel.Warn);
-  });
-
-  it("should log at the 'error' level", async () => {
-    return testLevel("error", LogLevel.Error);
-  });
+  const levels: { [key:string]: LogLevel } = {
+    "silly": LogLevel.Silly,
+    "debug": LogLevel.Debug,
+    "http": LogLevel.Http,
+    "verbose": LogLevel.Verbose,
+    "warn": LogLevel.Warn,
+    "error": LogLevel.Error,
+  };
+  for (const key in levels) {
+    it(`should log at the '${key}' level`, async () => {
+      return testLevel(key, levels[key]);
+    });
+  }
 
   it("should default to 'info' level when using custom logging", async () => {
-    return testLevel("silly", LogLevel.Info);
+    return testLevel("xyz", LogLevel.Info, { xyz: 42 });
   });
 
   it("should sync multiple logs", async done => {

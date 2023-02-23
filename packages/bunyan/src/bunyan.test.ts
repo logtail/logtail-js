@@ -65,6 +65,10 @@ async function testLevel(
 }
 
 describe("Bunyan tests", () => {
+  it("should log at the 'trace' level", async done => {
+    return testLevel("trace", LogLevel.Trace, done);
+  });
+
   it("should log at the 'debug' level", async done => {
     return testLevel("debug", LogLevel.Debug, done);
   });
@@ -82,16 +86,18 @@ describe("Bunyan tests", () => {
   });
 
   it("should log at the 'fatal' level", async done => {
-    return testLevel("fatal", LogLevel.Error, done);
+    return testLevel("fatal", LogLevel.Fatal, done);
   });
 
   it("should log using number levels", async done => {
     // Fixtures
     const levels: LevelTest[] = [
-      [25, LogLevel.Debug, "debug"],
-      [35, LogLevel.Info, "info"],
-      [45, LogLevel.Warn, "warn"],
-      [55, LogLevel.Error, "error"]
+      [10, LogLevel.Trace, "trace"],
+      [20, LogLevel.Debug, "debug"],
+      [30, LogLevel.Info, "info"],
+      [40, LogLevel.Warn, "warn"],
+      [50, LogLevel.Error, "error"],
+      [60, LogLevel.Fatal, "fatal"]
     ];
 
     const logtail = new Logtail("test", {

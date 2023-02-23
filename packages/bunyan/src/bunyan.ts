@@ -47,13 +47,7 @@ export class LogtailStream extends Writable {
       .forEach(key => (meta[key] = log[key]));
 
     // Determine the log level
-    let level: LogLevel;
-
-    try {
-      level = getLogLevel(log.level);
-    } catch (_) {
-      return next();
-    }
+    const level = getLogLevel(log.level);
 
     // Log to Logtail
     void this._logtail.log(log.msg, level, meta, stackContextHint as StackContextHint);

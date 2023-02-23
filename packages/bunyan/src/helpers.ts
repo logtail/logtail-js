@@ -8,12 +8,11 @@ export function getLogLevel(level: number | string): LogLevel {
   // Are we dealing with a string log level?
   if (typeof level === "string") {
     switch (level.toLowerCase()) {
-      // Trace is ignored
-      case "trace":
-        throw new Error();
+      // Fatal
+      case "fatal":
+        return LogLevel.Fatal;
 
       // Error
-      case "fatal":
       case "error":
         return LogLevel.Error;
 
@@ -24,11 +23,16 @@ export function getLogLevel(level: number | string): LogLevel {
       // Debug
       case "debug":
         return LogLevel.Debug;
+
+      // Trace
+      case "trace":
+        return LogLevel.Trace;
+
     }
   } else if (typeof level === "number") {
-    // If level <=, consider it 'tracing' and move on
+    // Trace
     if (level <= 10) {
-      throw new Error();
+      return LogLevel.Trace;
     }
 
     // Debug
@@ -46,8 +50,13 @@ export function getLogLevel(level: number | string): LogLevel {
       return LogLevel.Warn;
     }
 
-    // Everything above this level is considered an error
-    return LogLevel.Error;
+    // Error
+    if (level <= 50) {
+      return LogLevel.Error;
+    }
+
+    // Everything above this level is considered fatal
+    return LogLevel.Fatal;
   }
 
   // By default, return info

@@ -47,10 +47,18 @@ export interface ILogtailOptions {
 }
 
 export enum LogLevel {
-  Debug = "debug",
-  Info = "info",
+  // core log levels - available as functions
+  Error = "error",
   Warn = "warn",
-  Error = "error"
+  Info = "info",
+  Debug = "debug",
+
+  // extra log levels - recognized when passed from logging frameworks
+  Fatal = "fatal",
+  Http = "http",
+  Verbose = "verbose",
+  Silly = "silly",
+  Trace = "trace",
 }
 
 /**

@@ -5,10 +5,9 @@ import { LogLevel } from "@logtail/types";
  * @param level number - Pino log level
  */
 export function getLogLevel(level: number): LogLevel {
-
-  // TODO: Trace 10
+  // Trace 10
   if (level <= 10) {
-    return LogLevel.Debug;
+    return LogLevel.Trace;
   }
 
   // Debug
@@ -26,7 +25,10 @@ export function getLogLevel(level: number): LogLevel {
     return LogLevel.Warn;
   }
 
-  // Everything above this level is considered an error
-  // TODO: Fatal 60 (Error 50)
-  return LogLevel.Error;
+  // Error
+  if (level <= 50) {
+    return LogLevel.Error;
+  }
+  // Everything above this level is considered fatal
+  return LogLevel.Fatal;
 }
