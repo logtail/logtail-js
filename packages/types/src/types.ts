@@ -39,6 +39,11 @@ export interface ILogtailOptions {
    * Boolean to produce a warning when context object max depth is reached
    **/
   contextObjectMaxDepthWarn: boolean;
+
+  /**
+   * Boolean to produce a warning when circular reference is found in context
+   **/
+  contextObjectCircularRefWarn: boolean;
 }
 
 export enum LogLevel {

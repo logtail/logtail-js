@@ -32,7 +32,10 @@ const defaultOptions: ILogtailOptions = {
   contextObjectMaxDepth: 50,
 
   // produce a warn log when context object max depth is reached
-  contextObjectMaxDepthWarn: true
+  contextObjectMaxDepthWarn: true,
+
+  // produce a warning when circular reference is found in context object
+  contextObjectCircularRefWarn: true,
 };
 
 /**

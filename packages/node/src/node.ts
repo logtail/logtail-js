@@ -52,7 +52,7 @@ export class Node extends Base {
    *
    * @param message: string - Log message
    * @param level (LogLevel) - Level to log at (debug|info|warn|error)
-   * @param log: (Partial<ILogtailLog>) - Initial log (optional)
+   * @param context: (Context) - Log context for passing structured data
    * @returns Promise<ILogtailLog> after syncing
    */
   public async log<TContext extends Context>(
@@ -104,12 +104,15 @@ export class Node extends Base {
       return value.toISOString();
     } else if ((typeof value === "object" || Array.isArray(value)) && (maxDepth < 1 || visitedObjects.has(value))) {
       if (visitedObjects.has(value)) {
-        console.warn(`[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.`);
-      } else if (this._options.contextObjectMaxDepthWarn) {
+        if (this._options.contextObjectCircularRefWarn) {
+          console.warn(`[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.`);
+        }
+        return '<omitted circular reference>'
+      }
+      if (this._options.contextObjectMaxDepthWarn) {
         console.warn(`[Logtail] Max depth of ${this._options.contextObjectMaxDepth} reached when serializing logs. Please do not use excessive object depth in your logs.`);
       }
-
-      return value.toString(); // results in "[object Object]"
+      return `<omitted context beyond configured max depth: ${this._options.contextObjectMaxDepth}>`
     } else if (Array.isArray(value)) {
       visitedObjects.add(value);
       const sanitizedArray = value.map((item) => this.sanitizeForEncoding(item, maxDepth-1, visitedObjects));
