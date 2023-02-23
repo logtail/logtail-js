@@ -20,6 +20,8 @@ export interface IPinoLogtailOptions {
   options: Partial<ILogtailOptions>
 }
 
+const stackContextHint = { fileName: "node_modules/pino", methodNames: [ 'log', 'fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent' ] };
+
 export async function logtailTransport(options: IPinoLogtailOptions) {
   const logtail = new Logtail(options.sourceToken, options.options)
 
@@ -58,7 +60,7 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
       }
 
       // Log to Logtail
-      logtail.log(obj.msg, level, meta);
+      logtail.log(obj.msg, level, meta, stackContextHint as StackContextHint);
     }
   };
   const closeFunc = async () => {
