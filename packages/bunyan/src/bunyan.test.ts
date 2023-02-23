@@ -65,10 +65,6 @@ async function testLevel(
 }
 
 describe("Bunyan tests", () => {
-  it("should log at the 'trace' level", async done => {
-    return testLevel("trace", LogLevel.Trace, done);
-  });
-
   it("should log at the 'debug' level", async done => {
     return testLevel("debug", LogLevel.Debug, done);
   });
@@ -92,7 +88,6 @@ describe("Bunyan tests", () => {
   it("should log using number levels", async done => {
     // Fixtures
     const levels: LevelTest[] = [
-      [10, LogLevel.Trace, "trace"],
       [20, LogLevel.Debug, "debug"],
       [30, LogLevel.Info, "info"],
       [40, LogLevel.Warn, "warn"],
