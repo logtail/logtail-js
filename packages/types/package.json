@@ -1,6 +1,6 @@
 {
   "name": "@logtail/types",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Logtail.com - Typescript types",
   "keywords": [
     "Logtail",
