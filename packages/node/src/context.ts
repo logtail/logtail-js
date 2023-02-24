@@ -26,7 +26,7 @@ export function getStackContext(logtail: Node, stackContextHint?: StackContextHi
       },
       system: {
         pid: process.pid,
-        main_file: mainfile,
+        main_file: mainFile,
       }
     }
   };
