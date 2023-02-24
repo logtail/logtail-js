@@ -3,6 +3,7 @@ import { dirname, relative } from "path";
 import stackTrace, { StackFrame } from 'stack-trace';
 import { Node } from "./node";
 
+const mainFile = mainFileName();
 /**
  * Determines the file name and the line number from which the log
  * was initiated (if we're able to tell).
@@ -25,7 +26,7 @@ export function getStackContext(logtail: Node, stackContextHint?: StackContextHi
       },
       system: {
         pid: process.pid,
-        main_file: mainFileName()
+        main_file: mainFile,
       }
     }
   };
@@ -66,5 +67,16 @@ function relativeToMainModule(fileName: string): string | null {
 }
 
 function mainFileName(): string {
-  return require?.main?.filename ?? '';
+  let argv = process.argv;
+  // return first js file argument - arg ending in .js
+  for (const i in argv) {
+    if (argv[i].startsWith('-')) {
+      // break on first option
+      break;
+    }
+    if (argv[i].endsWith('.js')) {
+      return argv[i];
+    }
+  }
+  return '';
 }
