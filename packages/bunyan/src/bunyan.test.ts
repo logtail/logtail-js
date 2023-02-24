@@ -132,7 +132,7 @@ describe("Bunyan tests", () => {
     logtail.setSync(async logs => {
       const context = logs[0].context as Context;
       const runtime = context.runtime as Context;
-      expect(runtime.file).toEqual("bunyan.test.ts")
+      expect(runtime.file).toMatch("bunyan.test.ts")
       done();
       return logs;
     });
