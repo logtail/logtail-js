@@ -3,7 +3,7 @@ import { dirname, relative } from "path";
 import stackTrace, { StackFrame } from 'stack-trace';
 import { Node } from "./node";
 
-const mainfile = mainFileName();
+const mainFile = mainFileName();
 /**
  * Determines the file name and the line number from which the log
  * was initiated (if we're able to tell).
