@@ -70,7 +70,7 @@ function mainFileName(): string {
   let argv = process.argv;
   // return first js file argument - arg ending in .js
   for (const i in argv) {
-    if (argv[i].startsWith('-')) {
+    if (typeof(argv[i]) !== "string" || argv[i].startsWith('-')) {
       // break on first option
       break;
     }
