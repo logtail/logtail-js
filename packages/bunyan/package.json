@@ -1,6 +1,6 @@
 {
   "name": "@logtail/bunyan",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Logtail.com - Bunyan writable stream",
   "keywords": [
     "Logtail",
@@ -38,7 +38,7 @@
     "url": "https://github.com/logtail/logtail-js/issues"
   },
   "devDependencies": {
-    "@logtail/node": "^0.3.0",
+    "@logtail/node": "^0.3.1",
     "@types/babel__core": "7.0.4",
     "@types/babel__traverse": "7.0.4",
     "@types/bunyan": "^1.8.6",

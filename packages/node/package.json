@@ -1,6 +1,6 @@
 {
   "name": "@logtail/node",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Logtail.com - Node.js logger",
   "keywords": [
     "Logtail",
