@@ -27,12 +27,6 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
 
   const buildFunc = async (source: any) => {
     for await (let obj of source) {
-      // Log should have string `msg` key, > 0 length
-      if (typeof obj.msg !== "string" || !obj.msg.length) {
-        console.error('Field "msg" has to be a non-empty string.')
-        continue
-      }
-
       // Logging meta data
       const meta: Context = {};
 
@@ -46,8 +40,18 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
 
       // Carry over any additional data fields
       Object.keys(obj)
-        .filter(key => ["time", "msg", "level", "v"].indexOf(key) < 0)
+        .filter(key => ["time", "msg", "message", "level", "v"].indexOf(key) < 0)
         .forEach(key => (meta[key] = obj[key]));
+
+      // Get message
+      // NOTE: Pino passes messages as obj.msg but if user passes object to Pino it will pass it to us
+      //       even without 'msg' field. Later we map 'msg' -> 'message' so let's also read 'message' field.
+      const msg = obj.msg || obj.message
+
+      // Prevent overriding 'message' with 'msg'
+      if (obj.msg !== undefined && obj.message !== undefined) {
+        meta['message_field'] = obj.message
+      }
 
       // Determine the log level
       let level: LogLevel;
@@ -60,7 +64,7 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
       }
 
       // Log to Logtail
-      logtail.log(obj.msg, level, meta, stackContextHint as StackContextHint);
+      logtail.log(msg, level, meta, stackContextHint as StackContextHint);
     }
   };
   const closeFunc = async () => {
