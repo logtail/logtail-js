@@ -26,25 +26,25 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
-"@logtail/core@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.2.0.tgz#a0f17e12b88fc027e5476f7db8e2791679175131"
-  integrity sha512-nfyRZ6qG2JkOncAZWC01YtmWuVdAQzV4aDfZeE7aTOI5sux7eAoud9B8Mgdvz8cy1JMIE44qiF+CesMGnkXDuA==
+"@logtail/core@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.3.0.tgz#41a8d3791129526e05b35e4692a0d70d322db8f0"
+  integrity sha512-PK/n/r9DriHoOnnhHuBi5u303x5QU2wJCeOIRQr7e+bVBmvn8gF+LdBS/CSkZQkKQo8v0xrp4I1cdnBfH4LtQg==
   dependencies:
-    "@logtail/tools" "^0.2.0"
-    "@logtail/types" "^0.2.0"
+    "@logtail/tools" "^0.3.0"
+    "@logtail/types" "^0.3.0"
 
-"@logtail/tools@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.2.0.tgz#7dd5789cb9eb38b3f8ca45552c4f85106683595b"
-  integrity sha512-fywgSaEfw2qxNWbEZdeM5ycYKkU4e86CaPhx+Hc5RRHWHr0aEPNkmlr2FWpCoQnmSi306G4FpxA01No/g5kLDg==
+"@logtail/tools@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.3.0.tgz#96c389d8c25475bb392b47a603fc9488c7133788"
+  integrity sha512-mjz6UmXB2aBNs+mztzeK/Zs7q6r/1UULB9TNvMdY969con0j2Op7rsFwpZ3sUw9cr3FFpdANOOY0E2SUzwC/pA==
   dependencies:
-    "@logtail/types" "^0.2.0"
+    "@logtail/types" "^0.3.0"
 
-"@logtail/types@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.2.0.tgz#131954d434932d481361b35c5c05fec0329d5483"
-  integrity sha512-tcSHCUdr1Kax3wPYbBMSuNowzhJZfyC8fi06gEOZNT7NR45eZxHnF42CozDdx0QE3Pp2nPt62ARGYOHxJ4f+Qw==
+"@logtail/types@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.3.0.tgz#dffe1cced0de0d9ee1e6c72e695debc823e4a2e8"
+  integrity sha512-Du6KiaFwChIKyDRTbjZ52ttagLbfAHif4Q/4Crdu/dadYBUaoXkICd8GivUCIT89APiYGSQ032Ku2d8gU3NnRg==
   dependencies:
     js "^0.1.0"
 
