@@ -23,6 +23,12 @@ const defaultOptions: ILogtailOptions = {
   // Max interval (in milliseconds) before a batch of logs proceeds to syncing
   batchInterval: 1000,
 
+  // Maximum number of times to retry a failed sync request
+  retryCount: 3,
+
+  // Minimum number of milliseconds to wait before retrying a failed sync request
+  retryBackoff: 100,
+
   // Maximum number of sync requests to make concurrently
   syncMax: 5,
 
@@ -101,7 +107,9 @@ class Logtail {
     // Create a batcher, for aggregating logs by buffer size/interval
     const batcher = makeBatch(
       this._options.batchSize,
-      this._options.batchInterval
+      this._options.batchInterval,
+      this._options.retryCount,
+      this._options.retryBackoff
     );
 
     this._batch = batcher.initPusher((logs: any) => {
