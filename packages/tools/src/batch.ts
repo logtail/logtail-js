@@ -14,27 +14,43 @@ interface IBuffer {
 /*
  * Default buffer size
  */
-const DEFAULT_BUFFER_SIZE = 5;
+const DEFAULT_BUFFER_SIZE = 1000;
 
 /*
  * Default flush timeout
  */
 const DEFAULT_FLUSH_TIMEOUT = 1000;
 
+/*
+ * Default retry count
+ */
+const DEFAULT_RETRY_COUNT = 3;
+
+/*
+ * Default retry backoff
+ */
+const DEFAULT_RETRY_BACKOFF = 100;
+
 /**
  * batch the buffer coming in, process them and then resolve
  *
  * @param size - Number
  * @param flushTimeout - Number
+ * @param retryCount - Number
+ * @param retryBackoff - Number
  */
 export default function makeBatch(
   size: number = DEFAULT_BUFFER_SIZE,
-  flushTimeout: number = DEFAULT_FLUSH_TIMEOUT
+  flushTimeout: number = DEFAULT_FLUSH_TIMEOUT,
+  retryCount: number = DEFAULT_RETRY_COUNT,
+  retryBackoff: number = DEFAULT_RETRY_BACKOFF
 ) {
   let timeout: NodeJS.Timeout | null;
   let cb: Function;
   let buffer: IBuffer[] = [];
-
+  let retry: number = 0;
+  // Wait until the minimum retry backoff time has passed before retrying
+  let minRetryBackoff: number = 0;
   /*
    * Process then flush the list
    */
@@ -50,8 +66,17 @@ export default function makeBatch(
     try {
       await cb(currentBuffer.map(d => d.log));
       currentBuffer.forEach(d => d.resolve(d.log));
+      retry = 0;
     } catch (e) {
+      if (retry < retryCount) {
+        retry++;
+        minRetryBackoff = Date.now() + retryBackoff;
+        buffer = buffer.concat(currentBuffer);
+        await setupTimeout();
+        return;
+      }
       currentBuffer.map(d => d.reject(e));
+      retry = 0;
     }
   }
 
@@ -62,7 +87,7 @@ export default function makeBatch(
     if (!timeout) {
       timeout = setTimeout(async function () {
         await flush();
-      }, flushTimeout);
+      }, flushTimeout)
     }
   }
 
@@ -82,7 +107,9 @@ export default function makeBatch(
         return new Promise<ILogtailLog>(async (resolve, reject) => {
           buffer.push({log, resolve, reject});
 
-          if (buffer.length >= size) {
+          // If the buffer is full enough, flush it
+          // Unless we're still waiting for the minimum retry backoff time
+          if (buffer.length >= size && Date.now() > minRetryBackoff) {
             await flush();
           } else {
             await setupTimeout();

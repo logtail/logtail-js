@@ -19,6 +19,16 @@ export interface ILogtailOptions {
   batchInterval: number;
 
   /**
+   * Maximum number of times to retry a failed sync request
+   */
+  retryCount: number;
+
+  /**
+   * Minimum number of milliseconds to wait before retrying a failed sync request
+   */
+  retryBackoff: number;
+
+  /**
    * Maximum number of sync requests to make concurrently (useful to limit
    * network I/O)
    */
