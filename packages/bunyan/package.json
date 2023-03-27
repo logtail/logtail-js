@@ -38,7 +38,6 @@
     "url": "https://github.com/logtail/logtail-js/issues"
   },
   "devDependencies": {
-    "@logtail/node": "^0.4.0",
     "@types/babel__core": "7.0.4",
     "@types/babel__traverse": "7.0.4",
     "@types/bunyan": "^1.8.6",
@@ -47,11 +46,11 @@
     "typescript": "^3.9.7"
   },
   "peerDependencies": {
-    "@logtail/node": "^0.3.3",
     "bunyan": ">=1.8.12"
   },
   "dependencies": {
-    "@logtail/types": "^0.4.0"
+    "@logtail/node": "^0.4.0",
+    "@logtail/types": "^0.4.0",
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
