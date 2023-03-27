@@ -87,7 +87,7 @@ export default function makeBatch(
     if (!timeout) {
       timeout = setTimeout(async function () {
         await flush();
-      }, flushTimeout)
+      }, flushTimeout);
     }
   }
 
