@@ -67,7 +67,8 @@ function relativeToMainModule(fileName: string): string | null {
 }
 
 function mainFileName(): string {
-  let argv = process.argv;
+  let argv = process?.argv;
+  if (argv === undefined) return '';
   // return first js file argument - arg ending in .js
   for (const i in argv) {
     if (typeof(argv[i]) !== "string" || argv[i].startsWith('-')) {
