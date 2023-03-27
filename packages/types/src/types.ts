@@ -35,10 +35,15 @@ export interface ILogtailOptions {
   syncMax: number;
 
   /**
-   * Boolean to specify whether thrown errors/failed logs should be ignored
+   * Errors when sending logs will be silently ignored
+   * Has precedence over throwExceptions
    */
   ignoreExceptions: boolean;
 
+  /**
+   * Errors when sending logs will result in thrown exceptions
+   */
+  throwExceptions: boolean;
 
   /**
    * Maximum depth (number of attribute levels) of a context object

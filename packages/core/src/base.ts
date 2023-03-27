@@ -32,8 +32,12 @@ const defaultOptions: ILogtailOptions = {
   // Maximum number of sync requests to make concurrently
   syncMax: 5,
 
-  // If true, errors/failed logs should be ignored
-  ignoreExceptions: true,
+  // If true, errors when sending logs will be ignored
+  // Has precedence over throwExceptions
+  ignoreExceptions: false,
+
+  // If true, errors when sending logs will result in a thrown exception
+  throwExceptions: false,
 
   // maximum depth (number of attribute levels) of a context object
   contextObjectMaxDepth: 50,
@@ -72,6 +76,9 @@ class Logtail {
 
   // Number of logs successfully synced with Logtail
   private _countSynced = 0;
+
+  // Number of logs that failed to be synced to Logtail
+  private _countDropped = 0;
 
   /* CONSTRUCTOR */
 
@@ -154,6 +161,15 @@ class Logtail {
   }
 
   /**
+   * Number of entries dropped
+   *
+   * @returns number
+   */
+  public get dropped(): number {
+    return this._countDropped;
+  }
+
+  /**
    * Log an entry, to be synced with Logtail.com
    *
    * @param message: string - Log message
@@ -227,11 +243,17 @@ class Logtail {
       // Increment sync count
       this._countSynced++;
     } catch (e) {
+      // Increment dropped count
+      this._countDropped++;
+
       // Catch any errors - re-throw if `ignoreExceptions` == false
       if (!this._options.ignoreExceptions) {
-        throw e;
-      } else {
-        console.error(e);
+        if (this._options.throwExceptions) {
+          throw e;
+        } else {
+          // Output to console
+          console.error(e);
+        }
       }
     }
 

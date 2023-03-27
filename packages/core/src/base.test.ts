@@ -46,6 +46,12 @@ describe("base class tests", () => {
     expect(base.synced).toEqual(0);
   });
 
+  it("should default dropped count to zero", () => {
+    const base = new Base("testing");
+
+    expect(base.dropped).toEqual(0);
+  });
+
   it("should increment log count on `.log()`", async () => {
     const base = new Base("testing");
 
@@ -254,11 +260,11 @@ describe("base class tests", () => {
     expect((log as any).stack).toBe(e.stack);
   });
 
-  it("should not ignore exceptions if `ignoreExceptions` opt == false", async () => {
+  it("should not ignore exceptions if `ignoreExceptions` opt == false and `throwExceptions` opt == true", async () => {
     // Fixtures
     const message = "Testing exceptions";
     const e = new Error("Should NOT be ignored!");
-    const base = new Base("testing", { ignoreExceptions: false });
+    const base = new Base("testing", { ignoreExceptions: false, throwExceptions: true });
 
     // Add a mock sync method which throws an error
     base.setSync(async () => {

@@ -40,7 +40,7 @@ describe("browser tests", () => {
   it("should throw error if logtail sends non 200 status code", async done => {
     nock("https://in.logtail.com").post('/').reply(401);
 
-    const browser = new Browser("invalid source token", { ignoreExceptions: false });
+    const browser = new Browser("invalid source token", { ignoreExceptions: false, throwExceptions: true });
     const message: string = String(Math.random);
     await expect(browser.log(message)).rejects.toThrow();
 
