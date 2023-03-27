@@ -36,7 +36,7 @@
     "url": "https://github.com/logtail/logtail-js/issues"
   },
   "devDependencies": {
-    "@logtail/node": "^0.2.0",
+    "@logtail/node": "^0.3.3",
     "@logtail/types": "^0.3.0",
     "@types/babel__core": "7.0.4",
     "@types/babel__traverse": "7.0.4",
