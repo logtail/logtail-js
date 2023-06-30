@@ -70,13 +70,13 @@ function mainFileName(): string {
   let argv = process?.argv;
   if (argv === undefined) return '';
   // return first js file argument - arg ending in .js
-  for (const i in argv) {
-    if (typeof(argv[i]) !== "string" || argv[i].startsWith('-')) {
+  for (const arg of argv) {
+    if (typeof(arg) !== "string" || arg.startsWith('-')) {
       // break on first option
       break;
     }
-    if (argv[i].endsWith('.js')) {
-      return argv[i];
+    if (arg.endsWith('.js')) {
+      return arg;
     }
   }
   return '';
