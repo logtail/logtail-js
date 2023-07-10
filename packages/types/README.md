@@ -1,4 +1,6 @@
-# [Logtail](https://betterstack.com/logtail) JavaScript client by [Better Stack](https://betterstack.com/) - TypeScript types
+# [Better Stack](https://betterstack.com/logs) JavaScript client: TypeScript types
+
+📣 Logtail is now part of Better Stack. [Learn more ⇗](https://betterstack.com/press/introducing-better-stack/)
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](LICENSE.md)
 

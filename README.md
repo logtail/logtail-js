@@ -1,4 +1,7 @@
-# [Logtail](https://betterstack.com/logtail) JavaScript client by [Better Stack](https://betterstack.com/)
+# [Better Stack](https://betterstack.com/logs) JavaScript client
+
+📣 Logtail is now part of Better Stack. [Learn more ⇗](https://betterstack.com/press/introducing-better-stack/)
+
   
 [![Logtail dashboard](https://user-images.githubusercontent.com/19272921/154085622-59997d5a-3f91-4bc9-a815-3b8ead16d28d.jpeg)](https://betterstack.com/logtail)
 
