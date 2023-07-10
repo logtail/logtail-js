@@ -61,6 +61,12 @@ export class Node extends Base {
     context: TContext = {} as TContext,
     stackContextHint?: StackContextHint
   ) {
+    // Wrap context in an object, if it's not already
+    if (typeof context !== 'object') {
+      const wrappedContext: unknown = { extra: context };
+      context = wrappedContext as TContext;
+    }
+
     // Process/sync the log, per `Base` logic
     context = { ...getStackContext(this, stackContextHint), ...context };
     const processedLog = await super.log(message, level, context);
