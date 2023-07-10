@@ -1,7 +1,8 @@
-# [Logtail](https://betterstack.com/logtail) Node.js client by [Better Stack](https://betterstack.com/)
+# [Better Stack](https://betterstack.com/logs) Node.js client 
 
-[![Logtail dashboard](https://user-images.githubusercontent.com/19272921/154085622-59997d5a-3f91-4bc9-a815-3b8ead16d28d.jpeg)](https://betterstack.com/logtail)
+📣 Logtail is now part of Better Stack. [Learn more ⇗](https://betterstack.com/press/introducing-better-stack/)
 
+[![Better Stack dashboard](https://github.com/logtail/logtail-js/assets/10132717/96b422e7-3026-49c1-bd45-a946c37211d0)](https://betterstack.com/logs)
 
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](https://github.com/logtail/logtail-js/blob/master/LICENSE.md)
 [![npm @logtail/node](https://img.shields.io/npm/v/@logtail/node?color=success&label=npm%20%40logtail%2Fnode)](https://www.npmjs.com/package/@logtail/node)
