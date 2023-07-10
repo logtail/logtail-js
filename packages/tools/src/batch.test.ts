@@ -81,6 +81,27 @@ describe("batch tests", () => {
     done();
   });
 
+  it("await flush waits for all retries", async done => {
+    const called = jest.fn();
+    const size = 5;
+    const sendTimeout = 10;
+    const retryCount = 3;
+    const retryBackoff = 1;
+    const err = new Error("test");
+
+    const batcher = makeBatch(size, sendTimeout, retryCount, retryBackoff);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      called()
+      throw err
+    });
+
+    logger(getRandomLog()).catch(e => {})
+    await batcher.flush()
+
+    expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
+    done();
+  });
+
   it("should play nicely with `throttle`", async () => {
     // Fixtures
     const maxThrottle = 2;
