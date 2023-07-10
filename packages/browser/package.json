@@ -1,6 +1,6 @@
 {
   "name": "@logtail/browser",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "Logtail.com browser logging",
   "keywords": [
     "Logtail",
@@ -38,7 +38,7 @@
     "url": "https://github.com/logtail/logtail-js/issues"
   },
   "devDependencies": {
-    "@logtail/types": "^0.4.0",
+    "@logtail/types": "^0.4.2",
     "@types/babel__core": "7.0.4",
     "@types/babel__traverse": "7.0.4",
     "@types/nock": "^10.0.3",
@@ -53,8 +53,8 @@
     "webpack-cli": "^3.3.7"
   },
   "dependencies": {
-    "@logtail/core": "^0.4.0",
-    "@logtail/tools": "^0.4.0",
+    "@logtail/core": "^0.4.2",
+    "@logtail/tools": "^0.4.2",
     "cross-fetch": "^3.0.4"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"

@@ -1,6 +1,6 @@
 {
   "name": "@logtail/winston",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Logtail.com - Winston transport",
   "keywords": [
     "Logtail",
@@ -46,8 +46,8 @@
     "winston": ">=3.2.1"
   },
   "dependencies": {
-    "@logtail/node": "^0.4.0",
-    "@logtail/types": "^0.4.0",
+    "@logtail/node": "^0.4.2",
+    "@logtail/types": "^0.4.2",
     "winston-transport": "^4.3.0"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"

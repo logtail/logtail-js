@@ -1,6 +1,6 @@
 {
   "name": "@logtail/core",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "Logtail.com - logging core",
   "keywords": [
     "Logtail",
@@ -40,8 +40,8 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@logtail/tools": "^0.4.0",
-    "@logtail/types": "^0.4.0"
+    "@logtail/tools": "^0.4.2",
+    "@logtail/types": "^0.4.2"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
