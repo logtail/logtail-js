@@ -130,4 +130,10 @@ describe("node tests", () => {
 
     writeStream.end();
   });
+
+  it("flushes the batched logs", async done => {
+    const node = new Node("test")
+    await node.flush()
+    done()
+  });
 });
