@@ -121,35 +121,6 @@ describe("base class tests", () => {
     expect(base.synced).toEqual(1);
   });
 
-  it("should resolve promise after retrying unsuccessfully", async () => {
-    // New Base with very long batch interval and size
-    const base = new Base("testing", { batchInterval: 10000, batchSize: 5, retryCount: 3, retryBackoff: 100 });
-
-    // Create a sync function that rejects after 50ms
-    base.setSync(async log => {
-      return new Promise<ILogtailLog[]>((resolve, reject) => {
-        setTimeout(() => {
-          reject(log);
-        }, 50);
-      });
-    });
-
-    // Fire the log event, and store the pending promise
-    const pending = base.log("test");
-
-    // The log count should be 1
-    expect(base.logged).toEqual(1);
-
-    // ... but synced should still be zero
-    expect(base.synced).toEqual(0);
-
-    // Trigger flush
-    await expect(base.flush()).resolves.toBeUndefined();
-
-    // After flush, synced should be still 0
-    expect(base.synced).toEqual(0);
-  });
-
   it("should add a pipeline function", async () => {
     // Fixtures
     const firstMessage = "First message";

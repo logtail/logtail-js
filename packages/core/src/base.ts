@@ -139,7 +139,7 @@ class Logtail {
    * Flush batched logs to Logtail
    */
   public async flush() {
-    return await this._flush()
+    return this._flush()
   }
 
   /**
