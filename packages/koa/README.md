@@ -7,7 +7,7 @@
 [![ISC License](https://img.shields.io/badge/license-ISC-ff69b4.svg)](https://github.com/logtail/logtail-js/blob/master/LICENSE.md)
 [![npm @logtail/koa](https://img.shields.io/npm/v/@logtail/koa?color=success&label=npm%20%40logtail%2Fkoa)](https://www.npmjs.com/package/@logtail/koa)
 
-Experience SQL-compatible structured log management based on ClickHouse. [Learn more ⇗](https://logtail.com/)
+Experience SQL-compatible structured log management based on ClickHouse. [Learn more ⇗](https://betterstack.com/logs)
 
 ## Documentation
 
