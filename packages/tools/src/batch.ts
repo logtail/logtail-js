@@ -84,11 +84,16 @@ export default function makeBatch(
    * Start timeout to flush
    */
   async function setupTimeout() {
-    if (!timeout) {
-      timeout = setTimeout(async function () {
-        await flush();
-      }, flushTimeout);
+    if (timeout) {
+      return
     }
+
+    return new Promise(resolve => {
+      timeout = setTimeout(async function () {
+        await flush()
+        resolve()
+      }, flushTimeout)
+    })
   }
 
   /*
