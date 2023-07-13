@@ -292,4 +292,81 @@ describe("base class tests", () => {
     // Should return the log, even though there was an error
     expect(log.message).toBe(message);
   });
+
+  it("should not send any logs to Better Stack when sendLogsToBetterStack=false", async () => {
+    // Fixtures
+    const message = "Testing logging";
+    const base = new Base("testing", {
+      sendLogsToBetterStack: false
+    });
+
+    // Add a mock sync method which counts synced logs
+    let logsSynced = 0
+    base.setSync(async (log) => {
+      logsSynced++;
+      return log;
+    });
+
+    await base.debug(message);
+    await base.info(message);
+    await base.warn(message);
+    await base.error(message);
+    await base.log(message, "fatal");
+    await base.log(message, "http");
+    await base.log(message, "verbose");
+    await base.log(message, "silly");
+    // await base.log(message, "trace");
+
+    // Should sync no logs
+    expect(logsSynced).toBe(0);
+  });
+
+  it("should send all logs to console output when sendLogsToConsoleOutput=true", async () => {
+    // Fixtures
+    const message = "Testing logging";
+    const base = new Base("testing", {
+      sendLogsToConsoleOutput: true,
+      batchInterval: 10,
+    });
+
+    // Add a mock sync method
+    base.setSync(async log => log);
+
+    // Mock console methods
+    const originalConsole = console
+    const consoleOutputs:any = []
+    console = {
+      ...console,
+      debug: (...args: any) => consoleOutputs.push(["debug", ...args]),
+      info: (...args: any) => consoleOutputs.push(["info", ...args]),
+      warn: (...args: any) => consoleOutputs.push(["warn", ...args]),
+      error: (...args: any) => consoleOutputs.push(["error", ...args]),
+      log: (...args: any) => consoleOutputs.push(["log", ...args]),
+    }
+
+    await base.debug(message);
+    await base.info(message);
+    await base.warn(message);
+    await base.error(message);
+    await base.log(message, "fatal");
+    await base.log(message, "http");
+    await base.log(message, "verbose");
+    await base.log(message, "silly");
+    await base.log(message, "trace");
+
+    // Should sync no logs
+    expect(consoleOutputs).toEqual([
+      ["debug", "Testing logging", {}],
+      ["info", "Testing logging", {}],
+      ["warn", "Testing logging", {}],
+      ["error", "Testing logging", {}],
+      ["log", "[FATAL]", "Testing logging", {}],
+      ["log", "[HTTP]", "Testing logging", {}],
+      ["log", "[VERBOSE]", "Testing logging", {}],
+      ["log", "[SILLY]", "Testing logging", {}],
+      ["log", "[TRACE]", "Testing logging", {}],
+    ]);
+
+    console = originalConsole
+  });
 });
