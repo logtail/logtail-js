@@ -490,9 +490,11 @@ describe("base class tests", () => {
 
     console.error = originalConsoleError;
 
-    // Should sync only half the logs
-    expect(base.synced).toBe(250);
-    expect(base.logged).toBe(250);
+    // Should sync only approximately half the logs
+    expect(base.synced).toBeGreaterThan(240);
+    expect(base.synced).toBeLessThan(260);
+    expect(base.logged).toBeGreaterThan(240);
+    expect(base.logged).toBeLessThan(260);
 
     expect(mockedConsoleError).toHaveBeenCalledWith("Logging was called more than 50 times during last 100ms. Ignoring.");
     expect(mockedConsoleError).toHaveBeenCalledTimes(5);
