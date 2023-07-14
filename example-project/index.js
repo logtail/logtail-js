@@ -14,7 +14,7 @@ const { Node: Logtail } = require("@logtail/js");
 // import { Browser as Logtail } from "@logtail/js";
 
 // Create a logger from a Logtail class
-const logger = new Logtail(process.argv[2]);
+const logger = new Logtail(process.argv[2], { sendLogsToConsoleOutput: true });
 
 // Usage
 
