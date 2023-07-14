@@ -470,7 +470,7 @@ describe("base class tests", () => {
   it("should limit sent requests if exceeding burst protection limits", async () => {
     // Fixtures
     const message = "Testing logging";
-    const base = new Base("testing", { burstProtectionMilliseconds: 100, burstProtectionMax: 50});
+    const base = new Base("testing", { burstProtectionMilliseconds: 100, burstProtectionMax: 50 });
 
     // Add a mock sync method
     base.setSync(async logs => logs);
@@ -496,5 +496,34 @@ describe("base class tests", () => {
 
     expect(mockedConsoleError).toHaveBeenCalledWith("Logging was called more than 50 times during last 100ms. Ignoring.");
     expect(mockedConsoleError).toHaveBeenCalledTimes(5);
+  });
+
+  it("should not limit sent requests if burst protection disabled", async () => {
+    // Fixtures
+    const message = "Testing logging";
+    const base = new Base("testing", { burstProtectionMax: 0 });
+
+    // Add a mock sync method
+    base.setSync(async logs => logs);
+
+    // Mock console.error()
+    const mockedConsoleError = jest.fn();
+    const originalConsoleError = console.error;
+    console.error = mockedConsoleError;
+
+    const logs = [];
+    for (let i = 0; i < 100000; i++) {
+      logs.push(base.info(message));
+    }
+
+    await Promise.all(logs);
+
+    console.error = originalConsoleError;
+
+    // Should sync all logs
+    expect(base.synced).toBe(100000);
+    expect(base.logged).toBe(100000);
+
+    expect(mockedConsoleError).toHaveBeenCalledTimes(0);
   });
 });
