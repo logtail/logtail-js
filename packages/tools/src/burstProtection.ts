@@ -13,6 +13,10 @@ export default function makeBurstProtection<T extends (...args: any[]) => any>(
   max: number,
   functionName: string = 'The function',
 ) {
+  if (milliseconds <= 0 || max <= 0) {
+    return (fn: T) => fn
+  }
+
   let callCounts: number[] = [0];
   let lastErrorOutput: number = 0;
 

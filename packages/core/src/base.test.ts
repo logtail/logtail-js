@@ -435,4 +435,67 @@ describe("base class tests", () => {
     expect(mockedConsoleError).toHaveBeenCalledWith("Logging was called more than 10000 times during last 5000ms. Ignoring.");
     expect(mockedConsoleError).toHaveBeenCalledTimes(1);
   });
+
+  it("should not limit sent requests if not exceeding burst protection limits", async () => {
+    // Fixtures
+    const message = "Testing logging";
+    const base = new Base("testing", { burstProtectionMilliseconds: 100, burstProtectionMax: 100});
+
+    // Add a mock sync method
+    base.setSync(async logs => logs);
+
+    // Mock console.error()
+    const mockedConsoleError = jest.fn();
+    const originalConsoleError = console.error;
+    console.error = mockedConsoleError;
+
+    const logs = [];
+    for (let i = 0; i < 500; i++) {
+      logs.push(base.info(message));
+      // Wait for 1ms after every log
+      await new Promise(resolve => setTimeout(resolve, 1));
+    }
+
+    await Promise.all(logs);
+
+    console.error = originalConsoleError;
+
+    // Should sync all logs
+    expect(base.synced).toBe(500);
+    expect(base.logged).toBe(500);
+
+    expect(mockedConsoleError).toHaveBeenCalledTimes(0);
+  });
+
+  it("should limit sent requests if exceeding burst protection limits", async () => {
+    // Fixtures
+    const message = "Testing logging";
+    const base = new Base("testing", { burstProtectionMilliseconds: 100, burstProtectionMax: 50});
+
+    // Add a mock sync method
+    base.setSync(async logs => logs);
+
+    // Mock console.error()
+    const mockedConsoleError = jest.fn();
+    const originalConsoleError = console.error;
+    console.error = mockedConsoleError;
+
+    const logs = [];
+    for (let i = 0; i < 500; i++) {
+      logs.push(base.info(message));
+      // Wait for 1ms after every log
+      await new Promise(resolve => setTimeout(resolve, 1));
+    }
+
+    await Promise.all(logs);
+
+    console.error = originalConsoleError;
+
+    // Should sync only half the logs
+    expect(base.synced).toBe(250);
+    expect(base.logged).toBe(250);
+
+    expect(mockedConsoleError).toHaveBeenCalledWith("Logging was called more than 50 times during last 100ms. Ignoring.");
+    expect(mockedConsoleError).toHaveBeenCalledTimes(5);
+  });
 });

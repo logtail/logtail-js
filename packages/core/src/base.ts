@@ -32,6 +32,12 @@ const defaultOptions: ILogtailOptions = {
   // Maximum number of sync requests to make concurrently
   syncMax: 5,
 
+  // Length of the checked window for logs burst protection in milliseconds (0 to disable)
+  burstProtectionMilliseconds: 5000,
+
+  // Maximum number of accepted logs in the specified time window (0 to disable)
+  burstProtectionMax: 10000,
+
   // If true, errors when sending logs will be ignored
   // Has precedence over throwExceptions
   ignoreExceptions: false,
@@ -121,7 +127,11 @@ class Logtail {
     });
 
     // Burst protection for logging
-    this._logBurstProtection = makeBurstProtection(5000, 10000, 'Logging')
+    this._logBurstProtection = makeBurstProtection(
+        this._options.burstProtectionMilliseconds,
+        this._options.burstProtectionMax,
+        'Logging',
+    )
     this.log = this._logBurstProtection(this.log.bind(this))
 
     // Create a batcher, for aggregating logs by buffer size/interval
