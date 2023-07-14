@@ -482,9 +482,8 @@ describe("base class tests", () => {
 
     const logs = [];
     for (let i = 0; i < 500; i++) {
-      logs.push(base.info(message));
-      // Wait for 1ms after every log
-      await new Promise(resolve => setTimeout(resolve, 1));
+      // Send logs with 1ms delay between them
+      logs.push(new Promise(resolve => { setTimeout(() => base.info(message).then(resolve), i) }))
     }
 
     await Promise.all(logs);

@@ -1,6 +1,6 @@
 import { InferArgs } from "./types";
 
-const RESOLUTION = 100;
+const RESOLUTION = 64;
 
 /**
  * Create a burst protection which allows running function only a number of times in a configurable window
@@ -19,11 +19,21 @@ export default function makeBurstProtection<T extends (...args: any[]) => any>(
 
   let callCounts: number[] = [0];
   let lastErrorOutput: number = 0;
+  let lastIntervalTime: number = Date.now();
 
-  setInterval(() => {
-    callCounts = callCounts.slice(0, RESOLUTION - 1)
-    callCounts.unshift(0)
-  }, milliseconds / RESOLUTION)
+  function updateCallCounts() {
+    const now = Date.now()
+    const intervalLength = milliseconds / RESOLUTION
+
+    if (now < lastIntervalTime + intervalLength) {
+      return
+    }
+
+    // Prepend callCounts with correct number of zeroes and keep its length to RESOLUTION at max
+    const intervalCountSinceLast = Math.floor((now - lastIntervalTime) / intervalLength)
+    callCounts = Array(Math.min(intervalCountSinceLast, RESOLUTION)).fill(0).concat(callCounts).slice(0, RESOLUTION)
+    lastIntervalTime += intervalCountSinceLast * intervalLength
+  }
 
   function getTotalCallCount() {
     return callCounts.reduce((total, item) => total + item);
@@ -35,6 +45,7 @@ export default function makeBurstProtection<T extends (...args: any[]) => any>(
 
   return (fn: T) => {
     return async (...args: InferArgs<T>[]) => {
+      updateCallCounts()
       if (getTotalCallCount() < max) {
         incrementCallCount();
         return await fn(...args)
