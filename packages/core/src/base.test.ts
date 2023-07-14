@@ -293,6 +293,34 @@ describe("base class tests", () => {
     expect(log.message).toBe(message);
   });
 
+  it("should sync all logs in single call", async () => {
+    // Fixtures
+    const message = "Testing logging";
+    const base = new Base("testing");
+
+    // Add a mock sync method which counts sync calls and sent logs
+    let syncCount = 0;
+    let logsCount = 0;
+    base.setSync(async (logs) => {
+      syncCount++;
+      logsCount = logs.length;
+      return logs;
+    });
+
+    await Promise.all([
+      base.debug(message),
+      base.info(message),
+      base.warn(message),
+      base.error(message),
+    ]);
+
+    // Should sync all logs in single call
+    expect(syncCount).toBe(1);
+    expect(logsCount).toBe(4);
+    expect(base.synced).toBe(4);
+    expect(base.logged).toBe(4);
+  });
+
   it("should not send any logs to Better Stack when sendLogsToBetterStack=false", async () => {
     // Fixtures
     const message = "Testing logging";
@@ -300,10 +328,10 @@ describe("base class tests", () => {
       sendLogsToBetterStack: false
     });
 
-    // Add a mock sync method which counts synced logs
-    let logsSynced = 0
+    // Add a mock sync method which counts sync calls
+    let syncCount = 0
     base.setSync(async (log) => {
-      logsSynced++;
+      syncCount++;
       return log;
     });
 
@@ -315,10 +343,12 @@ describe("base class tests", () => {
     await base.log(message, "http");
     await base.log(message, "verbose");
     await base.log(message, "silly");
-    // await base.log(message, "trace");
+    await base.log(message, "trace");
 
     // Should sync no logs
-    expect(logsSynced).toBe(0);
+    expect(syncCount).toBe(0);
+    expect(base.synced).toBe(0);
+    expect(base.logged).toBe(9);
   });
 
   it("should send all logs to console output when sendLogsToConsoleOutput=true", async () => {
@@ -354,7 +384,7 @@ describe("base class tests", () => {
     await base.log(message, "silly");
     await base.log(message, "trace");
 
-    // Should sync no logs
+    // Should forward all logs to console output
     expect(consoleOutputs).toEqual([
       ["debug", "Testing logging", {}],
       ["info", "Testing logging", {}],
@@ -366,6 +396,8 @@ describe("base class tests", () => {
       ["log", "[SILLY]", "Testing logging", {}],
       ["log", "[TRACE]", "Testing logging", {}],
     ]);
+    expect(base.synced).toBe(9);
+    expect(base.logged).toBe(9);
 
     console = originalConsole
   });
