@@ -401,4 +401,38 @@ describe("base class tests", () => {
 
     console = originalConsole
   });
+
+  it("should limit sent requests", async () => {
+    // Fixtures
+    const message = "Testing logging";
+    const base = new Base("testing");
+
+    // Add a mock sync method which resolves after a timeout
+    base.setSync(async logs => {
+      return new Promise<ILogtailLog[]>(resolve => {
+        setTimeout(() => resolve(logs), 100);
+      });
+    });
+
+    // Mock console.error()
+    const mockedConsoleError = jest.fn();
+    const originalConsoleError = console.error;
+    console.error = mockedConsoleError;
+
+    const logs = [];
+    for (let i = 0; i < 1000000; i++) {
+      logs.push(base.info(message));
+    }
+
+    await Promise.all(logs);
+
+    console.error = originalConsoleError;
+
+    // Should sync only 10000 logs
+    expect(base.synced).toBe(10000);
+    expect(base.logged).toBe(10000);
+
+    expect(mockedConsoleError).toHaveBeenCalledWith("Logging was called more than 10000 times during last 5000ms. Ignoring.");
+    expect(mockedConsoleError).toHaveBeenCalledTimes(1);
+  });
 });

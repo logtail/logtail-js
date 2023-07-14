@@ -7,7 +7,7 @@ import {
   Middleware,
   Sync
 } from "@logtail/types";
-import { makeBatch, makeThrottle } from "@logtail/tools";
+import { makeBatch, makeBurstProtection, makeThrottle } from "@logtail/tools";
 
 // Types
 type Message = string | Error;
@@ -71,6 +71,9 @@ class Logtail {
   // Flush function
   protected _flush: any;
 
+  // Log burst protection function
+  protected _logBurstProtection: any;
+
   // Middleware
   protected _middleware: Middleware[] = [];
 
@@ -116,6 +119,10 @@ class Logtail {
     const throttler = throttle((logs: any) => {
       return this._sync!(logs);
     });
+
+    // Burst protection for logging
+    this._logBurstProtection = makeBurstProtection(5000, 10000, 'Logging')
+    this.log = this._logBurstProtection(this.log.bind(this))
 
     // Create a batcher, for aggregating logs by buffer size/interval
     const batcher = makeBatch(
@@ -372,4 +379,8 @@ class Logtail {
 }
 
 // noinspection JSUnusedGlobalSymbols
-export default Logtail;
+export default class extends Logtail {
+  async log<TContext extends Context>(message: Message, level: ILogLevel = LogLevel.Info, context: TContext = {} as TContext): Promise<ILogtailLog & TContext> {
+    return super.log(message, level, context);
+  }
+};
