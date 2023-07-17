@@ -48,15 +48,65 @@ export interface ILogtailOptions {
   batchInterval: number;
 
   /**
-   * Maximum number of sync requests to make concurrently (useful to limit
-   * network I/O)
+   * Maximum number of times to retry a failed sync request
+   */
+  retryCount: number;
+
+  /**
+   * Minimum number of milliseconds to wait before retrying a failed sync request
+   */
+  retryBackoff: number;
+
+  /**
+   * Maximum number of sync requests to make concurrently (useful to limit network I/O)
    */
   syncMax: number;
 
   /**
+   * Length of the checked window for logs burst protection in milliseconds (0 to disable)
+   */
+  burstProtectionMilliseconds: number;
+
+  /**
+   * Maximum number of accepted logs in the specified time window (0 to disable)
+   */
+  burstProtectionMax: number;
+
+  /**
    * Boolean to specify whether thrown errors/failed logs should be ignored
+   * Has precedence over throwExceptions
    */
   ignoreExceptions: boolean;
+
+  /**
+   * Errors when sending logs will result in thrown exceptions
+   */
+  throwExceptions: boolean;
+
+  /**
+   * Maximum depth (number of attribute levels) of a context object
+   */
+  contextObjectMaxDepth: number;
+
+  /**
+   * Boolean to produce a warning when context object max depth is reached
+   */
+  contextObjectMaxDepthWarn: boolean;
+
+  /**
+   * Boolean to produce a warning when circular reference is found in context
+   */
+  contextObjectCircularRefWarn: boolean;
+
+  /**
+   * If true, all logs will be sent to standard console functions (console.info, console.warn, ...)
+   */
+  sendLogsToConsoleOutput: boolean;
+
+  /**
+   * If true, all logs will be sent to Better Stack
+   */
+  sendLogsToBetterStack: boolean;
 }
 ```
 
