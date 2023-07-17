@@ -187,7 +187,7 @@ describe("Koa Logtail tests", () => {
       // Should show an error
       expect(logs[0].message).toContain('Koa HTTP request: 404');
 
-      // Should be 'error' level
+      // Should be 'warn' level
       expect(logs[0].level).toBe(LogLevel.Warn);
 
       // Finish task
@@ -201,7 +201,7 @@ describe("Koa Logtail tests", () => {
         .get("/ping")
         .expect(200);
 
-    // This request should log "warn", and thus not be logged.
+    // This request should log "warn", and thus be logged.
     await request(koa.callback())
         .get("/throw")
         .expect(404);
