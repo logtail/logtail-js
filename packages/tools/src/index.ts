@@ -2,6 +2,7 @@ import { IQueue } from "./types";
 import Queue from "./queue";
 import { base64Encode } from "./encode";
 import makeBatch from "./batch";
+import makeBurstProtection from "./burstProtection";
 import makeThrottle from "./throttle";
 
 export {
@@ -12,5 +13,6 @@ export {
   // Functions
   base64Encode,
   makeBatch,
+  makeBurstProtection,
   makeThrottle
 };
