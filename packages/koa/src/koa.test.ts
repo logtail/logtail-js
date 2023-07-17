@@ -174,7 +174,7 @@ describe("Koa Logtail tests", () => {
       .expect(404);
   });
 
-  it.only("should not log 'Info' logs when the level is 'Warn'", async done => {
+  it("should not log 'Info' logs when the level is 'Warn'", async done => {
     const [logtail, koa] = getServer();
 
     logtail.setLevel(LogLevel.Warn)
