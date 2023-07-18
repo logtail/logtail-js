@@ -173,4 +173,37 @@ describe("Koa Logtail tests", () => {
       .get("/throw")
       .expect(404);
   });
+
+  it("should not log 'Info' logs when the level is 'Warn'", async done => {
+    const [logtail, koa] = getServer();
+
+    logtail.setLevel(LogLevel.Warn)
+
+    // Mock out the sync method
+    logtail.setSync(async logs => {
+      // Should be 1 log
+      expect(logs.length).toBe(1);
+
+      // Should show an error
+      expect(logs[0].message).toContain('Koa HTTP request: 404');
+
+      // Should be 'warn' level
+      expect(logs[0].level).toBe(LogLevel.Warn);
+
+      // Finish task
+      await done();
+
+      return logs;
+    });
+
+    // This request should log "info", and thus not be logged.
+    await request(koa.callback())
+        .get("/ping")
+        .expect(200);
+
+    // This request should log "warn", and thus be logged.
+    await request(koa.callback())
+        .get("/throw")
+        .expect(404);
+  })
 });

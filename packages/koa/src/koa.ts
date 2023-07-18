@@ -20,6 +20,11 @@ interface IKoaOptions {
   excludedMethods: string[];
 
   /**
+   * Logs with lower level than `level` will be excluded
+   */
+  level: LogLevel;
+
+  /**
    * Route Message customization
    */
   messageFormatter(ctx: Context): string;
@@ -41,6 +46,7 @@ const defaultKoaOpt: IKoaOptions = {
   ],
   excludedRoutes: [],
   excludedMethods: [],
+  level: LogLevel.Info,
   messageFormatter: ctx => `Koa HTTP request: ${ctx.status}`,
   errorMessageFormatter: (ctx, e) =>
     `Koa HTTP request error: ${(typeof e === "object" && e.message) || e}`
@@ -108,7 +114,8 @@ class KoaLogtail extends Logtail {
       // Finally, log to the correct log level
       if (
         !this._koaOptions.excludedMethods.includes(ctx.request.method) &&
-        !this._koaOptions.excludedRoutes.includes(ctx.request.url)
+        !this._koaOptions.excludedRoutes.includes(ctx.request.url) &&
+        this._toLevelNumber(logLevel) >= this._toLevelNumber(this._koaOptions.level)
       ) {
         void this[logLevel](msg!, this._fromContext(ctx));
       }
@@ -122,6 +129,30 @@ class KoaLogtail extends Logtail {
    */
   public attach(koa: Koa): this {
     koa.use(this.middleware);
+    return this;
+  }
+
+  private _toLevelNumber(level: LogLevel): number {
+    const map = {
+      [LogLevel.Fatal]: 6,
+      [LogLevel.Error]: 5,
+      [LogLevel.Http]: 5,
+      [LogLevel.Warn]: 4,
+      [LogLevel.Info]: 3,
+      [LogLevel.Debug]: 2,
+      [LogLevel.Verbose]: 1,
+      [LogLevel.Silly]: 1,
+      [LogLevel.Trace]: 1,
+    };
+
+    return map[level];
+  }
+
+  /**
+   * Sets minimal log level to be logged.
+   */
+  public setLevel(level: LogLevel): this {
+    this._koaOptions.level = level
     return this;
   }
 }
