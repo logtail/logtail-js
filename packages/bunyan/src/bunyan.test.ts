@@ -1,6 +1,6 @@
 import bunyan, { LogLevelString } from "bunyan";
 import { Logtail } from "@logtail/node";
-import {Context, LogLevel} from "@logtail/types";
+import { LogLevel } from "@logtail/types";
 
 import { LogtailStream } from "./bunyan";
 
@@ -130,9 +130,8 @@ describe("Bunyan tests", () => {
   it("should include correct context fields", async done => {
     const logtail = new Logtail("test");
     logtail.setSync(async logs => {
-      const context = logs[0].context as Context;
-      const runtime = context.runtime as Context;
-      expect(runtime.file).toMatch("bunyan.test.ts")
+      const context = logs[0].context;
+      expect(context.runtime.file).toMatch("bunyan.test.ts")
       done();
       return logs;
     });
