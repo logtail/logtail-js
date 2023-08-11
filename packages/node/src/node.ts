@@ -116,7 +116,7 @@ export class Node extends Base {
       return {
         name: value.name,
         message: value.message,
-        stack: value.stack,
+        stack: value.stack?.split("\n"),
       };
     } else if ((typeof value === "object" || Array.isArray(value)) && (maxDepth < 1 || visitedObjects.has(value))) {
       if (visitedObjects.has(value)) {
