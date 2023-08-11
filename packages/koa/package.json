@@ -1,6 +1,6 @@
 {
   "name": "@logtail/koa",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Logtail.com - Koa logger",
   "keywords": [
     "Logtail",
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@logtail/node": "^0.3.3",
-    "@logtail/types": "^0.4.5",
+    "@logtail/types": "^0.4.6",
     "@types/babel__core": "7.0.4",
     "@types/babel__traverse": "7.0.4",
     "@types/koa": "^2.0.49",
@@ -49,7 +49,7 @@
     "supertest": "^4.0.2"
   },
   "dependencies": {
-    "@logtail/node": "^0.4.5",
+    "@logtail/node": "^0.4.6",
     "rambda": "^2.14.5"
   },
   "peerDependencies": {

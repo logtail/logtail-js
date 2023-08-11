@@ -1,6 +1,6 @@
 {
   "name": "@logtail/tools",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "JavaScript logging tools",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
@@ -43,7 +43,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@logtail/types": "^0.4.5"
+    "@logtail/types": "^0.4.6"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
