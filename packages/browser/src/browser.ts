@@ -1,6 +1,6 @@
 import fetch from "cross-fetch";
 
-import {Context, ILogLevel, ILogtailLog, ILogtailOptions, StackContextHint} from "@logtail/types";
+import { Context, ILogLevel, ILogtailLog, ILogtailOptions } from "@logtail/types";
 import { Base } from "@logtail/core";
 import { sanitizeContext } from "@logtail/tools";
 
