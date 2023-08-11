@@ -19,14 +19,14 @@ const logger = new Logtail(process.argv[2], { sendLogsToConsoleOutput: true });
 // Usage
 
 // Send debug level log using the debug() method
-logger.debug("I am using Logtail!");
+const debugLog = logger.debug("I am using Logtail!");
 
 // Send info level log using the info() method
-logger.info("An interesting event occured!")
+const infoLog = logger.info("An interesting event occured!");
 
 // Send warn level log using the warn() method
 // You can add additional structured data to help you troubleshoot your code as shown below
-logger.warn("Something is not quite right, better check on it.",{
+const warningLog = logger.warn("Something is not quite right, better check on it.",{
     user:{
         username:"someuser",
         email:"someuser@example.com"
@@ -36,9 +36,20 @@ logger.warn("Something is not quite right, better check on it.",{
     }
 });
 
-// Send error level log using the error() method
-logger.error("Oops! An runtime ERROR occurred!").then(
-    // Logging methods are async function returning Promises
+function callbackThatMightFail() {
+    throw new Error("Testing error")
+}
+
+let errorLog;
+try {
+    callbackThatMightFail();
+} catch (err) {
+    // Send error level log using the error() method
+    errorLog = logger.error("Oops! An runtime ERROR occurred!", err);
+}
+
+// Logging methods are async function returning Promises
+Promise.all([debugLog, infoLog, warningLog, errorLog]).then(
     // OnResolve write message
     function() {
         console.log("All done! You can check your logs now.")
