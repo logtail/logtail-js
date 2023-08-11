@@ -98,10 +98,10 @@ export enum LogLevel {
 }
 
 /**
- * Context type - a string/number/bool/Date, or a nested object of the same
+ * Context type - a nested object of serializable types (a string / number / bool / null / undefined / Array / Date / Error)
  */
-export type ContextKey = string | number | boolean | Date | null;
-export type Context = { [key: string]: ContextKey | Context };
+export type ContextKey = any;
+export type Context = { [key: string]: ContextKey };
 export type StackContextHint = { fileName: string, methodNames: [string] };
 
 /**
@@ -111,7 +111,7 @@ export interface ILogtailLog {
   dt: Date;
   level: ILogLevel;
   message: string;
-  [key: string]: ContextKey | Context;
+  [key: string]: ContextKey;
 }
 
 /**

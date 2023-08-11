@@ -211,8 +211,7 @@ describe("Winston logging tests", () => {
 
     const logs = await logged;
 
-    const context = logs[0].context as Context;
-    const runtime = context.runtime as Context;
-    expect(runtime.file).toMatch("winston.test.ts");
+    const context = logs[0].context;
+    expect(context.runtime.file).toMatch("winston.test.ts");
   });
 });

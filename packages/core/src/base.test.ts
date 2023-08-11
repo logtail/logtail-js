@@ -257,7 +257,7 @@ describe("base class tests", () => {
     expect(log.message).toBe(message);
 
     // Context should contain a stack trace
-    expect((log as any).stack).toBe(e.stack);
+    expect(log.stack).toBe(e.stack);
   });
 
   it("should not ignore exceptions if `ignoreExceptions` opt == false and `throwExceptions` opt == true", async () => {

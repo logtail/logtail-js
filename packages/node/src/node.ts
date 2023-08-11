@@ -66,6 +66,10 @@ export class Node extends Base {
       const wrappedContext: unknown = { extra: context };
       context = wrappedContext as TContext;
     }
+    if (context instanceof Error) {
+      const wrappedContext: unknown = { error: context };
+      context = wrappedContext as TContext;
+    }
 
     // Process/sync the log, per `Base` logic
     context = { ...getStackContext(this, stackContextHint), ...context };
@@ -108,6 +112,12 @@ export class Node extends Base {
       }
 
       return value.toISOString();
+    } else if (value instanceof Error) {
+      return {
+        name: value.name,
+        message: value.message,
+        stack: value.stack?.split("\n"),
+      };
     } else if ((typeof value === "object" || Array.isArray(value)) && (maxDepth < 1 || visitedObjects.has(value))) {
       if (visitedObjects.has(value)) {
         if (this._options.contextObjectCircularRefWarn) {
@@ -143,8 +153,10 @@ export class Node extends Base {
       visitedObjects.delete(value);
 
       return logClone;
-    } else {
+    } else if (typeof value === 'undefined') {
       return undefined;
+    } else {
+      return `<omitted unserializable ${typeof value}>`;
     }
   }
 }

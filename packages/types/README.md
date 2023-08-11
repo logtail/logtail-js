@@ -131,10 +131,10 @@ We call this 'context' and these are the types:
 
 ```typescript
 /**
- * Context type - a string/number/bool/Date, or a nested object of the same
+ * Context type - a nested object of serializable types (a string / number / bool / null / undefined / Array / Date / Error)
  */
-export type ContextKey = string | number | boolean | Date;
-export type Context = { [key: string]: ContextKey | Context };
+export type ContextKey = any;
+export type Context = { [key: string]: ContextKey  };
 ```
 
 ### `ILogtailLog`
@@ -146,7 +146,7 @@ interface ILogtailLog {
   dt: Date;
   level: LogLevel; // <-- see `LogLevel` above
   message: string;
-  [key: string]: ContextKey | Context; // <-- see `Context` above
+  [key: string]: ContextKey; // <-- see `Context` above
 }
 ```
 
