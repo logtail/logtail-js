@@ -143,8 +143,10 @@ export class Node extends Base {
       visitedObjects.delete(value);
 
       return logClone;
-    } else {
+    } else if (typeof value === 'undefined') {
       return undefined;
+    } else {
+      return `<omitted unserializable ${typeof value}>`;
     }
   }
 }
