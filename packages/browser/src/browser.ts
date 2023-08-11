@@ -1,7 +1,8 @@
 import fetch from "cross-fetch";
 
-import { ILogtailLog, ILogtailOptions } from "@logtail/types";
+import {Context, ILogLevel, ILogtailLog, ILogtailOptions, StackContextHint} from "@logtail/types";
 import { Base } from "@logtail/core";
+import { sanitizeContext } from "@logtail/tools";
 
 // Awaiting: https://bugs.chromium.org/p/chromium/issues/detail?id=571722
 // import { getUserAgent } from "./helpers";
@@ -25,7 +26,7 @@ export class Browser extends Base {
             // Awaiting: https://bugs.chromium.org/p/chromium/issues/detail?id=571722
             // "User-Agent": getUserAgent()
           },
-          body: JSON.stringify(logs)
+          body: JSON.stringify(logs.map(log => sanitizeContext(log, this._options)))
         }
       );
 
@@ -42,5 +43,31 @@ export class Browser extends Base {
 
     // Set the throttled sync function
     this.setSync(sync);
+  }
+
+  /**
+   * Override `Base` log to wrap context
+   *
+   * @param message: string - Log message
+   * @param level (LogLevel) - Level to log at (debug|info|warn|error)
+   * @param context: (Context) - Log context for passing structured data
+   * @returns Promise<ILogtailLog> after syncing
+   */
+  public async log<TContext extends Context>(
+      message: string,
+      level?: ILogLevel,
+      context: TContext = {} as TContext,
+  ) {
+    // Wrap context in an object, if it's not already
+    if (typeof context !== 'object') {
+      const wrappedContext: unknown = { extra: context };
+      context = wrappedContext as TContext;
+    }
+    if (context instanceof Error) {
+      const wrappedContext: unknown = { error: context };
+      context = wrappedContext as TContext;
+    }
+
+    return super.log(message, level, context);
   }
 }
