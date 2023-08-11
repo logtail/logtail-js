@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@logtail/core": "^0.4.5",
+    "@logtail/tools": "^0.4.5",
     "@logtail/types": "^0.4.5",
     "@msgpack/msgpack": "^2.5.1",
     "@types/stack-trace": "^0.0.29",
