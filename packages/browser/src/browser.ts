@@ -43,5 +43,19 @@ export class Browser extends Base {
 
     // Set the throttled sync function
     this.setSync(sync);
+
+    this.configureFlushOnPageLeave();
+  }
+
+  private configureFlushOnPageLeave() {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this.flush();
+      }
+    });
   }
 }
