@@ -1,4 +1,4 @@
-import 'whatwg-fetch';
+import 'cross-fetch/polyfill';
 
 import { ILogtailLog, ILogtailOptions } from "@logtail/types";
 import { Base } from "@logtail/core";
