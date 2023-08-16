@@ -1,4 +1,4 @@
-import fetch from "cross-fetch";
+import 'whatwg-fetch';
 
 import { ILogtailLog, ILogtailOptions } from "@logtail/types";
 import { Base } from "@logtail/core";
@@ -25,7 +25,8 @@ export class Browser extends Base {
             // Awaiting: https://bugs.chromium.org/p/chromium/issues/detail?id=571722
             // "User-Agent": getUserAgent()
           },
-          body: JSON.stringify(logs)
+          body: JSON.stringify(logs),
+          keepalive: true,
         }
       );
 
