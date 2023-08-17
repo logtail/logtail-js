@@ -1,4 +1,4 @@
-import fetch from "cross-fetch";
+import 'cross-fetch/polyfill';
 
 import { ILogtailLog, ILogtailOptions } from "@logtail/types";
 import { Base } from "@logtail/core";
@@ -25,7 +25,8 @@ export class Browser extends Base {
             // Awaiting: https://bugs.chromium.org/p/chromium/issues/detail?id=571722
             // "User-Agent": getUserAgent()
           },
-          body: JSON.stringify(logs)
+          body: JSON.stringify(logs),
+          keepalive: true,
         }
       );
 
@@ -42,5 +43,19 @@ export class Browser extends Base {
 
     // Set the throttled sync function
     this.setSync(sync);
+
+    this.configureFlushOnPageLeave();
+  }
+
+  private configureFlushOnPageLeave() {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this.flush();
+      }
+    });
   }
 }
