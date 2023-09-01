@@ -25,11 +25,6 @@ export class LogtailStream extends Writable {
       return next(e);
     }
 
-    // Log should have string `msg` key, > 0 length
-    if (typeof log.msg !== "string" || !log.msg.length) {
-      return next();
-    }
-
     // Logging meta data
     const meta: Context = {};
 
@@ -42,15 +37,30 @@ export class LogtailStream extends Writable {
     }
 
     // Carry over any additional data fields
+    // NOTE: Bunyan passes messages as log.msg but when it's missing
+    //       we can read 'message' field from passed object.
+    // WARN: Bunyan ignores 'msg' field in the passed object!
+    //       I have messaged Bunyan author here: https://github.com/trentm/node-bunyan/issues/515#issuecomment-1702682901
     Object.keys(log)
-      .filter(key => ["time", "msg", "level", "v"].indexOf(key) < 0)
+      .filter(key => ["time", "msg", "message", "level", "v"].indexOf(key) < 0)
       .forEach(key => (meta[key] = log[key]));
+
+    // Get message
+    // NOTE: Bunyan passes empty 'msg' when msg is missing
+    const use_msg_field = log.msg !== undefined && log.msg.length > 0;
+    let msg = use_msg_field ? log.msg : log.message;
+
+    // Prevent overriding 'message' with 'msg'
+    // Save 'message' as 'message_field' if we are using 'msg' as message
+    if (use_msg_field && log.message !== undefined) {
+      meta.message_field = log.message;
+    }
 
     // Determine the log level
     const level = getLogLevel(log.level);
 
     // Log to Logtail
-    void this._logtail.log(log.msg, level, meta, stackContextHint as StackContextHint);
+    void this._logtail.log(msg, level, meta, stackContextHint as StackContextHint);
 
     next();
   }
