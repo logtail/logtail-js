@@ -134,7 +134,7 @@ We call this 'context' and these are the types:
  * Context type - a nested object of serializable types (a string / number / bool / null / undefined / Array / Date / Error)
  */
 export type ContextKey = any;
-export type Context = { [key: string]: ContextKey  };
+export type Context = { [key: string]: ContextKey };
 ```
 
 ### `ILogtailLog`

@@ -21,9 +21,9 @@ function createLogger(logtail: Logtail): bunyan {
     level: "debug", // <-- default to 'debug' and above
     streams: [
       {
-        stream: new LogtailStream(logtail)
-      }
-    ]
+        stream: new LogtailStream(logtail),
+      },
+    ],
   });
 }
 
@@ -37,7 +37,7 @@ function createLogger(logtail: Logtail): bunyan {
 async function testLevel(
   level: LogLevelString,
   logLevel: LogLevel,
-  cb: Function
+  cb: Function,
 ) {
   // Logtail fixtures
   const logtail = new Logtail("test", { batchInterval: 1 });
@@ -92,12 +92,12 @@ describe("Bunyan tests", () => {
       [30, LogLevel.Info, "info"],
       [40, LogLevel.Warn, "warn"],
       [50, LogLevel.Error, "error"],
-      [60, LogLevel.Fatal, "fatal"]
+      [60, LogLevel.Fatal, "fatal"],
     ];
 
     const logtail = new Logtail("test", {
       batchInterval: 1000,
-      batchSize: levels.length
+      batchSize: levels.length,
     });
 
     logtail.setSync(async logs => {
@@ -131,7 +131,7 @@ describe("Bunyan tests", () => {
     const logtail = new Logtail("test");
     logtail.setSync(async logs => {
       const context = logs[0].context;
-      expect(context.runtime.file).toMatch("bunyan.test.ts")
+      expect(context.runtime.file).toMatch("bunyan.test.ts");
       done();
       return logs;
     });

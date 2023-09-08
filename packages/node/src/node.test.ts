@@ -15,14 +15,14 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
   return {
     dt: new Date(),
     level: LogLevel.Info,
-    message
+    message,
   };
 }
 
 describe("node tests", () => {
   it("should echo log if logtail sends 20x status code", async () => {
     nock("https://in.logtail.com")
-      .post('/')
+      .post("/")
       .reply(201);
 
     const message: string = String(Math.random());
@@ -34,18 +34,21 @@ describe("node tests", () => {
 
   it("should throw error if logtail sends non 200 status code", async () => {
     nock("https://in.logtail.com")
-      .post('/')
+      .post("/")
       .reply(401);
 
-    const node = new Node("invalid source token", { ignoreExceptions: false, throwExceptions: true });
+    const node = new Node("invalid source token", {
+      ignoreExceptions: false,
+      throwExceptions: true,
+    });
     const message: string = String(Math.random);
     await expect(node.log(message)).rejects.toThrow();
   });
 
   it("should warn and echo log even with circular reference as context", async () => {
     nock("https://in.logtail.com")
-        .post('/')
-        .reply(201);
+      .post("/")
+      .reply(201);
 
     let circularContext: any = { foo: { value: 42 } };
     circularContext.foo.bar = circularContext;
@@ -63,7 +66,7 @@ describe("node tests", () => {
       write(
         chunk: any,
         encoding: string,
-        callback: (error?: Error | null) => void
+        callback: (error?: Error | null) => void,
       ): void {
         // Will be a buffered JSON string -- parse
         const log: ILogtailLog = JSON.parse(chunk.toString());
@@ -72,7 +75,7 @@ describe("node tests", () => {
         expect(log.message).toEqual(message);
 
         callback();
-      }
+      },
     });
 
     // Fixtures

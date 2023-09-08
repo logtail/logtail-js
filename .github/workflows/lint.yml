@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: yarn
+          cache-dependency-path: |
+            yarn.lock
+            packages/browser/yarn.lock
+            packages/bunyan/yarn.lock
+            packages/core/yarn.lock
+            packages/js/yarn.lock
+            packages/koa/yarn.lock
+            packages/node/yarn.lock
+            packages/tools/yarn.lock
+            packages/types/yarn.lock
+            packages/winston/yarn.lock
+
+      - name: Setup yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run lint
+        run: yarn lint

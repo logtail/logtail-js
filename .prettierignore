@@ -1,3 +1,5 @@
+dist/
 .gitignore
 .npmignore
 *.map
+yarn.lock

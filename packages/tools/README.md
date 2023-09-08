@@ -7,7 +7,6 @@
 **Looking for a logging solution?**  
 Check out [Better Stack](https://betterstack.com/logs) and [Better Stack clients for JavaScript and Node.js](https://betterstack.com/docs/logs/javascript/).
 
-
 ## `@logtail/tools`
 
 This library provides helper tools used by the [JavaScript logger](https://github.com/logtail/logtail-js).
@@ -67,8 +66,8 @@ const logtail = new Logtail("sourceToken");
 const throttle = makeThrottle(2);
 
 // Create a basic pipeline function which resolves after 2 seconds
-const pipeline = async (log) =>
-  new Promise((resolve) => {
+const pipeline = async log =>
+  new Promise(resolve => {
     setTimeout(() => resolve(log), 2000);
   });
 

@@ -27,10 +27,7 @@ import { ILogtailOptions, ILogtailLog } from "@logtail/types";
 
 class CustomLogger extends Base {
   // Constructor must take a Logtail.com source token, and (optional) options
-  public constructor(
-    sourceToken: string,
-    options?: Partial<ILogtailOptions>
-  ) {
+  public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
     // Make sure you pass the source token to the parent constructor!
     super(sourceToken, options);
 
@@ -80,7 +77,7 @@ All log levels return a Promise that will resolve once the log has been synced w
 
 ```typescript
 // Will resolve when synced with Logtail.com (or reject if there's an error)
-logtail.log("some log message").then((log) => {
+logtail.log("some log message").then(log => {
   // `log` is the transformed log, after going through middleware
 });
 ```

@@ -115,7 +115,7 @@ describe("base class tests", () => {
     expect(base.synced).toEqual(0);
 
     // Trigger flush
-    await base.flush()
+    await base.flush();
 
     // After flush, synced should be now be 1
     expect(base.synced).toEqual(1);
@@ -136,7 +136,7 @@ describe("base class tests", () => {
     base.use(async log => {
       return {
         ...log,
-        message: newMessage
+        message: newMessage,
       };
     });
 
@@ -264,7 +264,10 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing exceptions";
     const e = new Error("Should NOT be ignored!");
-    const base = new Base("testing", { ignoreExceptions: false, throwExceptions: true });
+    const base = new Base("testing", {
+      ignoreExceptions: false,
+      throwExceptions: true,
+    });
 
     // Add a mock sync method which throws an error
     base.setSync(async () => {
@@ -278,7 +281,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing exceptions";
     const base = new Base("testing", {
-      ignoreExceptions: true
+      ignoreExceptions: true,
     });
 
     // Add a mock sync method which throws an error
@@ -301,7 +304,7 @@ describe("base class tests", () => {
     // Add a mock sync method which counts sync calls and sent logs
     let syncCount = 0;
     let logsCount = 0;
-    base.setSync(async (logs) => {
+    base.setSync(async logs => {
       syncCount++;
       logsCount = logs.length;
       return logs;
@@ -325,12 +328,12 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
-      sendLogsToBetterStack: false
+      sendLogsToBetterStack: false,
     });
 
     // Add a mock sync method which counts sync calls
-    let syncCount = 0
-    base.setSync(async (log) => {
+    let syncCount = 0;
+    base.setSync(async log => {
       syncCount++;
       return log;
     });
@@ -363,8 +366,8 @@ describe("base class tests", () => {
     base.setSync(async log => log);
 
     // Mock console methods
-    const originalConsole = console
-    const consoleOutputs:any = []
+    const originalConsole = console;
+    const consoleOutputs: any = [];
     console = {
       ...console,
       debug: (...args: any) => consoleOutputs.push(["debug", ...args]),
@@ -372,7 +375,7 @@ describe("base class tests", () => {
       warn: (...args: any) => consoleOutputs.push(["warn", ...args]),
       error: (...args: any) => consoleOutputs.push(["error", ...args]),
       log: (...args: any) => consoleOutputs.push(["log", ...args]),
-    }
+    };
 
     await base.debug(message);
     await base.info(message);
@@ -399,7 +402,7 @@ describe("base class tests", () => {
     expect(base.synced).toBe(9);
     expect(base.logged).toBe(9);
 
-    console = originalConsole
+    console = originalConsole;
   });
 
   it("should limit sent requests", async () => {
@@ -432,14 +435,19 @@ describe("base class tests", () => {
     expect(base.synced).toBe(10000);
     expect(base.logged).toBe(10000);
 
-    expect(mockedConsoleError).toHaveBeenCalledWith("Logging was called more than 10000 times during last 5000ms. Ignoring.");
+    expect(mockedConsoleError).toHaveBeenCalledWith(
+      "Logging was called more than 10000 times during last 5000ms. Ignoring.",
+    );
     expect(mockedConsoleError).toHaveBeenCalledTimes(1);
   });
 
   it("should not limit sent requests if not exceeding burst protection limits", async () => {
     // Fixtures
     const message = "Testing logging";
-    const base = new Base("testing", { burstProtectionMilliseconds: 100, burstProtectionMax: 100});
+    const base = new Base("testing", {
+      burstProtectionMilliseconds: 100,
+      burstProtectionMax: 100,
+    });
 
     // Add a mock sync method
     base.setSync(async logs => logs);
@@ -470,7 +478,10 @@ describe("base class tests", () => {
   it("should limit sent requests if exceeding burst protection limits", async () => {
     // Fixtures
     const message = "Testing logging";
-    const base = new Base("testing", { burstProtectionMilliseconds: 100, burstProtectionMax: 50 });
+    const base = new Base("testing", {
+      burstProtectionMilliseconds: 100,
+      burstProtectionMax: 50,
+    });
 
     // Add a mock sync method
     base.setSync(async logs => logs);
@@ -483,7 +494,11 @@ describe("base class tests", () => {
     const logs = [];
     for (let i = 0; i < 500; i++) {
       // Send logs with 1ms delay between them
-      logs.push(new Promise(resolve => { setTimeout(() => base.info(message).then(resolve), i) }))
+      logs.push(
+        new Promise(resolve => {
+          setTimeout(() => base.info(message).then(resolve), i);
+        }),
+      );
     }
 
     await Promise.all(logs);
@@ -496,7 +511,9 @@ describe("base class tests", () => {
     expect(base.logged).toBeGreaterThan(240);
     expect(base.logged).toBeLessThan(260);
 
-    expect(mockedConsoleError).toHaveBeenCalledWith("Logging was called more than 50 times during last 100ms. Ignoring.");
+    expect(mockedConsoleError).toHaveBeenCalledWith(
+      "Logging was called more than 50 times during last 100ms. Ignoring.",
+    );
     expect(mockedConsoleError).toHaveBeenCalledTimes(5);
   });
 

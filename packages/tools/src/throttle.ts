@@ -6,7 +6,7 @@ import { InferArgs } from "./types";
  * @param max - maximum number of async functions to run
  */
 export default function makeThrottle<T extends (...args: any[]) => any>(
-  max: number
+  max: number,
 ) {
   // Current iteration cycle
   let current = 0;

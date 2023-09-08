@@ -25,7 +25,7 @@ describe("Throttle tests", () => {
           setTimeout(() => {
             resolve(log);
           }, throttleTime);
-        })
+        }),
     );
 
     // Build the promises

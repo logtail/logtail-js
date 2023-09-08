@@ -8,10 +8,10 @@ const umdConfig: webpack.Configuration = {
   output: {
     libraryTarget: "umd",
     path: path.join(__dirname, "dist", "umd"),
-    filename: "logtail.js"
+    filename: "logtail.js",
   },
   optimization: {
-    usedExports: true
+    usedExports: true,
   },
   module: {
     rules: [
@@ -21,14 +21,14 @@ const umdConfig: webpack.Configuration = {
         options: {
           transpileOnly: true,
           context: __dirname,
-          configFile: "tsconfig.umd.json"
-        }
-      }
-    ]
+          configFile: "tsconfig.umd.json",
+        },
+      },
+    ],
   },
   resolve: {
-    extensions: [".ts", ".js"]
-  }
+    extensions: [".ts", ".js"],
+  },
 };
 
 export default umdConfig;

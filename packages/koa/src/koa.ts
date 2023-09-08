@@ -42,14 +42,14 @@ const defaultKoaOpt: IKoaOptions = {
     "request.method",
     "request.length",
     "request.url",
-    "request.query"
+    "request.query",
   ],
   excludedRoutes: [],
   excludedMethods: [],
   level: LogLevel.Info,
   messageFormatter: ctx => `Koa HTTP request: ${ctx.status}`,
   errorMessageFormatter: (ctx, e) =>
-    `Koa HTTP request error: ${(typeof e === "object" && e.message) || e}`
+    `Koa HTTP request error: ${(typeof e === "object" && e.message) || e}`,
 };
 
 class KoaLogtail extends Logtail {
@@ -58,7 +58,7 @@ class KoaLogtail extends Logtail {
   public constructor(
     sourceToken: string,
     logtailOpt?: Partial<ILogtailOptions>,
-    koaOpt?: Partial<IKoaOptions>
+    koaOpt?: Partial<IKoaOptions>,
   ) {
     super(sourceToken, logtailOpt);
 
@@ -115,7 +115,8 @@ class KoaLogtail extends Logtail {
       if (
         !this._koaOptions.excludedMethods.includes(ctx.request.method) &&
         !this._koaOptions.excludedRoutes.includes(ctx.request.url) &&
-        this._toLevelNumber(logLevel) >= this._toLevelNumber(this._koaOptions.level)
+        this._toLevelNumber(logLevel) >=
+          this._toLevelNumber(this._koaOptions.level)
       ) {
         void this[logLevel](msg!, this._fromContext(ctx));
       }
@@ -152,7 +153,7 @@ class KoaLogtail extends Logtail {
    * Sets minimal log level to be logged.
    */
   public setLevel(level: LogLevel): this {
-    this._koaOptions.level = level
+    this._koaOptions.level = level;
     return this;
   }
 }

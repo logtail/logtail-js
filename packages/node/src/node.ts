@@ -1,12 +1,19 @@
-import {Duplex, Writable} from "stream";
+import { Duplex, Writable } from "stream";
 
 import fetch from "cross-fetch";
-import {encode} from "@msgpack/msgpack";
+import { encode } from "@msgpack/msgpack";
 
-import {Context, ILogLevel, ILogtailLog, ILogtailOptions, LogLevel, StackContextHint} from "@logtail/types";
-import {Base} from "@logtail/core";
+import {
+  Context,
+  ILogLevel,
+  ILogtailLog,
+  ILogtailOptions,
+  LogLevel,
+  StackContextHint,
+} from "@logtail/types";
+import { Base } from "@logtail/core";
 
-import {getStackContext} from "./context";
+import { getStackContext } from "./context";
 
 export class Node extends Base {
   /**
@@ -15,26 +22,20 @@ export class Node extends Base {
    */
   private _writeStream?: Writable | Duplex;
 
-  public constructor(
-    sourceToken: string,
-    options?: Partial<ILogtailOptions>
-  ) {
+  public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
     super(sourceToken, options);
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
-      const res = await fetch(
-        this._options.endpoint,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/msgpack",
-            Authorization: `Bearer ${this._sourceToken}`,
-            "User-Agent": "logtail-js(node)"
-          },
-          body: this.encodeAsMsgpack(logs)
-        }
-      );
+      const res = await fetch(this._options.endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/msgpack",
+          Authorization: `Bearer ${this._sourceToken}`,
+          "User-Agent": "logtail-js(node)",
+        },
+        body: this.encodeAsMsgpack(logs),
+      });
 
       if (res.ok) {
         return logs;
@@ -59,10 +60,10 @@ export class Node extends Base {
     message: string,
     level?: ILogLevel,
     context: TContext = {} as TContext,
-    stackContextHint?: StackContextHint
+    stackContextHint?: StackContextHint,
   ) {
     // Wrap context in an object, if it's not already
-    if (typeof context !== 'object') {
+    if (typeof context !== "object") {
       const wrappedContext: unknown = { extra: context };
       context = wrappedContext as TContext;
     }
@@ -96,14 +97,30 @@ export class Node extends Base {
 
   private encodeAsMsgpack(logs: ILogtailLog[]): Buffer {
     const maxDepth = this._options.contextObjectMaxDepth;
-    const logsWithISODateFormat = logs.map((log) => ({ ...this.sanitizeForEncoding(log, maxDepth), dt: log.dt.toISOString() }));
+    const logsWithISODateFormat = logs.map(log => ({
+      ...this.sanitizeForEncoding(log, maxDepth),
+      dt: log.dt.toISOString(),
+    }));
     const encoded = encode(logsWithISODateFormat);
-    const buffer = Buffer.from(encoded.buffer, encoded.byteOffset, encoded.byteLength)
+    const buffer = Buffer.from(
+      encoded.buffer,
+      encoded.byteOffset,
+      encoded.byteLength,
+    );
     return buffer;
   }
 
-  private sanitizeForEncoding(value: any, maxDepth: number, visitedObjects: WeakSet<any> = new WeakSet()): any {
-    if (value === null || typeof value === "boolean" || typeof value === "number" || typeof value === "string") {
+  private sanitizeForEncoding(
+    value: any,
+    maxDepth: number,
+    visitedObjects: WeakSet<any> = new WeakSet(),
+  ): any {
+    if (
+      value === null ||
+      typeof value === "boolean" ||
+      typeof value === "number" ||
+      typeof value === "string"
+    ) {
       return value;
     } else if (value instanceof Date) {
       // Date instances can be invalid & toISOString() will fail
@@ -118,23 +135,32 @@ export class Node extends Base {
         message: value.message,
         stack: value.stack?.split("\n"),
       };
-    } else if ((typeof value === "object" || Array.isArray(value)) && (maxDepth < 1 || visitedObjects.has(value))) {
+    } else if (
+      (typeof value === "object" || Array.isArray(value)) &&
+      (maxDepth < 1 || visitedObjects.has(value))
+    ) {
       if (visitedObjects.has(value)) {
         if (this._options.contextObjectCircularRefWarn) {
-          console.warn(`[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.`);
+          console.warn(
+            `[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.`,
+          );
         }
-        return '<omitted circular reference>'
+        return "<omitted circular reference>";
       }
       if (this._options.contextObjectMaxDepthWarn) {
-        console.warn(`[Logtail] Max depth of ${this._options.contextObjectMaxDepth} reached when serializing logs. Please do not use excessive object depth in your logs.`);
+        console.warn(
+          `[Logtail] Max depth of ${this._options.contextObjectMaxDepth} reached when serializing logs. Please do not use excessive object depth in your logs.`,
+        );
       }
-      return `<omitted context beyond configured max depth: ${this._options.contextObjectMaxDepth}>`
+      return `<omitted context beyond configured max depth: ${this._options.contextObjectMaxDepth}>`;
     } else if (Array.isArray(value)) {
       visitedObjects.add(value);
-      const sanitizedArray = value.map((item) => this.sanitizeForEncoding(item, maxDepth-1, visitedObjects));
+      const sanitizedArray = value.map(item =>
+        this.sanitizeForEncoding(item, maxDepth - 1, visitedObjects),
+      );
       visitedObjects.delete(value);
 
-      return sanitizedArray
+      return sanitizedArray;
     } else if (typeof value === "object") {
       const logClone: { [key: string]: any } = {};
 
@@ -144,8 +170,12 @@ export class Node extends Base {
         const key = item[0];
         const value = item[1];
 
-        const result = this.sanitizeForEncoding(value, maxDepth-1, visitedObjects);
-        if (result !== undefined){
+        const result = this.sanitizeForEncoding(
+          value,
+          maxDepth - 1,
+          visitedObjects,
+        );
+        if (result !== undefined) {
           logClone[key] = result;
         }
       });
@@ -153,7 +183,7 @@ export class Node extends Base {
       visitedObjects.delete(value);
 
       return logClone;
-    } else if (typeof value === 'undefined') {
+    } else if (typeof value === "undefined") {
       return undefined;
     } else {
       return `<omitted unserializable ${typeof value}>`;

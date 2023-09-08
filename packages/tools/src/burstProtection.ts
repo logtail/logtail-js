@@ -11,10 +11,10 @@ const RESOLUTION = 64;
 export default function makeBurstProtection<T extends (...args: any[]) => any>(
   milliseconds: number,
   max: number,
-  functionName: string = 'The function',
+  functionName: string = "The function",
 ) {
   if (milliseconds <= 0 || max <= 0) {
-    return (fn: T) => fn
+    return (fn: T) => fn;
   }
 
   let callCounts: number[] = [0];
@@ -22,17 +22,22 @@ export default function makeBurstProtection<T extends (...args: any[]) => any>(
   let lastIntervalTime: number = Date.now();
 
   function updateCallCounts() {
-    const now = Date.now()
-    const intervalLength = milliseconds / RESOLUTION
+    const now = Date.now();
+    const intervalLength = milliseconds / RESOLUTION;
 
     if (now < lastIntervalTime + intervalLength) {
-      return
+      return;
     }
 
     // Prepend callCounts with correct number of zeroes and keep its length to RESOLUTION at max
-    const intervalCountSinceLast = Math.floor((now - lastIntervalTime) / intervalLength)
-    callCounts = Array(Math.min(intervalCountSinceLast, RESOLUTION)).fill(0).concat(callCounts).slice(0, RESOLUTION)
-    lastIntervalTime += intervalCountSinceLast * intervalLength
+    const intervalCountSinceLast = Math.floor(
+      (now - lastIntervalTime) / intervalLength,
+    );
+    callCounts = Array(Math.min(intervalCountSinceLast, RESOLUTION))
+      .fill(0)
+      .concat(callCounts)
+      .slice(0, RESOLUTION);
+    lastIntervalTime += intervalCountSinceLast * intervalLength;
   }
 
   function getTotalCallCount() {
@@ -40,21 +45,23 @@ export default function makeBurstProtection<T extends (...args: any[]) => any>(
   }
 
   function incrementCallCount() {
-    callCounts[0]++
+    callCounts[0]++;
   }
 
   return (fn: T) => {
     return async (...args: InferArgs<T>[]) => {
-      updateCallCounts()
+      updateCallCounts();
       if (getTotalCallCount() < max) {
         incrementCallCount();
-        return await fn(...args)
+        return await fn(...args);
       }
 
-      const now = Date.now()
+      const now = Date.now();
       if (lastErrorOutput < now - milliseconds) {
-        lastErrorOutput = now
-        console.error(`${functionName} was called more than ${max} times during last ${milliseconds}ms. Ignoring.`)
+        lastErrorOutput = now;
+        console.error(
+          `${functionName} was called more than ${max} times during last ${milliseconds}ms. Ignoring.`,
+        );
       }
     };
   };

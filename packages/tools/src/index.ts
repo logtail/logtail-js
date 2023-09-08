@@ -14,5 +14,5 @@ export {
   base64Encode,
   makeBatch,
   makeBurstProtection,
-  makeThrottle
+  makeThrottle,
 };
