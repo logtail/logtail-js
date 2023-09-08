@@ -1,6 +1,6 @@
 import { Context, StackContextHint } from "@logtail/types";
 import { dirname, relative } from "path";
-import stackTrace, { StackFrame } from 'stack-trace';
+import stackTrace, { StackFrame } from "stack-trace";
 import { Node } from "./node";
 
 const mainFile = mainFileName();
@@ -10,7 +10,10 @@ const mainFile = mainFileName();
  *
  * @returns Context The caller's filename and the line number
  */
-export function getStackContext(logtail: Node, stackContextHint?: StackContextHint): Context {
+export function getStackContext(
+  logtail: Node,
+  stackContextHint?: StackContextHint,
+): Context {
   const stackFrame = getCallingFrame(logtail, stackContextHint);
   if (stackFrame === null) return {};
 
@@ -27,13 +30,22 @@ export function getStackContext(logtail: Node, stackContextHint?: StackContextHi
       system: {
         pid: process.pid,
         main_file: mainFile,
-      }
-    }
+      },
+    },
   };
 }
 
-function getCallingFrame(logtail: Node, stackContextHint?: StackContextHint): StackFrame | null {
-  for (let fn of [logtail.warn, logtail.error, logtail.info, logtail.debug, logtail.log]) {
+function getCallingFrame(
+  logtail: Node,
+  stackContextHint?: StackContextHint,
+): StackFrame | null {
+  for (let fn of [
+    logtail.warn,
+    logtail.error,
+    logtail.info,
+    logtail.debug,
+    logtail.log,
+  ]) {
     const stack = stackTrace.get(fn as any);
     if (stack.length > 0) return getRelevantStackFrame(stack, stackContextHint);
   }
@@ -41,11 +53,17 @@ function getCallingFrame(logtail: Node, stackContextHint?: StackContextHint): St
   return null;
 }
 
-function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackContextHint): StackFrame {
+function getRelevantStackFrame(
+  frames: StackFrame[],
+  stackContextHint?: StackContextHint,
+): StackFrame {
   if (stackContextHint) {
     let reversedFrames = frames.reverse();
-    let index = reversedFrames.findIndex((frame) => {
-      return frame.getFileName()?.includes(stackContextHint.fileName) && stackContextHint.methodNames.includes(frame.getMethodName())
+    let index = reversedFrames.findIndex(frame => {
+      return (
+        frame.getFileName()?.includes(stackContextHint.fileName) &&
+        stackContextHint.methodNames.includes(frame.getMethodName())
+      );
     });
 
     if (index > 0) return reversedFrames[index - 1];
@@ -55,7 +73,7 @@ function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackCon
 }
 
 function relativeToMainModule(fileName: string): string | null {
-  if (typeof(fileName) !== "string") {
+  if (typeof fileName !== "string") {
     return null;
   } else if (fileName.startsWith("file:/")) {
     const url = new URL(fileName);
@@ -68,16 +86,16 @@ function relativeToMainModule(fileName: string): string | null {
 
 function mainFileName(): string {
   let argv = process?.argv;
-  if (argv === undefined) return '';
+  if (argv === undefined) return "";
   // return first js file argument - arg ending in .js
   for (const arg of argv) {
-    if (typeof(arg) !== "string" || arg.startsWith('-')) {
+    if (typeof arg !== "string" || arg.startsWith("-")) {
       // break on first option
       break;
     }
-    if (arg.endsWith('.js')) {
+    if (arg.endsWith(".js")) {
       return arg;
     }
   }
-  return '';
+  return "";
 }

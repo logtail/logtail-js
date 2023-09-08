@@ -5,7 +5,7 @@ import {
   Context,
   LogLevel,
   Middleware,
-  Sync
+  Sync,
 } from "@logtail/types";
 import { makeBatch, makeBurstProtection, makeThrottle } from "@logtail/tools";
 
@@ -103,10 +103,7 @@ class Logtail {
    * @param sourceToken: string - Private source token for logging to Logtail.com
    * @param options?: ILogtailOptions - Optionally specify Logtail options
    */
-  public constructor(
-    sourceToken: string,
-    options?: Partial<ILogtailOptions>
-  ) {
+  public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
     // First, check we have a valid source token
     if (typeof sourceToken !== "string" || sourceToken === "") {
       throw new Error("Logtail source token missing");
@@ -128,18 +125,18 @@ class Logtail {
 
     // Burst protection for logging
     this._logBurstProtection = makeBurstProtection(
-        this._options.burstProtectionMilliseconds,
-        this._options.burstProtectionMax,
-        'Logging',
-    )
-    this.log = this._logBurstProtection(this.log.bind(this))
+      this._options.burstProtectionMilliseconds,
+      this._options.burstProtectionMax,
+      "Logging",
+    );
+    this.log = this._logBurstProtection(this.log.bind(this));
 
     // Create a batcher, for aggregating logs by buffer size/interval
     const batcher = makeBatch(
       this._options.batchSize,
       this._options.batchInterval,
       this._options.retryCount,
-      this._options.retryBackoff
+      this._options.retryBackoff,
     );
 
     this._batch = batcher.initPusher((logs: any) => {
@@ -152,7 +149,7 @@ class Logtail {
   /* PRIVATE METHODS */
   private getContextFromError(e: Error) {
     return {
-      stack: e.stack
+      stack: e.stack,
     };
   }
 
@@ -162,7 +159,7 @@ class Logtail {
    * Flush batched logs to Logtail
    */
   public async flush() {
-    return this._flush()
+    return this._flush();
   }
 
   /**
@@ -203,25 +200,25 @@ class Logtail {
   public async log<TContext extends Context>(
     message: Message,
     level: ILogLevel = LogLevel.Info,
-    context: TContext = {} as TContext
+    context: TContext = {} as TContext,
   ): Promise<ILogtailLog & TContext> {
     if (this._options.sendLogsToConsoleOutput) {
       switch (level) {
         case "debug":
-          console.debug(message, context)
-          break
+          console.debug(message, context);
+          break;
         case "info":
-          console.info(message, context)
-          break
+          console.info(message, context);
+          break;
         case "warn":
-          console.warn(message, context)
-          break
+          console.warn(message, context);
+          break;
         case "error":
-          console.error(message, context)
-          break
+          console.error(message, context);
+          break;
         default:
-          console.log(`[${level.toUpperCase()}]`, message, context)
-          break
+          console.log(`[${level.toUpperCase()}]`, message, context);
+          break;
       }
     }
 
@@ -242,7 +239,7 @@ class Logtail {
       level,
 
       // Add initial context
-      ...context
+      ...context,
     };
 
     // Determine the type of message...
@@ -257,7 +254,7 @@ class Logtail {
         ...this.getContextFromError(message),
 
         // Add error message
-        message: message.message
+        message: message.message,
       };
     } else {
       log = {
@@ -265,7 +262,7 @@ class Logtail {
         ...log,
 
         // Add string message
-        message
+        message,
       };
     }
 
@@ -319,7 +316,7 @@ class Logtail {
    */
   public async debug<TContext extends Context>(
     message: Message,
-    context: TContext = {} as TContext
+    context: TContext = {} as TContext,
   ) {
     return this.log(message, LogLevel.Debug, context);
   }
@@ -334,7 +331,7 @@ class Logtail {
    */
   public async info<TContext extends Context>(
     message: Message,
-    context: TContext = {} as TContext
+    context: TContext = {} as TContext,
   ) {
     return this.log(message, LogLevel.Info, context);
   }
@@ -349,7 +346,7 @@ class Logtail {
    */
   public async warn<TContext extends Context>(
     message: Message,
-    context: TContext = {} as TContext
+    context: TContext = {} as TContext,
   ) {
     return this.log(message, LogLevel.Warn, context);
   }
@@ -364,7 +361,7 @@ class Logtail {
    */
   public async error<TContext extends Context>(
     message: Message,
-    context: TContext = {} as TContext
+    context: TContext = {} as TContext,
   ) {
     return this.log(message, LogLevel.Error, context);
   }
@@ -402,7 +399,11 @@ class Logtail {
 
 // noinspection JSUnusedGlobalSymbols
 export default class extends Logtail {
-  async log<TContext extends Context>(message: Message, level: ILogLevel = LogLevel.Info, context: TContext = {} as TContext): Promise<ILogtailLog & TContext> {
+  async log<TContext extends Context>(
+    message: Message,
+    level: ILogLevel = LogLevel.Info,
+    context: TContext = {} as TContext,
+  ): Promise<ILogtailLog & TContext> {
     return super.log(message, level, context);
   }
-};
+}

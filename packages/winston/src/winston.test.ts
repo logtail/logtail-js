@@ -1,6 +1,6 @@
 import winston, { LogEntry } from "winston";
 import { Logtail } from "@logtail/node";
-import {LogLevel, ILogtailLog, Context} from "@logtail/types";
+import { LogLevel, ILogtailLog, Context } from "@logtail/types";
 
 import { LogtailTransport } from "./winston";
 
@@ -13,11 +13,15 @@ const message = "Something to do with something";
  * @param logLevel LogLevel - Logtail log level
  * @param levels Use custom log levels
  */
-async function testLevel(level: string, logLevel: LogLevel, levels?: {[key:string]: number}) {
+async function testLevel(
+  level: string,
+  logLevel: LogLevel,
+  levels?: { [key: string]: number },
+) {
   // Sample log
   const log: LogEntry = {
     level,
-    message
+    message,
   };
 
   // Logtail fixtures
@@ -53,13 +57,13 @@ async function testLevel(level: string, logLevel: LogLevel, levels?: {[key:strin
 }
 
 describe("Winston logging tests", () => {
-  const levels: { [key:string]: LogLevel } = {
-    "silly": LogLevel.Silly,
-    "debug": LogLevel.Debug,
-    "http": LogLevel.Http,
-    "verbose": LogLevel.Verbose,
-    "warn": LogLevel.Warn,
-    "error": LogLevel.Error,
+  const levels: { [key: string]: LogLevel } = {
+    silly: LogLevel.Silly,
+    debug: LogLevel.Debug,
+    http: LogLevel.Http,
+    verbose: LogLevel.Verbose,
+    warn: LogLevel.Warn,
+    error: LogLevel.Error,
   };
   for (const key in levels) {
     it(`should log at the '${key}' level`, async () => {
@@ -72,26 +76,26 @@ describe("Winston logging tests", () => {
     const entries: LogEntry[] = [
       {
         level: "info",
-        message: `${message} 1`
+        message: `${message} 1`,
       },
       {
         level: "debug",
-        message: `${message} 2`
+        message: `${message} 2`,
       },
       {
         level: "warn",
-        message: `${message} 3`
+        message: `${message} 3`,
       },
       {
         level: "error",
-        message: `${message} 4`
-      }
+        message: `${message} 4`,
+      },
     ];
 
     // Fixtures
     const logtail = new Logtail("test", {
       batchInterval: 1000, // <-- shouldn't be exceeded
-      batchSize: entries.length
+      batchSize: entries.length,
     });
 
     logtail.setSync(async logs => {
@@ -102,7 +106,7 @@ describe("Winston logging tests", () => {
         log =>
           entries.findIndex(entry => {
             return entry.message == log.message;
-          }) > -1
+          }) > -1,
       );
       expect(isIdentical).toBe(true);
 
@@ -115,7 +119,7 @@ describe("Winston logging tests", () => {
     // Create a Winston logger
     const logger = winston.createLogger({
       level: "debug", // <-- debug and above
-      transports: [new LogtailTransport(logtail)]
+      transports: [new LogtailTransport(logtail)],
     });
 
     entries.forEach(entry => logger.log(entry.level, entry.message));
@@ -133,7 +137,7 @@ describe("Winston logging tests", () => {
     // Create a Winston logger
     const logger = winston.createLogger({
       level: LogLevel.Info,
-      transports: [new LogtailTransport(logtail)]
+      transports: [new LogtailTransport(logtail)],
     });
 
     // Log it!
@@ -167,8 +171,8 @@ describe("Winston logging tests", () => {
       level: LogLevel.Info,
       transports: [new LogtailTransport(logtail)],
       defaultMeta: {
-        component: "server"
-      }
+        component: "server",
+      },
     });
 
     // Log it!
@@ -203,8 +207,8 @@ describe("Winston logging tests", () => {
       level: LogLevel.Info,
       transports: [new LogtailTransport(logtail)],
       defaultMeta: {
-        component: "server"
-      }
+        component: "server",
+      },
     });
 
     logger.info("message with context");

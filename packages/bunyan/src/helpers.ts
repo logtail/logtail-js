@@ -7,7 +7,7 @@ import { LogLevel, ILogLevel } from "@logtail/types";
 export function getLogLevel(level: number | string): ILogLevel {
   // Are we dealing with a string log level?
   if (typeof level === "string") {
-    return level.toLowerCase()
+    return level.toLowerCase();
   }
   if (typeof level === "number") {
     // Trace

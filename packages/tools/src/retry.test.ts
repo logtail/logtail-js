@@ -10,7 +10,7 @@ function getRandomLog(): ILogtailLog {
   return {
     dt: new Date(),
     level: LogLevel.Info,
-    message: String(Math.random())
+    message: String(Math.random()),
   };
 }
 

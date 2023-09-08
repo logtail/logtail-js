@@ -10,7 +10,7 @@ function getServer(): [KoaLogtail, Koa] {
   // Init new Koa Logtail instance
   const logtail = new KoaLogtail("test", {
     // Override `batchInterval` to test logs faster
-    batchInterval: 1
+    batchInterval: 1,
   });
 
   // Create a new Koa instance
@@ -177,7 +177,7 @@ describe("Koa Logtail tests", () => {
   it("should not log 'Info' logs when the level is 'Warn'", async done => {
     const [logtail, koa] = getServer();
 
-    logtail.setLevel(LogLevel.Warn)
+    logtail.setLevel(LogLevel.Warn);
 
     // Mock out the sync method
     logtail.setSync(async logs => {
@@ -185,7 +185,7 @@ describe("Koa Logtail tests", () => {
       expect(logs.length).toBe(1);
 
       // Should show an error
-      expect(logs[0].message).toContain('Koa HTTP request: 404');
+      expect(logs[0].message).toContain("Koa HTTP request: 404");
 
       // Should be 'warn' level
       expect(logs[0].level).toBe(LogLevel.Warn);
@@ -198,12 +198,12 @@ describe("Koa Logtail tests", () => {
 
     // This request should log "info", and thus not be logged.
     await request(koa.callback())
-        .get("/ping")
-        .expect(200);
+      .get("/ping")
+      .expect(200);
 
     // This request should log "warn", and thus be logged.
     await request(koa.callback())
-        .get("/throw")
-        .expect(404);
-  })
+      .get("/throw")
+      .expect(404);
+  });
 });

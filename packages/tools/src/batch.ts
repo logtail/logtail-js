@@ -43,7 +43,7 @@ export default function makeBatch(
   size: number = DEFAULT_BUFFER_SIZE,
   flushTimeout: number = DEFAULT_FLUSH_TIMEOUT,
   retryCount: number = DEFAULT_RETRY_COUNT,
-  retryBackoff: number = DEFAULT_RETRY_BACKOFF
+  retryBackoff: number = DEFAULT_RETRY_BACKOFF,
 ) {
   let timeout: NodeJS.Timeout | null;
   let cb: Function;
@@ -85,15 +85,15 @@ export default function makeBatch(
    */
   async function setupTimeout() {
     if (timeout) {
-      return
+      return;
     }
 
     return new Promise<void>(resolve => {
-      timeout = setTimeout(async function () {
-        await flush()
-        resolve()
-      }, flushTimeout)
-    })
+      timeout = setTimeout(async function() {
+        await flush();
+        resolve();
+      }, flushTimeout);
+    });
   }
 
   /*
@@ -101,16 +101,16 @@ export default function makeBatch(
    * @param fn - Any function to process list
    */
   return {
-    initPusher: function (fn: Function) {
+    initPusher: function(fn: Function) {
       cb = fn;
 
       /*
        * Pushes each log into list
        * @param log: ILogtailLog - Any object to push into list
        */
-      return async function (log: ILogtailLog): Promise<ILogtailLog> {
+      return async function(log: ILogtailLog): Promise<ILogtailLog> {
         return new Promise<ILogtailLog>(async (resolve, reject) => {
-          buffer.push({log, resolve, reject});
+          buffer.push({ log, resolve, reject });
 
           // If the buffer is full enough, flush it
           // Unless we're still waiting for the minimum retry backoff time
@@ -124,6 +124,6 @@ export default function makeBatch(
         });
       };
     },
-    flush
+    flush,
   };
 }

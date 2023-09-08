@@ -11,7 +11,7 @@ function getRandomLog(): ILogtailLog {
   return {
     dt: new Date(),
     level: LogLevel.Info,
-    message: String(Math.random())
+    message: String(Math.random()),
   };
 }
 
@@ -76,7 +76,7 @@ describe("batch tests", () => {
       throw err;
     });
 
-    await Promise.all(logNumberTimes(logger, 5)).catch(e => {})
+    await Promise.all(logNumberTimes(logger, 5)).catch(e => {});
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
     done();
   });
@@ -91,12 +91,12 @@ describe("batch tests", () => {
 
     const batcher = makeBatch(size, sendTimeout, retryCount, retryBackoff);
     const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
-      called()
-      throw err
+      called();
+      throw err;
     });
 
-    logger(getRandomLog()).catch(e => {})
-    await batcher.flush()
+    logger(getRandomLog()).catch(e => {});
+    await batcher.flush();
 
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
     done();
@@ -154,8 +154,8 @@ describe("batch tests", () => {
 
   it("should send after flush (with long timeout)", async done => {
     nock("http://example.com")
-        .get("/")
-        .reply(200, new Promise(res => setTimeout(() => res(200), 1003)));
+      .get("/")
+      .reply(200, new Promise(res => setTimeout(() => res(200), 1003)));
 
     const called = jest.fn();
     const size = 50;
@@ -171,10 +171,10 @@ describe("batch tests", () => {
       }
     });
 
-    logNumberTimes(logger, 5)
+    logNumberTimes(logger, 5);
     expect(called).toHaveBeenCalledTimes(0);
     try {
-      await batcher.flush()
+      await batcher.flush();
     } catch (e) {
       throw e;
     }

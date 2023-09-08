@@ -11,7 +11,7 @@ let MAX_TRIES = 3;
  * @param sec - Number
  */
 function delay(sec: number): Promise<any> {
-  return new Promise((resolve) => setTimeout(resolve, sec * 1000));
+  return new Promise(resolve => setTimeout(resolve, sec * 1000));
 }
 
 /**
@@ -20,7 +20,7 @@ function delay(sec: number): Promise<any> {
  * @param fn - (logs: ILogtailLog[]) => Promise<ILogtailLog[]>
  */
 export default async function makeRetry(
-  fn: (logs: ILogtailLog[]) => Promise<ILogtailLog[]>
+  fn: (logs: ILogtailLog[]) => Promise<ILogtailLog[]>,
 ) {
   /**
    * number of retries
