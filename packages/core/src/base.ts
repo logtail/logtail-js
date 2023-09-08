@@ -211,13 +211,13 @@ class Logtail {
           console.debug(message, context)
           break
         case "info":
-          console.debug(message, context)
+          console.info(message, context)
           break
         case "warn":
-          console.debug(message, context)
+          console.warn(message, context)
           break
         case "error":
-          console.debug(message, context)
+          console.error(message, context)
           break
         default:
           console.log(`[${level.toUpperCase()}]`, message, context)
