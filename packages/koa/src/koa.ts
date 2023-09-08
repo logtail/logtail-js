@@ -109,7 +109,7 @@ class KoaLogtail extends Logtail {
     } catch (e) {
       // Error was thrown in middleware / HTTP request handling
       logLevel = LogLevel.Error;
-      msg = this._koaOptions.errorMessageFormatter(ctx, e);
+      msg = this._koaOptions.errorMessageFormatter(ctx, e as Error);
     } finally {
       // Finally, log to the correct log level
       if (

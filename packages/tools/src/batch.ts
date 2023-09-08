@@ -88,7 +88,7 @@ export default function makeBatch(
       return
     }
 
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       timeout = setTimeout(async function () {
         await flush()
         resolve()

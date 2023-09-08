@@ -206,10 +206,22 @@ class Logtail {
     context: TContext = {} as TContext
   ): Promise<ILogtailLog & TContext> {
     if (this._options.sendLogsToConsoleOutput) {
-      if (["debug", "info", "warn", "error"].indexOf(level) !== -1) {
-        console[level as keyof typeof console](message, context)
-      } else {
-        console.log(`[${level.toUpperCase()}]`, message, context)
+      switch (level) {
+        case "debug":
+          console.debug(message, context)
+          break
+        case "info":
+          console.info(message, context)
+          break
+        case "warn":
+          console.warn(message, context)
+          break
+        case "error":
+          console.error(message, context)
+          break
+        default:
+          console.log(`[${level.toUpperCase()}]`, message, context)
+          break
       }
     }
 
