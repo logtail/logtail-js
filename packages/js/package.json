@@ -1,6 +1,6 @@
 {
   "name": "@logtail/js",
-  "version": "0.4.7",
+  "version": "0.4.9",
   "description": "Logtail.com Node.js + browser logging",
   "keywords": [
     "Logtail",
@@ -42,8 +42,8 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@logtail/browser": "^0.4.7",
-    "@logtail/node": "^0.4.6"
+    "@logtail/browser": "^0.4.9",
+    "@logtail/node": "^0.4.9"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
