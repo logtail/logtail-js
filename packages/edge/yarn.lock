@@ -26,25 +26,25 @@
     "@babel/helper-validator-identifier" "^7.19.1"
     to-fast-properties "^2.0.0"
 
-"@logtail/core@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.0.tgz#a8e510756bf9fd1b2cc6c901225eb03685919ca8"
-  integrity sha512-xItEU5vY2LvcJyAVkxKKZ3UvG3CsK2pMvhuLDntlC+US1LlNcfQmVzvInN5j5iXl0kjNO6n+0EY2YyhhOgjWCQ==
+"@logtail/core@^0.4.6":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.9.tgz#78f2aeaacf02e6a34c93d859694341104d26e232"
+  integrity sha512-f9Dgt84OiLsn6lEzF7eCi9ND2ZPrY6jdmbDA55t0i5H5EfE7sehIgB6oof5YqPF9TB/p72sNoxKi5FDAb5iDrw==
   dependencies:
-    "@logtail/tools" "^0.4.0"
-    "@logtail/types" "^0.4.0"
+    "@logtail/tools" "^0.4.9"
+    "@logtail/types" "^0.4.9"
 
-"@logtail/tools@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.0.tgz#ff1bed193a005b12007df510f6ce294b8f518207"
-  integrity sha512-7lSKdJTq7NMUvriMhkf6cTxY9QlXi+YLLuHxbSOKI56HpJN8qJGPVcmOdzlbk8pJofe9RnME8hBMLTHAD3bmsw==
+"@logtail/tools@^0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.9.tgz#c234ba144af68a8daae7b321b7239564918edea8"
+  integrity sha512-JfLG01JARLNmbCvrqGdQ7c7O1cVTNWLWgJ81+mQ/ZtlQVTJezVH+uQHwa2Qcez1vKOYOlgbL0s1/xJm0QJPKHQ==
   dependencies:
-    "@logtail/types" "^0.4.0"
+    "@logtail/types" "^0.4.9"
 
-"@logtail/types@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.0.tgz#39c28e08f805657c70107071dc166866153563a8"
-  integrity sha512-2CR3w7Xf5rKWbUlgiaBKeVrqWuWnVBz0Ymycw/gYwupVI0fb6Ameid9fHfeM5LI/gbIO3ZTIMADlA0FvFbuXMQ==
+"@logtail/types@^0.4.6", "@logtail/types@^0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.9.tgz#5261204e5a2296c6c1edd57db116434a5944ebe6"
+  integrity sha512-3tKLic8gV93URDu0dB1kxmxGAK7SpnjdZx7/c3haELMsO64Cq4nlrwIVJNx/5g3Yd2G0RLbt7pvFPFfgQpqljA==
   dependencies:
     js "^0.1.0"
 
@@ -636,10 +636,10 @@ type-detect@^4.0.0, type-detect@^4.0.5:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/type-detect/-/type-detect-4.0.8.tgz#7646fb5f18871cfbb7749e69bd39a6388eb7450c"
 
-typescript@^3.9.7:
-  version "3.9.10"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
-  integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
+typescript@^4.9.5:
+  version "4.9.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
+  integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==
 
 unbox-primitive@^1.0.0:
   version "1.0.0"

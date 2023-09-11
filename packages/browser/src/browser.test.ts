@@ -25,7 +25,7 @@ describe("browser tests", () => {
   //   expect(actualValue).toEqual(expectedValue);
   // });
 
-  it("should echo log if logtail sends 20x status code", async done => {
+  it("should echo log if logtail sends 20x status code", async () => {
     nock("https://in.logtail.com")
       .post("/")
       .reply(201);
@@ -35,11 +35,9 @@ describe("browser tests", () => {
     const browser = new Browser("valid source token");
     const echoedLog = await browser.log(message);
     expect(echoedLog.message).toEqual(expectedLog.message);
-
-    done();
   });
 
-  it("should throw error if logtail sends non 200 status code", async done => {
+  it("should throw error if logtail sends non 200 status code", async () => {
     nock("https://in.logtail.com")
       .post("/")
       .reply(401);
@@ -50,7 +48,5 @@ describe("browser tests", () => {
     });
     const message: string = String(Math.random);
     await expect(browser.log(message)).rejects.toThrow();
-
-    done();
   });
 });

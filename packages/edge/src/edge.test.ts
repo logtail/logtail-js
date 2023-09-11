@@ -88,7 +88,7 @@ describe("edge tests", () => {
     await logtail.log(message);
   });
 
-  it("should pipe logs to a writable file stream", async done => {
+  it("should pipe logs to a writable file stream", async () => {
     // Create a temporary file name
     const temp = path.join(os.tmpdir(), `logtail_${Math.random()}`);
 
@@ -124,8 +124,6 @@ describe("edge tests", () => {
       for (let i = 0; i < messages.length; i++) {
         expect(data[i].message).toEqual(messages[i]);
       }
-
-      done();
     });
 
     writeStream.end();
