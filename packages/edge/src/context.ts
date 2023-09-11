@@ -1,9 +1,7 @@
 import { Context, StackContextHint } from "@logtail/types";
-import { dirname, relative } from "path";
 import stackTrace, { StackFrame } from 'stack-trace';
 import { Edge } from "./edge";
 
-const mainFile = mainFileName();
 /**
  * Determines the file name and the line number from which the log
  * was initiated (if we're able to tell).
@@ -17,17 +15,13 @@ export function getStackContext(logtail: Edge, stackContextHint?: StackContextHi
   return {
     context: {
       runtime: {
-        file: relativeToMainModule(stackFrame.getFileName()),
+        file: stackFrame.getFileName(),
         type: stackFrame.getTypeName(),
         method: stackFrame.getMethodName(),
         function: stackFrame.getFunctionName(),
         line: stackFrame.getLineNumber(),
         column: stackFrame.getColumnNumber(),
       },
-      system: {
-        pid: process.pid,
-        main_file: mainFile,
-      }
     }
   };
 }
@@ -52,32 +46,4 @@ function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackCon
   }
 
   return frames[0];
-}
-
-function relativeToMainModule(fileName: string): string | null {
-  if (typeof(fileName) !== "string") {
-    return null;
-  } else if (fileName.startsWith("file:/")) {
-    const url = new URL(fileName);
-    return url.pathname;
-  } else {
-    const rootPath = dirname(mainFileName());
-    return relative(rootPath, fileName);
-  }
-}
-
-function mainFileName(): string {
-  let argv = process?.argv;
-  if (argv === undefined) return '';
-  // return first js file argument - arg ending in .js
-  for (const arg of argv) {
-    if (typeof(arg) !== "string" || arg.startsWith('-')) {
-      // break on first option
-      break;
-    }
-    if (arg.endsWith('.js')) {
-      return arg;
-    }
-  }
-  return '';
 }

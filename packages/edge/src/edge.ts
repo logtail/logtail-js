@@ -1,5 +1,3 @@
-import {Duplex, Writable} from "stream";
-
 import {encode} from "@msgpack/msgpack";
 
 import {Context, ILogLevel, ILogtailLog, ILogtailOptions, LogLevel, StackContextHint} from "@logtail/types";
@@ -8,12 +6,6 @@ import {Base} from "@logtail/core";
 import {getStackContext} from "./context";
 
 export class Edge extends Base {
-  /**
-   * Readable/Duplex stream where JSON stringified logs of type `ILogtailLog`
-   * will be pushed after syncing
-   */
-  private _writeStream?: Writable | Duplex;
-
   public constructor(
     sourceToken: string,
     options?: Partial<ILogtailOptions>
@@ -74,31 +66,16 @@ export class Edge extends Base {
     context = { ...getStackContext(this, stackContextHint), ...context };
     const processedLog = await super.log(message, level, context);
 
-    // Push the processed log to the stream, for piping
-    if (this._writeStream) {
-      this._writeStream.write(JSON.stringify(processedLog) + "\n");
-    }
-
     // Return the transformed log
     return processedLog as ILogtailLog & TContext;
   }
 
-  /**
-   * Pipe JSON stringified `ILogtailLog` to a stream after syncing
-   *
-   * @param stream - Writable|Duplex stream
-   */
-  public pipe(stream: Writable | Duplex) {
-    this._writeStream = stream;
-    return stream;
-  }
-
-  private encodeAsMsgpack(logs: ILogtailLog[]): Buffer {
+  private encodeAsMsgpack(logs: ILogtailLog[]): Uint8Array {
     const maxDepth = this._options.contextObjectMaxDepth;
     const logsWithISODateFormat = logs.map((log) => ({ ...this.sanitizeForEncoding(log, maxDepth), dt: log.dt.toISOString() }));
     const encoded = encode(logsWithISODateFormat);
-    const buffer = Buffer.from(encoded.buffer, encoded.byteOffset, encoded.byteLength)
-    return buffer;
+
+    return new Uint8Array(encoded.buffer, encoded.byteOffset, encoded.byteLength)
   }
 
   private sanitizeForEncoding(value: any, maxDepth: number, visitedObjects: WeakSet<any> = new WeakSet()): any {
