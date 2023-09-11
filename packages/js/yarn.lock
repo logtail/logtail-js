@@ -2,47 +2,47 @@
 # yarn lockfile v1
 
 
-"@logtail/browser@^0.4.7":
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/@logtail/browser/-/browser-0.4.7.tgz#dfb89fde6bcdb91535bf21643d9832a624e34ae9"
-  integrity sha512-wICS5FuRfa7sT3Bt5HY6I6VLI67vcLQ0A+cCq4M4R3FgG6JZ07gkVq4CAGmqXsUqXsA4b/ZjBL2CPkJ5xEIcYQ==
+"@logtail/browser@^0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@logtail/browser/-/browser-0.4.9.tgz#5f80a9410d34161b7c9fc4da1f0a27f750a0b7c4"
+  integrity sha512-JmaFJtzWyQ1xUuEcN6+/XN+kAMUQPp4AGefDgjUQTdGKzI1jJPpm/dCeBANOU61s6eRMeQHQ5OyTlsnx+dVLig==
   dependencies:
-    "@logtail/core" "^0.4.6"
-    "@logtail/tools" "^0.4.6"
+    "@logtail/core" "^0.4.9"
+    "@logtail/tools" "^0.4.9"
     cross-fetch "^3.0.4"
 
-"@logtail/core@^0.4.6":
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.6.tgz#873aea3b7c79d209b07c1fc0834bf2dc34909f94"
-  integrity sha512-lUGLtxZoZGgA8WoEOkH3XhldeM7J4+Ou3eIUaxUY0BHMgQSumWIsXlqEaPn6zxLM+b0cyam8z9HH9kUBBnr6Sw==
+"@logtail/core@^0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.9.tgz#78f2aeaacf02e6a34c93d859694341104d26e232"
+  integrity sha512-f9Dgt84OiLsn6lEzF7eCi9ND2ZPrY6jdmbDA55t0i5H5EfE7sehIgB6oof5YqPF9TB/p72sNoxKi5FDAb5iDrw==
   dependencies:
-    "@logtail/tools" "^0.4.6"
-    "@logtail/types" "^0.4.6"
+    "@logtail/tools" "^0.4.9"
+    "@logtail/types" "^0.4.9"
 
-"@logtail/node@^0.4.6":
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.6.tgz#f7aabd8d9be68bb152d0f01c4717e4c2c1d26128"
-  integrity sha512-Md2rnsHwn11ISFnxl0ibBJObB6u0DJF7zvQlzAO+zHLb92keSWBs5xq1PowqTkANfZ9VuPIqR4tZ4Tbt0ZPPOw==
+"@logtail/node@^0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.9.tgz#83c4d7c094730ca6bc5f70b10b5faa1bee0ab6af"
+  integrity sha512-Gr4Oz6NEwYC8MWrw+YZx55s1p+LkAeEjQfiHY2BkfKiJz9k7O2ScFs+eqKdAOSINTYUC6HoUYfOTOqqWW8BzIg==
   dependencies:
-    "@logtail/core" "^0.4.6"
-    "@logtail/types" "^0.4.6"
+    "@logtail/core" "^0.4.9"
+    "@logtail/types" "^0.4.9"
     "@msgpack/msgpack" "^2.5.1"
     "@types/stack-trace" "^0.0.29"
     cross-fetch "^3.0.4"
     minimatch "^3.0.4"
     stack-trace "^0.0.10"
 
-"@logtail/tools@^0.4.6":
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.6.tgz#99b9d0f5cac4ffad740d734d311b0ce5a42c2918"
-  integrity sha512-fcUg/OUTgdaEYUI0SQXQXOeX51+0Xh5r+3ypfbIrovMpeEkyAT12ivs+0vXX1y3uF+XoAYWWXNULGMtUl5KLZg==
+"@logtail/tools@^0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.9.tgz#c234ba144af68a8daae7b321b7239564918edea8"
+  integrity sha512-JfLG01JARLNmbCvrqGdQ7c7O1cVTNWLWgJ81+mQ/ZtlQVTJezVH+uQHwa2Qcez1vKOYOlgbL0s1/xJm0QJPKHQ==
   dependencies:
-    "@logtail/types" "^0.4.6"
+    "@logtail/types" "^0.4.9"
 
-"@logtail/types@^0.4.6":
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.6.tgz#522cf4ee68daff00aab9362fcd0ff78ba97660e0"
-  integrity sha512-+dlM4hk9MfA9Wes3lk8vBk1P0X+eXHxKkQg8kn6U+A1n8DlL3d4ptFkt19R6axVIvDQRNZ8mAZ0CcYsCxCnPrg==
+"@logtail/types@^0.4.9":
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.9.tgz#5261204e5a2296c6c1edd57db116434a5944ebe6"
+  integrity sha512-3tKLic8gV93URDu0dB1kxmxGAK7SpnjdZx7/c3haELMsO64Cq4nlrwIVJNx/5g3Yd2G0RLbt7pvFPFfgQpqljA==
   dependencies:
     js "^0.1.0"
 
