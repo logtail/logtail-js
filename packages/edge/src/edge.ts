@@ -1,6 +1,5 @@
 import {Duplex, Writable} from "stream";
 
-import fetch from "cross-fetch";
 import {encode} from "@msgpack/msgpack";
 
 import {Context, ILogLevel, ILogtailLog, ILogtailOptions, LogLevel, StackContextHint} from "@logtail/types";
