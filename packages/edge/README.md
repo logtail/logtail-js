@@ -1,4 +1,4 @@
-# [Better Stack](https://betterstack.com/logs) Edge runtime client 
+# [Better Stack](https://betterstack.com/logs) Edge runtime client
 
 📣 Logtail is now part of Better Stack. [Learn more ⇗](https://betterstack.com/press/introducing-better-stack/)
 
@@ -14,6 +14,7 @@ Experience SQL-compatible structured log management based on ClickHouse. [Learn 
 [Getting started ⇗](https://betterstack.com/docs/logs/javascript/)
 
 ## Need help?
+
 Please let us know at [hello@betterstack.com](mailto:hello@betterstack.com). We're happy to help!
 
 ---

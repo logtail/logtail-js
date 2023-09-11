@@ -3,8 +3,8 @@ import { ILogtailLog, LogLevel } from "@logtail/types";
 import { Edge } from "./edge";
 
 addEventListener("fetch", event => {
-  console.log(event)
-})
+  console.log(event);
+});
 
 /**
  * Create a log with a random string / current date
@@ -13,7 +13,7 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
   return {
     dt: new Date(),
     level: LogLevel.Info,
-    message
+    message,
   };
 }
 
@@ -30,9 +30,14 @@ describe("edge tests", () => {
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    const edge = new Edge("invalid source token", { ignoreExceptions: false, throwExceptions: true });
+    const edge = new Edge("invalid source token", {
+      ignoreExceptions: false,
+      throwExceptions: true,
+    });
 
-    edge.setSync(async () => { throw new Error("Mocked error in logging") });
+    edge.setSync(async () => {
+      throw new Error("Mocked error in logging");
+    });
 
     const message: string = String(Math.random);
     await expect(edge.log(message)).rejects.toThrow();

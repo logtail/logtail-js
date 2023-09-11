@@ -33,10 +33,7 @@ function createLogger(logtail: Logtail): bunyan {
  * @param level LogLevelString - Bunyan log level (string)
  * @param logLevel LogLevel - Logtail log level
  */
-async function testLevel(
-  level: LogLevelString,
-  logLevel: LogLevel,
-) {
+async function testLevel(level: LogLevelString, logLevel: LogLevel) {
   // Logtail fixtures
   const logtail = new Logtail("test", { batchInterval: 1 });
   logtail.setSync(async logs => {
