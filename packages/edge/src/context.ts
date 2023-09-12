@@ -1,4 +1,4 @@
-import { Context, StackContextHint } from "@logtail/types";
+import { Context } from "@logtail/types";
 import stackTrace, { StackFrame } from "stack-trace";
 import { Edge } from "./edge";
 
@@ -8,11 +8,8 @@ import { Edge } from "./edge";
  *
  * @returns Context The caller's filename and the line number
  */
-export function getStackContext(
-  logtail: Edge,
-  stackContextHint?: StackContextHint,
-): Context {
-  const stackFrame = getCallingFrame(logtail, stackContextHint);
+export function getStackContext(logtail: Edge): Context {
+  const stackFrame = getCallingFrame(logtail);
   if (stackFrame === null) return {};
 
   return {
@@ -29,10 +26,7 @@ export function getStackContext(
   };
 }
 
-function getCallingFrame(
-  logtail: Edge,
-  stackContextHint?: StackContextHint,
-): StackFrame | null {
+function getCallingFrame(logtail: Edge): StackFrame | null {
   for (let fn of [
     logtail.warn,
     logtail.error,
@@ -41,27 +35,19 @@ function getCallingFrame(
     logtail.log,
   ]) {
     const stack = stackTrace.get(fn as any);
-    if (stack.length > 0) return getRelevantStackFrame(stack, stackContextHint);
+    if (stack.length > 0) return getRelevantStackFrame(stack);
   }
 
   return null;
 }
 
-function getRelevantStackFrame(
-  frames: StackFrame[],
-  stackContextHint?: StackContextHint,
-): StackFrame {
-  if (stackContextHint) {
-    let reversedFrames = frames.reverse();
-    let index = reversedFrames.findIndex(frame => {
-      return (
-        frame.getFileName()?.includes(stackContextHint.fileName) &&
-        stackContextHint.methodNames.includes(frame.getMethodName())
-      );
-    });
+function getRelevantStackFrame(frames: StackFrame[]): StackFrame {
+  let reversedFrames = frames.reverse();
+  let index = reversedFrames.findIndex(
+    frame => frame.getTypeName() === "EdgeWithExecutionContext",
+  );
 
-    if (index > 0) return reversedFrames[index - 1];
-  }
+  if (index > 0) return reversedFrames[index - 1];
 
   return frames[0];
 }

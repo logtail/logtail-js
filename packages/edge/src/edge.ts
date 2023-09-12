@@ -5,13 +5,21 @@ import {
   ILogLevel,
   ILogtailLog,
   ILogtailOptions,
-  StackContextHint,
+  LogLevel,
 } from "@logtail/types";
 import { Base } from "@logtail/core";
 
+import { ExecutionContext } from "@cloudflare/workers-types";
+
 import { getStackContext } from "./context";
+import { EdgeWithExecutionContext } from "./edgeWithExecutionContext";
+
+// Types
+type Message = string | Error;
 
 export class Edge extends Base {
+  private _warnedAboutMissingCtx: Boolean = false;
+
   public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
     super(sourceToken, options);
 
@@ -38,19 +46,23 @@ export class Edge extends Base {
     this.setSync(sync);
   }
 
+  public withExecutionContext(ctx: ExecutionContext): EdgeWithExecutionContext {
+    return new EdgeWithExecutionContext(this, ctx);
+  }
+
   /**
    * @param message (string | Error) - Log message
    * @param level (ILogLevel) - Level to log at (debug|info|warn|error)
-   * @param context: (Context | Error | any) - Log context for passing structured data
-   * @param stackContextHint (StackContextHint) - hint object for parsing stack trace
+   * @param context (Context | Error | any) - Log context for passing structured data
+   * @param ctx (ExecutionContext) - Execution context of particular worker request
    * @returns Promise<ILogtailLog> after syncing
    */
   public async log<TContext extends Context>(
-    message: string | Error,
+    message: Message,
     level?: ILogLevel,
     context: any = {} as TContext,
-    stackContextHint?: StackContextHint,
-  ) {
+    ctx?: ExecutionContext,
+  ): Promise<ILogtailLog & TContext> {
     // Wrap context in an object, if it's not already
     if (typeof context !== "object") {
       const wrappedContext: unknown = { extra: context };
@@ -62,11 +74,52 @@ export class Edge extends Base {
     }
 
     // Process/sync the log, per `Base` logic
-    context = { ...getStackContext(this, stackContextHint), ...context };
-    const processedLog = await super.log(message, level, context);
+    context = { ...getStackContext(this), ...context };
+    const log = super.log(message, level, context);
+
+    if (ctx) {
+      ctx.waitUntil(log);
+    } else if (!this._warnedAboutMissingCtx) {
+      this._warnedAboutMissingCtx = true;
+      console.warn(
+        "ExecutionContext hasn't been set via `withExecutionContext` method. Logs may not reach Better Stack unless you manually call `ctx.waitUntil(log)`.",
+      );
+    }
 
     // Return the transformed log
-    return processedLog as ILogtailLog & TContext;
+    return (await log) as ILogtailLog & TContext;
+  }
+
+  public async debug<TContext extends Context>(
+    message: Message,
+    context: TContext = {} as TContext,
+    ctx?: ExecutionContext,
+  ): Promise<ILogtailLog & TContext> {
+    return this.log<TContext>(message, LogLevel.Debug, context, ctx);
+  }
+
+  public async info<TContext extends Context>(
+    message: Message,
+    context: TContext = {} as TContext,
+    ctx?: ExecutionContext,
+  ): Promise<ILogtailLog & TContext> {
+    return this.log<TContext>(message, LogLevel.Info, context, ctx);
+  }
+
+  public async warn<TContext extends Context>(
+    message: Message,
+    context: TContext = {} as TContext,
+    ctx?: ExecutionContext,
+  ): Promise<ILogtailLog & TContext> {
+    return this.log<TContext>(message, LogLevel.Warn, context, ctx);
+  }
+
+  public async error<TContext extends Context>(
+    message: Message,
+    context: TContext = {} as TContext,
+    ctx?: ExecutionContext,
+  ): Promise<ILogtailLog & TContext> {
+    return this.log<TContext>(message, LogLevel.Error, context, ctx);
   }
 
   private encodeAsMsgpack(logs: ILogtailLog[]): Uint8Array {
