@@ -5,7 +5,6 @@ import {
   ILogLevel,
   ILogtailLog,
   ILogtailOptions,
-  LogLevel,
   StackContextHint,
 } from "@logtail/types";
 import { Base } from "@logtail/core";
@@ -40,17 +39,16 @@ export class Edge extends Base {
   }
 
   /**
-   * Override `Base` log to enable Node.js streaming
-   *
-   * @param message: string - Log message
-   * @param level (LogLevel) - Level to log at (debug|info|warn|error)
-   * @param context: (Context) - Log context for passing structured data
+   * @param message (string | Error) - Log message
+   * @param level (ILogLevel) - Level to log at (debug|info|warn|error)
+   * @param context: (Context | Error | any) - Log context for passing structured data
+   * @param stackContextHint (StackContextHint) - hint object for parsing stack trace
    * @returns Promise<ILogtailLog> after syncing
    */
   public async log<TContext extends Context>(
-    message: string,
+    message: string | Error,
     level?: ILogLevel,
-    context: TContext = {} as TContext,
+    context: any = {} as TContext,
     stackContextHint?: StackContextHint,
   ) {
     // Wrap context in an object, if it's not already
