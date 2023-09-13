@@ -1,6 +1,6 @@
 {
   "name": "@logtail/bunyan",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "Logtail.com - Bunyan writable stream",
   "keywords": [
     "Logtail",
@@ -49,7 +49,7 @@
     "bunyan": ">=1.8.12"
   },
   "dependencies": {
-    "@logtail/node": "^0.4.9",
+    "@logtail/node": "^0.4.10",
     "@logtail/types": "^0.4.9"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"

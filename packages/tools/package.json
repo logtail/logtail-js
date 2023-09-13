@@ -1,6 +1,6 @@
 {
   "name": "@logtail/tools",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "JavaScript logging tools",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
