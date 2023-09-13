@@ -41,7 +41,7 @@ function getServer(): [KoaLogtail, Koa] {
 }
 
 describe("Koa Logtail tests", () => {
-  it("should log successfully in Koa middleware", async done => {
+  it("should log successfully in Koa middleware", async () => {
     const [logtail, koa] = getServer();
 
     // Mock out the sync method
@@ -55,9 +55,6 @@ describe("Koa Logtail tests", () => {
       // Should be 'info' level
       expect(logs[0].level).toBe(LogLevel.Info);
 
-      // Finish task
-      await done();
-
       return logs;
     });
 
@@ -66,7 +63,7 @@ describe("Koa Logtail tests", () => {
       .expect(200);
   });
 
-  it("should log at 'warn' level when status is 401", async done => {
+  it("should log at 'warn' level when status is 401", async () => {
     const [logtail, koa] = getServer();
 
     // Mock out the sync method
@@ -80,9 +77,6 @@ describe("Koa Logtail tests", () => {
       // Should be 'warn' level
       expect(logs[0].level).toBe(LogLevel.Warn);
 
-      // Finish task
-      await done();
-
       return logs;
     });
 
@@ -91,7 +85,7 @@ describe("Koa Logtail tests", () => {
       .expect(401);
   });
 
-  it("should log at 'warn' level when status is 404", async done => {
+  it("should log at 'warn' level when status is 404", async () => {
     const [logtail, koa] = getServer();
 
     // Mock out the sync method
@@ -105,9 +99,6 @@ describe("Koa Logtail tests", () => {
       // Should be 'warn' level
       expect(logs[0].level).toBe(LogLevel.Warn);
 
-      // Finish task
-      await done();
-
       return logs;
     });
 
@@ -116,7 +107,7 @@ describe("Koa Logtail tests", () => {
       .expect(404);
   });
 
-  it("should log at 'error' level when status is 500", async done => {
+  it("should log at 'error' level when status is 500", async () => {
     const [logtail, koa] = getServer();
 
     // Mock out the sync method
@@ -130,9 +121,6 @@ describe("Koa Logtail tests", () => {
       // Should be 'error' level
       expect(logs[0].level).toBe(LogLevel.Error);
 
-      // Finish task
-      await done();
-
       return logs;
     });
 
@@ -141,7 +129,7 @@ describe("Koa Logtail tests", () => {
       .expect(500);
   });
 
-  it("should log at 'error' level when Koa middleware throws", async done => {
+  it("should log at 'error' level when Koa middleware throws", async () => {
     const [logtail, koa] = getServer();
 
     // Error to throw
@@ -163,9 +151,6 @@ describe("Koa Logtail tests", () => {
       // Should be 'error' level
       expect(logs[0].level).toBe(LogLevel.Error);
 
-      // Finish task
-      await done();
-
       return logs;
     });
 
@@ -174,7 +159,7 @@ describe("Koa Logtail tests", () => {
       .expect(404);
   });
 
-  it("should not log 'Info' logs when the level is 'Warn'", async done => {
+  it("should not log 'Info' logs when the level is 'Warn'", async () => {
     const [logtail, koa] = getServer();
 
     logtail.setLevel(LogLevel.Warn);
@@ -189,9 +174,6 @@ describe("Koa Logtail tests", () => {
 
       // Should be 'warn' level
       expect(logs[0].level).toBe(LogLevel.Warn);
-
-      // Finish task
-      await done();
 
       return logs;
     });

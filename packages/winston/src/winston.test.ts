@@ -71,7 +71,7 @@ describe("Winston logging tests", () => {
     });
   }
 
-  it("should sync multiple logs", async done => {
+  it("should sync multiple logs", async () => {
     // Create multiple log entries
     const entries: LogEntry[] = [
       {
@@ -109,9 +109,6 @@ describe("Winston logging tests", () => {
           }) > -1,
       );
       expect(isIdentical).toBe(true);
-
-      // Test completion
-      done();
 
       return logs;
     });

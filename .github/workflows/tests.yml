@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x]
+        node-version: [16.x]
       fail-fast: false
 
     steps:
@@ -27,6 +27,7 @@ jobs:
             packages/browser/yarn.lock
             packages/bunyan/yarn.lock
             packages/core/yarn.lock
+            packages/edge/yarn.lock
             packages/js/yarn.lock
             packages/koa/yarn.lock
             packages/node/yarn.lock

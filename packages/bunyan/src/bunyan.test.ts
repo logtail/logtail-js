@@ -32,13 +32,8 @@ function createLogger(logtail: Logtail): bunyan {
  *
  * @param level LogLevelString - Bunyan log level (string)
  * @param logLevel LogLevel - Logtail log level
- * @param cb Function - Callback to execute to signal test completion
  */
-async function testLevel(
-  level: LogLevelString,
-  logLevel: LogLevel,
-  cb: Function,
-) {
+async function testLevel(level: LogLevelString, logLevel: LogLevel) {
   // Logtail fixtures
   const logtail = new Logtail("test", { batchInterval: 1 });
   logtail.setSync(async logs => {
@@ -51,9 +46,6 @@ async function testLevel(
     // Log level should be 'info'
     expect(logs[0].level).toBe(logLevel);
 
-    // Signal that the test has finished
-    setImmediate(() => cb());
-
     return logs;
   });
 
@@ -65,27 +57,27 @@ async function testLevel(
 }
 
 describe("Bunyan tests", () => {
-  it("should log at the 'debug' level", async done => {
-    return testLevel("debug", LogLevel.Debug, done);
+  it("should log at the 'debug' level", async () => {
+    return testLevel("debug", LogLevel.Debug);
   });
 
-  it("should log at the 'info' level", async done => {
-    return testLevel("info", LogLevel.Info, done);
+  it("should log at the 'info' level", async () => {
+    return testLevel("info", LogLevel.Info);
   });
 
-  it("should log at the 'warn' level", async done => {
-    return testLevel("warn", LogLevel.Warn, done);
+  it("should log at the 'warn' level", async () => {
+    return testLevel("warn", LogLevel.Warn);
   });
 
-  it("should log at the 'error' level", async done => {
-    return testLevel("error", LogLevel.Error, done);
+  it("should log at the 'error' level", async () => {
+    return testLevel("error", LogLevel.Error);
   });
 
-  it("should log at the 'fatal' level", async done => {
-    return testLevel("fatal", LogLevel.Fatal, done);
+  it("should log at the 'fatal' level", async () => {
+    return testLevel("fatal", LogLevel.Fatal);
   });
 
-  it("should log using number levels", async done => {
+  it("should log using number levels", async () => {
     // Fixtures
     const levels: LevelTest[] = [
       [20, LogLevel.Debug, "debug"],
@@ -102,7 +94,7 @@ describe("Bunyan tests", () => {
 
     logtail.setSync(async logs => {
       expect(logs.length).toBe(levels.length);
-      done();
+
       return logs;
     });
 
@@ -113,26 +105,26 @@ describe("Bunyan tests", () => {
     levels.forEach(level => logger[level[2]](message));
   });
 
-  it("should include arbitrary extra data fields", async done => {
+  it("should include arbitrary extra data fields", async () => {
     const logtail = new Logtail("test");
     logtail.setSync(async logs => {
       expect(logs).toHaveLength(1);
       expect(logs[0].message).toEqual("i am the message");
       expect(logs[0].foo).toEqual("bar");
       expect(logs[0].some).toEqual({ nested: "stuff" });
-      done();
+
       return logs;
     });
     const logger = createLogger(logtail);
     logger.info({ foo: "bar", some: { nested: "stuff" } }, "i am the message");
   });
 
-  it("should include correct context fields", async done => {
+  it("should include correct context fields", async () => {
     const logtail = new Logtail("test");
     logtail.setSync(async logs => {
       const context = logs[0].context;
       expect(context.runtime.file).toMatch("bunyan.test.ts");
-      done();
+
       return logs;
     });
     const logger = createLogger(logtail);

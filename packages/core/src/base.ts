@@ -397,7 +397,6 @@ class Logtail {
   }
 }
 
-// noinspection JSUnusedGlobalSymbols
 export default class extends Logtail {
   async log<TContext extends Context>(
     message: Message,

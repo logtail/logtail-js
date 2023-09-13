@@ -35,7 +35,7 @@ function calcEndTime(start: [number, number]): number {
 }
 
 describe("batch tests", () => {
-  it("should not fire timeout while a send was happening.", async done => {
+  it("should not fire timeout while a send was happening.", async () => {
     nock("http://example.com")
       .get("/")
       .reply(200, new Promise(res => setTimeout(() => res(200), 1003)));
@@ -59,10 +59,9 @@ describe("batch tests", () => {
     });
     expect(called).toHaveBeenCalledTimes(1);
     nock.restore();
-    done();
   });
 
-  it("should retry 3 times.", async done => {
+  it("should retry 3 times.", async () => {
     const called = jest.fn();
     const size = 5;
     const sendTimeout = 10;
@@ -78,10 +77,9 @@ describe("batch tests", () => {
 
     await Promise.all(logNumberTimes(logger, 5)).catch(e => {});
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
-    done();
   });
 
-  it("await flush waits for all retries", async done => {
+  it("await flush waits for all retries", async () => {
     const called = jest.fn();
     const size = 5;
     const sendTimeout = 10;
@@ -99,7 +97,6 @@ describe("batch tests", () => {
     await batcher.flush();
 
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
-    done();
   });
 
   it("should play nicely with `throttle`", async () => {
@@ -152,7 +149,7 @@ describe("batch tests", () => {
     expect(end).toBeGreaterThanOrEqual(expectedTime);
   });
 
-  it("should send after flush (with long timeout)", async done => {
+  it("should send after flush (with long timeout)", async () => {
     nock("http://example.com")
       .get("/")
       .reply(200, new Promise(res => setTimeout(() => res(200), 1003)));
@@ -180,6 +177,5 @@ describe("batch tests", () => {
     }
     expect(called).toHaveBeenCalledTimes(1);
     nock.restore();
-    done();
   });
 });

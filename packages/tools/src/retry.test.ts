@@ -30,7 +30,7 @@ function makeSync(called: Function) {
 }
 
 describe("retry tests", () => {
-  it("no failure with correct timing", async done => {
+  it("no failure with correct timing", async () => {
     const called = jest.fn();
     const logs: ILogtailLog[] = [getRandomLog()];
 
@@ -42,11 +42,9 @@ describe("retry tests", () => {
     const retry = await makeRetry(sync);
     const expectedLogs = await retry(logs);
     expect(called).toHaveBeenCalledTimes(0);
-
-    done();
   });
 
-  it("one failure with correct timing", async done => {
+  it("one failure with correct timing", async () => {
     const called = jest.fn();
     const logs: ILogtailLog[] = [getRandomLog()];
 
@@ -60,11 +58,9 @@ describe("retry tests", () => {
     const retry = await makeRetry(sync);
     const expectedLogs = await retry(logs);
     expect(called).toHaveBeenCalledTimes(1);
-
-    done();
   }, 3500);
 
-  it("two failure with correct timing", async done => {
+  it("two failure with correct timing", async () => {
     const called = jest.fn();
     const logs: ILogtailLog[] = [getRandomLog()];
 
@@ -80,11 +76,9 @@ describe("retry tests", () => {
     const retry = await makeRetry(sync);
     const expectedLogs = await retry(logs);
     expect(called).toHaveBeenCalledTimes(2);
-
-    done();
   }, 7000);
 
-  it("three failure with correct timing", async done => {
+  it("three failure with correct timing", async () => {
     const called = jest.fn();
     const logs: ILogtailLog[] = [getRandomLog()];
 
@@ -105,7 +99,5 @@ describe("retry tests", () => {
     } catch {
       expect(called).toHaveBeenCalledTimes(3);
     }
-
-    done();
   }, 7500);
 });
