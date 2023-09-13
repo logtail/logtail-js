@@ -1,8 +1,9 @@
 {
   "name": "@logtail/edge",
   "version": "0.4.10",
-  "description": "Logtail.com - Edge runtime logger",
+  "description": "Better Stack Edge runtime logger (formerly Logtail)",
   "keywords": [
+    "Better Stack",
     "Logtail",
     "logger",
     "logging",
@@ -10,7 +11,7 @@
     "serverless",
     "Edge"
   ],
-  "author": "Logtail <hello@logtail.com>",
+  "author": "Better Stack <hello@betterstack.com>",
   "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/edge#readme",
   "license": "ISC",
   "main": "dist/cjs/index.js",

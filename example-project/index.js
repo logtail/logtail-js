@@ -1,5 +1,5 @@
 /**
- * This project showcases Logtail JavaScript integration for 
+ * This project showcases Better Stack Logs JavaScript integration for
  * both backend and frontend code 
  * 
  * This code uses the @logtail/js package which can be used for both frontend and backend
@@ -19,10 +19,10 @@ const logger = new Logtail(process.argv[2], { sendLogsToConsoleOutput: true });
 // Usage
 
 // Send debug level log using the debug() method
-const debugLog = logger.debug("I am using Logtail!");
+const debugLog = logger.debug("I am using Better Stack!");
 
 // Send info level log using the info() method
-const infoLog = logger.info("An interesting event occured!");
+const infoLog = logger.info("An interesting event occurred!");
 
 // Send warn level log using the warn() method
 // You can add additional structured data to help you troubleshoot your code as shown below

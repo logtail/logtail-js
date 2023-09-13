@@ -4,12 +4,12 @@
 
 export interface ILogtailOptions {
   /**
-   * Endpoint URL for syncing logs with Logtail.com
+   * Endpoint URL for syncing logs with Better Stack
    */
   endpoint: string;
 
   /**
-   * Maximum number of logs to sync in a single request to Logtail.com
+   * Maximum number of logs to sync in a single request to Better Stack
    */
   batchSize: number;
 

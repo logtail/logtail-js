@@ -1,15 +1,16 @@
 {
   "name": "@logtail/types",
   "version": "0.4.9",
-  "description": "Logtail.com - Typescript types",
+  "description": "Better Stack Typescript types (formerly Logtail)",
   "keywords": [
+    "Better Stack",
     "Logtail",
     "logging",
     "logger",
     "typescript",
     "types"
   ],
-  "author": "Logtail <hello@logtail.com>",
+  "author": "Better Stack <hello@betterstack.com>",
   "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/types#readme",
   "license": "ISC",
   "main": "dist/cjs/types.js",

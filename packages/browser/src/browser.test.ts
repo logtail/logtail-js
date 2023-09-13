@@ -26,7 +26,7 @@ describe("browser tests", () => {
   // });
 
   it("should echo log if logtail sends 20x status code", async () => {
-    nock("https://in.logtail.com")
+    nock("https://in.logs.betterstack.com")
       .post("/")
       .reply(201);
 
@@ -38,7 +38,7 @@ describe("browser tests", () => {
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    nock("https://in.logtail.com")
+    nock("https://in.logs.betterstack.com")
       .post("/")
       .reply(401);
 

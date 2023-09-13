@@ -1,7 +1,7 @@
 {
   "name": "@logtail/logger",
   "license": "ISC",
-  "author": "Logtail <hello@logtail.com>",
+  "author": "Better Stack <hello@betterstack.com>",
   "homepage": "https://github.com/logtail/logtail-js",
   "private": true,
   "scripts": {

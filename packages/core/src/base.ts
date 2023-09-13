@@ -15,9 +15,9 @@ type Message = string | Error;
 // Set default options for Logtail
 const defaultOptions: ILogtailOptions = {
   // Default sync endpoint (protocol + domain)
-  endpoint: "https://in.logtail.com",
+  endpoint: "https://in.logs.betterstack.com",
 
-  // Maximum number of logs to sync in a single request to Logtail.com
+  // Maximum number of logs to sync in a single request to Better Stack
   batchSize: 1000,
 
   // Max interval (in milliseconds) before a batch of logs proceeds to syncing
@@ -62,7 +62,7 @@ const defaultOptions: ILogtailOptions = {
 };
 
 /**
- * Logtail core class for logging to the Logtail.com service
+ * Logtail core class for logging to the Better Stack service
  */
 class Logtail {
   // Logtail source token
@@ -100,7 +100,7 @@ class Logtail {
   /**
    * Initializes a new Logtail instance
    *
-   * @param sourceToken: string - Private source token for logging to Logtail.com
+   * @param sourceToken: string - Private source token for logging to Better Stack
    * @param options?: ILogtailOptions - Optionally specify Logtail options
    */
   public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
@@ -109,7 +109,7 @@ class Logtail {
       throw new Error("Logtail source token missing");
     }
 
-    // Store the source token, to use for syncing with Logtail.com
+    // Store the source token, to use for syncing with Better Stack
     this._sourceToken = sourceToken;
 
     // Merge default and user options
@@ -172,7 +172,7 @@ class Logtail {
   }
 
   /**
-   * Number of log entries synced with Logtail.com
+   * Number of log entries synced with Better Stack
    *
    * @returns number
    */
@@ -190,7 +190,7 @@ class Logtail {
   }
 
   /**
-   * Log an entry, to be synced with Logtail.com
+   * Log an entry, to be synced with Better Stack
    *
    * @param message: string - Log message
    * @param level (LogLevel) - Level to log at (debug|info|warn|error)
@@ -308,7 +308,7 @@ class Logtail {
 
   /**
    *
-   * Debug level log, to be synced with Logtail.com
+   * Debug level log, to be synced with Better Stack
    *
    * @param message: string - Log message
    * @param context: (Pick<ILogtailLog, "context">) - Context (optional)
@@ -323,7 +323,7 @@ class Logtail {
 
   /**
    *
-   * Info level log, to be synced with Logtail.com
+   * Info level log, to be synced with Better Stack
    *
    * @param message: string - Log message
    * @param context: (Pick<ILogtailLog, "context">) - Context (optional)
@@ -338,7 +338,7 @@ class Logtail {
 
   /**
    *
-   * Warning level log, to be synced with Logtail.com
+   * Warning level log, to be synced with Better Stack
    *
    * @param message: string - Log message
    * @param context: (Pick<ILogtailLog, "context">) - Context (optional)
@@ -353,7 +353,7 @@ class Logtail {
 
   /**
    *
-   * Warning level log, to be synced with Logtail.com
+   * Warning level log, to be synced with Better Stack
    *
    * @param message: string - Log message
    * @param context: (Pick<ILogtailLog, "context">) - Context (optional)
@@ -368,7 +368,7 @@ class Logtail {
 
   /**
    * Sets the sync method - i.e. the final step in the pipeline to get logs
-   * over to Logtail.com
+   * over to Better Stack
    *
    * @param fn - Pipeline function to use as sync method
    */

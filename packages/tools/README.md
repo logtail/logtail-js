@@ -89,7 +89,7 @@ void (async () => {
 
 Creates a higher-order batch function aggregates Logtail logs and resolves when either `size` # of logs have been collected, or when `flushTimeout` (in ms) has elapsed -- whichever occurs first.
 
-This is used alongside the throttler to provide an array of [`ILogtailLog`](https://github.com/logtail/logtail-js/tree/master/packages/types#ilogtaillog) to the function set in the `.setSync()` method, to be synced with [Logtail.com](https://logtail.com)
+This is used alongside the throttler to provide an array of [`ILogtailLog`](https://github.com/logtail/logtail-js/tree/master/packages/types#ilogtaillog) to the function set in the `.setSync()` method, to be synced with [Better Stack](https://logs.betterstack.com)
 
 Used internally by the [`@logtail/core Base class`](https://github.com/logtail/logtail-js/blob/master/packages/core/src/base.ts) to implicitly batch logs:
 

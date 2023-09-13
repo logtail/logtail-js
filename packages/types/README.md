@@ -33,12 +33,12 @@ Config options for the Logtail [Base class](https://github.com/logtail/logtail-j
 ```typescript
 export interface ILogtailOptions {
   /**
-   * Endpoint URL for syncing logs with Logtail.com
+   * Endpoint URL for syncing logs with Better Stack
    */
   endpoint: string;
 
   /**
-   * Maximum number of logs to sync in a single request to Logtail.com
+   * Maximum number of logs to sync in a single request to Better Stack
    */
   batchSize: number;
 
@@ -139,7 +139,7 @@ export type Context = { [key: string]: ContextKey };
 
 ### `ILogtailLog`
 
-The log object which is implicitly created by calling `.log()` (or any explicit log level function - e.g. `.info()`), and is passed down the chain for Logtail middleware before syncing with [Logtail.com](https://logtail.com)
+The log object which is implicitly created by calling `.log()` (or any explicit log level function - e.g. `.info()`), and is passed down the chain for Better Stack middleware before syncing with [Better Stack](https://logs.betterstack.com)
 
 ```typescript
 interface ILogtailLog {
@@ -160,7 +160,7 @@ type Middleware = (log: ILogtailLog) => Promise<ILogtailLog>;
 
 ### `Sync`
 
-The type of the function passed to `.setSync()`, for syncing a log with [Logtail.com](https://logtail.com):
+The type of the function passed to `.setSync()`, for syncing a log with [Better Stack](https://logs.betterstack.com):
 
 Note: Differs from the `Middleware` type because it receives - and resolves to a Promise of - an array of batched `ILogtailLog`.
 

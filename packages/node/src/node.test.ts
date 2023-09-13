@@ -21,7 +21,7 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
 
 describe("node tests", () => {
   it("should echo log if logtail sends 20x status code", async () => {
-    nock("https://in.logtail.com")
+    nock("https://in.logs.betterstack.com")
       .post("/")
       .reply(201);
 
@@ -33,7 +33,7 @@ describe("node tests", () => {
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    nock("https://in.logtail.com")
+    nock("https://in.logs.betterstack.com")
       .post("/")
       .reply(401);
 
@@ -46,7 +46,7 @@ describe("node tests", () => {
   });
 
   it("should warn and echo log even with circular reference as context", async () => {
-    nock("https://in.logtail.com")
+    nock("https://in.logs.betterstack.com")
       .post("/")
       .reply(201);
 
@@ -101,7 +101,7 @@ describe("node tests", () => {
     // Create a Pass-through stream, to ensure multiplexing works
     const passThrough = new PassThrough();
 
-    // Pass write stream to Logtail
+    // Pass write stream to Better Stack
     const logtail = new Node("test");
     logtail.pipe(passThrough).pipe(writeStream);
 
