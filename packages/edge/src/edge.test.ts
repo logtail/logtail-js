@@ -49,7 +49,7 @@ describe("edge tests", () => {
     });
 
     const message: string = String(Math.random);
-    await expect(edge.log(message)).rejects.toThrow();
+    await expect(edge.log(message)).rejects.toThrow("Mocked error in logging");
     expect((console.warn as Mock).mock.calls).toHaveLength(1);
   });
 
@@ -95,7 +95,8 @@ describe("edge tests", () => {
 
     expect((console.warn as Mock).mock.calls).toHaveLength(1);
     expect((console.warn as Mock).mock.calls[0][0]).toBe(
-      "ExecutionContext hasn't been set via `withExecutionContext` method. Logs may not reach Better Stack unless you manually call `ctx.waitUntil(log)`.",
+      "ExecutionContext hasn't been passed to the `log` method, which means syncing logs cannot be guaranteed. " +
+        "To ensure your logs will reach Better Stack, use `logger.withExecutionContext(ctx)` to log in your handler function.",
     );
   });
 

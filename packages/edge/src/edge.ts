@@ -74,16 +74,23 @@ export class Edge extends Base {
     }
 
     // Process/sync the log, per `Base` logic
-    context = { ...getStackContext(this), ...context };
+    const stackContext = getStackContext(this);
+    context = { ...stackContext, ...context };
     const log = super.log(message, level, context);
 
     if (ctx) {
       ctx.waitUntil(log);
     } else if (!this._warnedAboutMissingCtx) {
       this._warnedAboutMissingCtx = true;
-      console.warn(
-        "ExecutionContext hasn't been set via `withExecutionContext` method. Logs may not reach Better Stack unless you manually call `ctx.waitUntil(log)`.",
-      );
+
+      const warningMessage =
+        "ExecutionContext hasn't been passed to the `log` method, which means syncing logs cannot be guaranteed. " +
+        "To ensure your logs will reach Better Stack, use `logger.withExecutionContext(ctx)` to log in your handler function.";
+      console.warn(warningMessage);
+      this.log(warningMessage, LogLevel.Warn, stackContext).catch(() => {});
+
+      // Flush immediately to ensure warning will get sent to Better Stack
+      await this.flush();
     }
 
     // Return the transformed log
