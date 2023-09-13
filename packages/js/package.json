@@ -1,15 +1,16 @@
 {
   "name": "@logtail/js",
   "version": "0.4.10",
-  "description": "Logtail.com Node.js + browser logging",
+  "description": "Better Stack Node.js + browser logging (formerly Logtail)",
   "keywords": [
+    "Better Stack",
     "Logtail",
     "logging",
     "logger",
     "browser",
     "node"
   ],
-  "author": "Logtail <hello@logtail.com>",
+  "author": "Better Stack <hello@betterstack.com>",
   "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/js#readme",
   "license": "ISC",
   "main": "dist/cjs/index.js",

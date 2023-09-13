@@ -1,15 +1,16 @@
 {
   "name": "@logtail/winston",
   "version": "0.4.10",
-  "description": "Logtail.com - Winston transport",
+  "description": "Better Stack Winston transport (formerly Logtail)",
   "keywords": [
+    "Better Stack",
     "Logtail",
     "logger",
     "logging",
     "node",
     "winston"
   ],
-  "author": "Logtail <hello@logtail.com>",
+  "author": "Better Stack <hello@betterstack.com>",
   "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/winston#readme",
   "license": "ISC",
   "main": "dist/cjs/index.js",

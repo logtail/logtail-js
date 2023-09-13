@@ -19,14 +19,14 @@ You typically wouldn't require this package directly, unless you're building a c
 
 The [Base](src/base.ts) class provides core features that are extended by loggers.
 
-For example - you could create a custom logger that implements its own sync method, for getting data over to [Logtail.com](https://logtail.com)
+For example - you could create a custom logger that implements its own sync method, for getting data over to [Better Stack](https://logs.betterstack.com)
 
 ```typescript
 import { Base } from "@logtail/core";
 import { ILogtailOptions, ILogtailLog } from "@logtail/types";
 
 class CustomLogger extends Base {
-  // Constructor must take a Logtail.com source token, and (optional) options
+  // Constructor must take a Better Stack source token, and (optional) options
   public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
     // Make sure you pass the source token to the parent constructor!
     super(sourceToken, options);
@@ -46,11 +46,11 @@ class CustomLogger extends Base {
 
 ## Logging
 
-Logging to Logtail is simple - just call the `.log()` function with a string message:
+Logging to Better Stack is simple - just call the `.log()` function with a string message:
 
 ```typescript
 // Simple log message (defaults to the 'info' log level)
-logtail.log("Hello Logtail!");
+logtail.log("Hello Better Stack!");
 
 // Or, add custom context keys to pass along with the log
 logtail.log("Once more, with context", {
@@ -73,10 +73,10 @@ There are four levels of logging, each corresponding to a function:
 
 By default, `.log()` logs at the 'info' level. You can use the above explicit log levels instead by calling the relevant function with your log message.
 
-All log levels return a Promise that will resolve once the log has been synced with [Logtail.com](https://logtail.com):
+All log levels return a Promise that will resolve once the log has been synced with [Better Stack](https://logs.betterstack.com):
 
 ```typescript
-// Will resolve when synced with Logtail.com (or reject if there's an error)
+// Will resolve when synced with Better Stack (or reject if there's an error)
 logtail.log("some log message").then(log => {
   // `log` is the transformed log, after going through middleware
 });
@@ -86,7 +86,7 @@ logtail.log("some log message").then(log => {
 
 You can add your own middleware functions, which act as transforms on the _ILogtailLog_ log object.
 
-This is useful for augmenting the log prior to syncing with Logtail, or even pushing the log to another service.
+This is useful for augmenting the log prior to syncing with Better Stack, or even pushing the log to another service.
 
 Here's what a middleware function looks like:
 
@@ -118,7 +118,7 @@ logtail.use(addCurrentUser);
 
 You can add any number of pipeline functions to your logger instance, and they'll run in order.
 
-Middleware functions run _before_ the final sync to Logtail.com. Pipeline functions should return a `Promise<ILogtailLog>`, making it possible to augment logs with asynchronous data from external sources.
+Middleware functions run _before_ the final sync to Better Stack. Pipeline functions should return a `Promise<ILogtailLog>`, making it possible to augment logs with asynchronous data from external sources.
 
 **Note: If an exception is thrown anywhere in the pipeline chain, the log _won't_ be synced. Wrap an async `try/catch` block around your call to `.log|info|debug|warn|error()` or tack on a `.catch()` to ensure your errors are handled.**
 

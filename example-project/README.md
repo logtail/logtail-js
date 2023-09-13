@@ -1,6 +1,6 @@
-# Logtail JavaScript example project
+# Better Stack JavaScript example project
 
-To help you get started with using Logtail in your projects, we have prepared a simple program that showcases the usage of Logtail logger. Before proceeding make sure you have `npm` and [Node.js](https://nodejs.org/en/download/) installed.
+To help you get started with using Better Stack Logs in your projects, we have prepared a simple program that showcases the usage of Logtail logger. Before proceeding make sure you have `npm` and [Node.js](https://nodejs.org/en/download/) installed.
 
 ## Download and install the example project
 
@@ -18,7 +18,7 @@ To run the example application, simply run the following command:
 node index.js <source-token>
 ```
 
-*Don't forget to replace <source-token> with your actual source token which you can find by going to logtail.com -> sources -> edit.*
+*Don't forget to replace <source-token> with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit.*
 
 You should see the following output:
 
@@ -27,11 +27,11 @@ Output:
 All done! You can check your logs now.
 ```
 
-This will generate a total of 4 logs, which will be displayed in your Logtail live tail view. Detail explanation follows below.
+This will generate a total of 4 logs, which will be displayed in your Better Stack Logs live tail view. Detail explanation follows below.
   
 # Logging
 
-The `logger` instance we created in the installation section is used to send log messages to Logtail. It provides 4 logging methods for the 4 default log levels. The log levels and their method are:
+The `logger` instance we created in the installation section is used to send log messages to Better Stack Logs. It provides 4 logging methods for the 4 default log levels. The log levels and their method are:
 
 - **DEBUG** - Send debug messages using the `debug()` method
 - **INFO** - Send informative messages about the application progress using the `info()` method
@@ -44,7 +44,7 @@ To send a log message of select log level, use the corresponding method. In this
 
 ```jsx
 // Send debug level log using the debug() method
-logger.debug("I am using Logtail!");
+logger.debug("I am using Better Stack!");
 
 // Send error level log using the error() method
 logger.error("Oops! An runtime ERROR occurred!");
@@ -70,7 +70,7 @@ This will create the following JSON output:
       }
    },
    "level_string":"debug",
-   "message_string":"I am using Logtail!"
+   "message_string":"I am using Better Stack!"
 }
 
 {
@@ -140,7 +140,7 @@ This will create the following JSON output:
 
 ## Middleware
 
-You can intercept every logged item and modify it before it's pushed to Logtail. This could be useful for example for adding the current user's ID to the log:
+You can intercept every logged item and modify it before it's pushed to Better Stack. This could be useful for example for adding the current user's ID to the log:
 
 ```jsx
 // intercept the log and add userId to the content
@@ -157,7 +157,7 @@ logtail.use(enrichLogs);
 
 ## TypeScript support
 
-If you're using Logtail in a TypeScript codebase, you can take advantage of our types. The custom middleware function from the previous example could look like this:
+If you're using Better Stack in a TypeScript codebase, you can take advantage of our types. The custom middleware function from the previous example could look like this:
 
 ```jsx
 import { ILogtailLog } from "@logtail/types";
@@ -189,20 +189,20 @@ const { Logtail } = require("@logtail/koa");
 // Create a new Koa instance
 const koa = new Koa();
 
-// Create a new Logtail client
+// Create a new Better Stack Logs client
 const logtail = new Logtail("<source-token>");
 
 // Attach Koa to enable HTTP request logging
 logtail.attach(koa);
 ```
 
-*Don't forget to replace with your actual source token which you can find by going to logtail.com -> sources -> edit.*
+*Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit.*
 
 ### How the middleware works
 
 **Successful requests**
 
-A *successful* request is one that returns a non-`4xx` or `5xx` status code and doesn't throw any uncaught errors while handling the requests. These are logged to Logtail using `[LogLevel.Info](https://github.com/logtail/logtail-js/tree/master/packages/types#loglevel)`
+A *successful* request is one that returns a non-`4xx` or `5xx` status code and doesn't throw any uncaught errors while handling the requests. These are logged to Better Stack using `[LogLevel.Info](https://github.com/logtail/logtail-js/tree/master/packages/types#loglevel)`
 
 **4xx status codes**
 
@@ -218,7 +218,7 @@ Since this Koa plugin extends the regular `[@logtail/node](https://github.com/lo
 
 ## Winston
 
-Install the `@logtail/winston` NPM package and set up the Logtail transport according to the following example
+Install the `@logtail/winston` NPM package and set up the Better Stack transport according to the following example
 
 ```bash
 npm install @logtail/winston
@@ -230,7 +230,7 @@ const winston = require("winston");
 const { Logtail } = require("@logtail/node");
 const { LogtailTransport } = require("@logtail/winston");
 
-// Create a Logtail client
+// Create a Better Stack Logs client
 const logtail = new Logtail("<source-token>");
 
 // Create a Winston logger - passing in the Logtail transport
@@ -238,14 +238,14 @@ const logger = winston.createLogger({
   transports: [new LogtailTransport(logtail)],
 });
 
-// Log as normal in Winston - your logs will sync with Logtail.com!
+// Log as normal in Winston - your logs will sync with Better Stack!
 logger.log({
   level: "info", // <-- will use Logtail's `info` log level,
   message: "Some message", // <-- will also be passed to Logtail
 });
 ```
 
-*Don't forget to replace with your actual source token which you can find by going to logtail.com -> sources -> edit.*
+*Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit.*
 
 ## Bunyan
 
@@ -261,7 +261,7 @@ const bunyan = requrie("bunyan");
 const { Logtail } = require("@logtail/node");
 const { LogtailStream } = require("@logtail/bunyan");
 
-// Create a Logtail client
+// Create a Better Stack Logs client
 const logtail = new Logtail("logtail-source-token");
 
 // Create a Bunyan logger - passing in the Logtail stream
@@ -275,7 +275,7 @@ const logger = bunyan.createLogger({
   ],
 });
 
-// Log as normal in Bunyan - your logs will be sent to Logtail.com
+// Log as normal in Bunyan - your logs will be sent to Better Stack
 logger.info("Hello from Bunyan");
 ```
-*Don't forget to replace with your actual source token which you can find by going to logtail.com -> sources -> edit.*
+*Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit.*
