@@ -31,18 +31,18 @@
   resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-4.20230904.0.tgz#80e3b2384d7425c0b696a7aa8cab1b3c5d09e45c"
   integrity sha512-IX4oJCe14ctblSPZBlW64BVZ9nYLUo6sD2I5gu3hX0ywByYWm1OuoKm9Xb/Zpbj8Ph18Z7Ryii6u2/ocnncXdA==
 
-"@logtail/core@^0.4.6":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.9.tgz#78f2aeaacf02e6a34c93d859694341104d26e232"
-  integrity sha512-f9Dgt84OiLsn6lEzF7eCi9ND2ZPrY6jdmbDA55t0i5H5EfE7sehIgB6oof5YqPF9TB/p72sNoxKi5FDAb5iDrw==
+"@logtail/core@^0.4.10":
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.10.tgz#e2a5e273df82d4239890941ae79733af1a77e2ad"
+  integrity sha512-CBpZtuJ05kcV4z9Nb9l2o6JtuoAM2z0nt9ziReW4ozXJZFF73oKpSX4YThERWb0w2qh4Wor5kdupAjUvzAuukQ==
   dependencies:
-    "@logtail/tools" "^0.4.9"
+    "@logtail/tools" "^0.4.10"
     "@logtail/types" "^0.4.9"
 
-"@logtail/tools@^0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.9.tgz#c234ba144af68a8daae7b321b7239564918edea8"
-  integrity sha512-JfLG01JARLNmbCvrqGdQ7c7O1cVTNWLWgJ81+mQ/ZtlQVTJezVH+uQHwa2Qcez1vKOYOlgbL0s1/xJm0QJPKHQ==
+"@logtail/tools@^0.4.10":
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.10.tgz#79158f9bb4965710c037adfca4555b90335bb942"
+  integrity sha512-F+BCUIBXz8wf8DBfVuF4X6R9PWBrIhv+Bbvn9ywwvkWMCbkb+nd3nObBHGXar528NZis0CAz5oHXRuwslwRIpQ==
   dependencies:
     "@logtail/types" "^0.4.9"
 

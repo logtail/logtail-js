@@ -2,29 +2,29 @@
 # yarn lockfile v1
 
 
-"@logtail/browser@^0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/browser/-/browser-0.4.9.tgz#5f80a9410d34161b7c9fc4da1f0a27f750a0b7c4"
-  integrity sha512-JmaFJtzWyQ1xUuEcN6+/XN+kAMUQPp4AGefDgjUQTdGKzI1jJPpm/dCeBANOU61s6eRMeQHQ5OyTlsnx+dVLig==
+"@logtail/browser@^0.4.10":
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/@logtail/browser/-/browser-0.4.10.tgz#607c08f681d840bd84cc57a4411675d3e81593b1"
+  integrity sha512-YeUv6tJqgn4WM0zoq4XWcwNkYpuDKtHHdYLIS1TSZyeSdgBmKM9Bufej5o+fFvQtN1ai79jTEssFFkBiIGxm0g==
   dependencies:
-    "@logtail/core" "^0.4.9"
-    "@logtail/tools" "^0.4.9"
+    "@logtail/core" "^0.4.10"
+    "@logtail/tools" "^0.4.10"
     cross-fetch "^3.0.4"
 
-"@logtail/core@^0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.9.tgz#78f2aeaacf02e6a34c93d859694341104d26e232"
-  integrity sha512-f9Dgt84OiLsn6lEzF7eCi9ND2ZPrY6jdmbDA55t0i5H5EfE7sehIgB6oof5YqPF9TB/p72sNoxKi5FDAb5iDrw==
+"@logtail/core@^0.4.10":
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.10.tgz#e2a5e273df82d4239890941ae79733af1a77e2ad"
+  integrity sha512-CBpZtuJ05kcV4z9Nb9l2o6JtuoAM2z0nt9ziReW4ozXJZFF73oKpSX4YThERWb0w2qh4Wor5kdupAjUvzAuukQ==
   dependencies:
-    "@logtail/tools" "^0.4.9"
+    "@logtail/tools" "^0.4.10"
     "@logtail/types" "^0.4.9"
 
-"@logtail/node@^0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.9.tgz#83c4d7c094730ca6bc5f70b10b5faa1bee0ab6af"
-  integrity sha512-Gr4Oz6NEwYC8MWrw+YZx55s1p+LkAeEjQfiHY2BkfKiJz9k7O2ScFs+eqKdAOSINTYUC6HoUYfOTOqqWW8BzIg==
+"@logtail/node@^0.4.10":
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.10.tgz#f4d0c26a7e5e31fb964abace9aec5bc47b6232dd"
+  integrity sha512-+lM0JrEb75Rkx0ATrp1woffKtBdUCem1yNEYs8iEsA6c517byxL3pqVuRcoEleBBBIkrNd9EdaHfWY/ohKA6qw==
   dependencies:
-    "@logtail/core" "^0.4.9"
+    "@logtail/core" "^0.4.10"
     "@logtail/types" "^0.4.9"
     "@msgpack/msgpack" "^2.5.1"
     "@types/stack-trace" "^0.0.29"
@@ -32,10 +32,10 @@
     minimatch "^3.0.4"
     stack-trace "^0.0.10"
 
-"@logtail/tools@^0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.9.tgz#c234ba144af68a8daae7b321b7239564918edea8"
-  integrity sha512-JfLG01JARLNmbCvrqGdQ7c7O1cVTNWLWgJ81+mQ/ZtlQVTJezVH+uQHwa2Qcez1vKOYOlgbL0s1/xJm0QJPKHQ==
+"@logtail/tools@^0.4.10":
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.10.tgz#79158f9bb4965710c037adfca4555b90335bb942"
+  integrity sha512-F+BCUIBXz8wf8DBfVuF4X6R9PWBrIhv+Bbvn9ywwvkWMCbkb+nd3nObBHGXar528NZis0CAz5oHXRuwslwRIpQ==
   dependencies:
     "@logtail/types" "^0.4.9"
 
