@@ -2,29 +2,29 @@
 # yarn lockfile v1
 
 
-"@logtail/browser@^0.4.11":
-  version "0.4.11"
-  resolved "https://registry.yarnpkg.com/@logtail/browser/-/browser-0.4.11.tgz#5b6b5a8494b5a56be12047f4cec97248195237f5"
-  integrity sha512-1NWKm3DhNC3aUUlK07+vMcue0yqK5g1MPcLAqEpUwiutcQbiiXM02wSgRbDA5zPRDKTkevMEIwHQEUvajpTPRQ==
+"@logtail/browser@^0.4.12":
+  version "0.4.12"
+  resolved "https://registry.yarnpkg.com/@logtail/browser/-/browser-0.4.12.tgz#4b3854b0d51a4b33002d7da16cca793c9fb06f71"
+  integrity sha512-5ur6pw01twqjNeYQF3viVVCnwzFxN2A4shdoYpF5s79kZVsmnoSvTRoGS4TheqZ6tuqb+e0lmcaPQFkG74dEuw==
   dependencies:
-    "@logtail/core" "^0.4.11"
-    "@logtail/tools" "^0.4.11"
+    "@logtail/core" "^0.4.12"
+    "@logtail/tools" "^0.4.12"
     cross-fetch "^3.0.4"
 
-"@logtail/core@^0.4.11":
-  version "0.4.11"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.11.tgz#a465c1a2b19b27be7d953e5f54309dbb998d07cc"
-  integrity sha512-9n+ucWqsx5YFXxdOaONeBr62R/IQkcbOYj+JHY2nqU/ntQns30mu7l+vb6TItDvNuBaOTSa68U5OURFZ39SpEA==
+"@logtail/core@^0.4.12":
+  version "0.4.12"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.12.tgz#a8509d76db35c3e54becbfd15e331f8618e4920e"
+  integrity sha512-2vtwTxdsyMUq9thSV+H3fGaqEbRGwKwWDDr+SdjMfbzhJpi191ZhBxjix0DM6vPvEb7VmX1AuF9qnRV0d7VMzw==
   dependencies:
-    "@logtail/tools" "^0.4.11"
+    "@logtail/tools" "^0.4.12"
     "@logtail/types" "^0.4.11"
 
-"@logtail/node@^0.4.11":
-  version "0.4.11"
-  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.11.tgz#e46b198affa1e1295dc67f7f0b38c141c342b79f"
-  integrity sha512-eLsuhJiTjNWUos7L+R+5ccN+BmuaX7SLH4ot+EXiCQWz8v/6h37JOg5n6BAVnQbA7Qoya1OKkaDjqvbFTJKFBA==
+"@logtail/node@^0.4.12":
+  version "0.4.12"
+  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.12.tgz#abe44c8720515b55c8a2113c1179c4d515762648"
+  integrity sha512-yRdunGeYzug2o6tWVQBy826J167gbWROvjijlW+bVn4bH94JqVjXX7Jt0bi2nOEfWuPcZW9GyD6DKNGi5+y4jw==
   dependencies:
-    "@logtail/core" "^0.4.11"
+    "@logtail/core" "^0.4.12"
     "@logtail/types" "^0.4.11"
     "@msgpack/msgpack" "^2.5.1"
     "@types/stack-trace" "^0.0.29"
@@ -32,10 +32,10 @@
     minimatch "^3.0.4"
     stack-trace "^0.0.10"
 
-"@logtail/tools@^0.4.11":
-  version "0.4.11"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.11.tgz#c3dd73e57add75a33e18a24c79b7bcbe7efd2228"
-  integrity sha512-22PR79kzwTv5vZQNDs2KGNIph1ZjweVVPuoTZ4mv2GDaW5pJXBb5Nmsh46ZfU2xzraihinviz3w+zygctP6DcQ==
+"@logtail/tools@^0.4.12":
+  version "0.4.12"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.12.tgz#56cf6189ddd238184fd9854b2dae04567fe9003c"
+  integrity sha512-AEvUTdpt+dCfXj0m1XW2mZPCDs1qNJW9kOf66DAln41lAACdgjtTORkc+jtD4Qzs5BAfvOY/lCZRxz4mSKpOyg==
   dependencies:
     "@logtail/types" "^0.4.11"
 

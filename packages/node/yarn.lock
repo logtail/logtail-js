@@ -26,18 +26,18 @@
     "@babel/helper-validator-identifier" "^7.22.15"
     to-fast-properties "^2.0.0"
 
-"@logtail/core@^0.4.11":
-  version "0.4.11"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.11.tgz#a465c1a2b19b27be7d953e5f54309dbb998d07cc"
-  integrity sha512-9n+ucWqsx5YFXxdOaONeBr62R/IQkcbOYj+JHY2nqU/ntQns30mu7l+vb6TItDvNuBaOTSa68U5OURFZ39SpEA==
+"@logtail/core@^0.4.12":
+  version "0.4.12"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.12.tgz#a8509d76db35c3e54becbfd15e331f8618e4920e"
+  integrity sha512-2vtwTxdsyMUq9thSV+H3fGaqEbRGwKwWDDr+SdjMfbzhJpi191ZhBxjix0DM6vPvEb7VmX1AuF9qnRV0d7VMzw==
   dependencies:
-    "@logtail/tools" "^0.4.11"
+    "@logtail/tools" "^0.4.12"
     "@logtail/types" "^0.4.11"
 
-"@logtail/tools@^0.4.11":
-  version "0.4.11"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.11.tgz#c3dd73e57add75a33e18a24c79b7bcbe7efd2228"
-  integrity sha512-22PR79kzwTv5vZQNDs2KGNIph1ZjweVVPuoTZ4mv2GDaW5pJXBb5Nmsh46ZfU2xzraihinviz3w+zygctP6DcQ==
+"@logtail/tools@^0.4.12":
+  version "0.4.12"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.12.tgz#56cf6189ddd238184fd9854b2dae04567fe9003c"
+  integrity sha512-AEvUTdpt+dCfXj0m1XW2mZPCDs1qNJW9kOf66DAln41lAACdgjtTORkc+jtD4Qzs5BAfvOY/lCZRxz4mSKpOyg==
   dependencies:
     "@logtail/types" "^0.4.11"
 
