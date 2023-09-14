@@ -9,7 +9,8 @@
     "logging",
     "workerd",
     "serverless",
-    "Edge"
+    "edge",
+    "Cloudflare"
   ],
   "author": "Better Stack <hello@betterstack.com>",
   "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/edge#readme",
