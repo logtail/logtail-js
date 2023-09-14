@@ -31,25 +31,25 @@
   resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-4.20230904.0.tgz#80e3b2384d7425c0b696a7aa8cab1b3c5d09e45c"
   integrity sha512-IX4oJCe14ctblSPZBlW64BVZ9nYLUo6sD2I5gu3hX0ywByYWm1OuoKm9Xb/Zpbj8Ph18Z7Ryii6u2/ocnncXdA==
 
-"@logtail/core@^0.4.10":
-  version "0.4.10"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.10.tgz#e2a5e273df82d4239890941ae79733af1a77e2ad"
-  integrity sha512-CBpZtuJ05kcV4z9Nb9l2o6JtuoAM2z0nt9ziReW4ozXJZFF73oKpSX4YThERWb0w2qh4Wor5kdupAjUvzAuukQ==
+"@logtail/core@^0.4.11":
+  version "0.4.11"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.11.tgz#a465c1a2b19b27be7d953e5f54309dbb998d07cc"
+  integrity sha512-9n+ucWqsx5YFXxdOaONeBr62R/IQkcbOYj+JHY2nqU/ntQns30mu7l+vb6TItDvNuBaOTSa68U5OURFZ39SpEA==
   dependencies:
-    "@logtail/tools" "^0.4.10"
-    "@logtail/types" "^0.4.9"
+    "@logtail/tools" "^0.4.11"
+    "@logtail/types" "^0.4.11"
 
-"@logtail/tools@^0.4.10":
-  version "0.4.10"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.10.tgz#79158f9bb4965710c037adfca4555b90335bb942"
-  integrity sha512-F+BCUIBXz8wf8DBfVuF4X6R9PWBrIhv+Bbvn9ywwvkWMCbkb+nd3nObBHGXar528NZis0CAz5oHXRuwslwRIpQ==
+"@logtail/tools@^0.4.11":
+  version "0.4.11"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.11.tgz#c3dd73e57add75a33e18a24c79b7bcbe7efd2228"
+  integrity sha512-22PR79kzwTv5vZQNDs2KGNIph1ZjweVVPuoTZ4mv2GDaW5pJXBb5Nmsh46ZfU2xzraihinviz3w+zygctP6DcQ==
   dependencies:
-    "@logtail/types" "^0.4.9"
+    "@logtail/types" "^0.4.11"
 
-"@logtail/types@^0.4.6", "@logtail/types@^0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.9.tgz#5261204e5a2296c6c1edd57db116434a5944ebe6"
-  integrity sha512-3tKLic8gV93URDu0dB1kxmxGAK7SpnjdZx7/c3haELMsO64Cq4nlrwIVJNx/5g3Yd2G0RLbt7pvFPFfgQpqljA==
+"@logtail/types@^0.4.11":
+  version "0.4.11"
+  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.11.tgz#d4b0a5495a8d3ecb84401e13e346de174a56fab5"
+  integrity sha512-OKp77uP4bi6eyirVnpwt1qqv0ob8pU5ULkyzODLCuC2zp06K3crVmCspw1JY3L+zX8vuplr1bavJlZv3CX9ejQ==
   dependencies:
     js "^0.1.0"
 

@@ -389,10 +389,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@logtail/types@^0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.9.tgz#5261204e5a2296c6c1edd57db116434a5944ebe6"
-  integrity sha512-3tKLic8gV93URDu0dB1kxmxGAK7SpnjdZx7/c3haELMsO64Cq4nlrwIVJNx/5g3Yd2G0RLbt7pvFPFfgQpqljA==
+"@logtail/types@^0.4.11":
+  version "0.4.11"
+  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.11.tgz#d4b0a5495a8d3ecb84401e13e346de174a56fab5"
+  integrity sha512-OKp77uP4bi6eyirVnpwt1qqv0ob8pU5ULkyzODLCuC2zp06K3crVmCspw1JY3L+zX8vuplr1bavJlZv3CX9ejQ==
   dependencies:
     js "^0.1.0"
 
