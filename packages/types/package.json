@@ -1,6 +1,6 @@
 {
   "name": "@logtail/types",
-  "version": "0.4.9",
+  "version": "0.4.11",
   "description": "Better Stack Typescript types (formerly Logtail)",
   "keywords": [
     "Better Stack",
