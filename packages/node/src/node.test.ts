@@ -27,7 +27,7 @@ describe("node tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const node = new Node("valid source token");
+    const node = new Node("valid source token", { throwExceptions: true });
     const echoedLog = await node.log(message);
     expect(echoedLog.message).toEqual(expectedLog.message);
   });
@@ -37,10 +37,7 @@ describe("node tests", () => {
       .post("/")
       .reply(401);
 
-    const node = new Node("invalid source token", {
-      ignoreExceptions: false,
-      throwExceptions: true,
-    });
+    const node = new Node("invalid source token", { throwExceptions: true });
     const message: string = String(Math.random);
     await expect(node.log(message)).rejects.toThrow();
   });
@@ -55,7 +52,7 @@ describe("node tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const node = new Node("valid source token");
+    const node = new Node("valid source token", { throwExceptions: true });
     const echoedLog = await node.log(message, LogLevel.Info, circularContext);
     expect(echoedLog.message).toEqual(expectedLog.message);
   });
@@ -79,7 +76,7 @@ describe("node tests", () => {
     });
 
     // Fixtures
-    const logtail = new Node("test");
+    const logtail = new Node("test", { throwExceptions: true });
     logtail.pipe(writeStream);
 
     const message = "This should be streamed";
@@ -102,7 +99,7 @@ describe("node tests", () => {
     const passThrough = new PassThrough();
 
     // Pass write stream to Better Stack
-    const logtail = new Node("test");
+    const logtail = new Node("test", { throwExceptions: true });
     logtail.pipe(passThrough).pipe(writeStream);
 
     // Mock the sync method by simply returning the same logs

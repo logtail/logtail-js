@@ -4,13 +4,13 @@ import { ILogtailLog, LogLevel } from "@logtail/types";
 describe("base class tests", () => {
   it("should initialize with source token", () => {
     const sourceToken = "testing";
-    const base = new Base(sourceToken);
+    const base = new Base(sourceToken, { throwExceptions: true });
 
     expect((base as any)._sourceToken).toEqual(sourceToken);
   });
 
   it("should throw if a `sync` method is missing", async () => {
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Expect logging to throw an error, since we're missing a `sync` func
     await expect(base.log("Test")).rejects.toThrowError(/sync/);
@@ -19,7 +19,7 @@ describe("base class tests", () => {
   it("should add an implicit `dt` timestamp", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async logs => logs);
@@ -35,25 +35,25 @@ describe("base class tests", () => {
   });
 
   it("should default log count to zero", () => {
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     expect(base.logged).toEqual(0);
   });
 
   it("should default synced count to zero", () => {
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     expect(base.synced).toEqual(0);
   });
 
   it("should default dropped count to zero", () => {
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     expect(base.dropped).toEqual(0);
   });
 
   it("should increment log count on `.log()`", async () => {
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async log => log);
@@ -65,7 +65,7 @@ describe("base class tests", () => {
   });
 
   it("should sync after 500 ms", async () => {
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Create a sync function that resolves after 500ms
     base.setSync(async log => {
@@ -94,7 +94,11 @@ describe("base class tests", () => {
 
   it("should sync after calling flush", async () => {
     // New Base with very long batch interval and size
-    const base = new Base("testing", { batchInterval: 10000, batchSize: 5 });
+    const base = new Base("testing", {
+      throwExceptions: true,
+      batchInterval: 10000,
+      batchSize: 5,
+    });
 
     // Create a sync function that resolves after 50ms
     base.setSync(async log => {
@@ -124,7 +128,7 @@ describe("base class tests", () => {
   it("should add a pipeline function", async () => {
     // Fixtures
     const firstMessage = "First message";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async log => log);
@@ -148,7 +152,7 @@ describe("base class tests", () => {
   });
 
   it("should remove a pipeline function", async () => {
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Create a pipeline function
     const customPipeline = async (log: ILogtailLog) => log;
@@ -169,7 +173,7 @@ describe("base class tests", () => {
   it("should default to 'info' level logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async log => log);
@@ -184,7 +188,7 @@ describe("base class tests", () => {
   it("should handle 'debug' logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async log => log);
@@ -199,7 +203,7 @@ describe("base class tests", () => {
   it("should handle 'info' logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async log => log);
@@ -214,7 +218,7 @@ describe("base class tests", () => {
   it("should handle 'warn' logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async log => log);
@@ -229,7 +233,7 @@ describe("base class tests", () => {
   it("should handle 'error' logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async log => log);
@@ -245,7 +249,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "This is the error";
     const e = new Error(message);
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async log => log);
@@ -264,10 +268,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing exceptions";
     const e = new Error("Should NOT be ignored!");
-    const base = new Base("testing", {
-      ignoreExceptions: false,
-      throwExceptions: true,
-    });
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method which throws an error
     base.setSync(async () => {
@@ -280,9 +281,7 @@ describe("base class tests", () => {
   it("should ignore exceptions by default", async () => {
     // Fixtures
     const message = "Testing exceptions";
-    const base = new Base("testing", {
-      ignoreExceptions: true,
-    });
+    const base = new Base("testing", { ignoreExceptions: true });
 
     // Add a mock sync method which throws an error
     base.setSync(async () => {
@@ -299,7 +298,7 @@ describe("base class tests", () => {
   it("should sync all logs in single call", async () => {
     // Fixtures
     const message = "Testing logging";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method which counts sync calls and sent logs
     let syncCount = 0;
@@ -328,6 +327,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      throwExceptions: true,
       sendLogsToBetterStack: false,
     });
 
@@ -358,6 +358,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      throwExceptions: true,
       sendLogsToConsoleOutput: true,
       batchInterval: 10,
     });
@@ -408,7 +409,7 @@ describe("base class tests", () => {
   it("should limit sent requests", async () => {
     // Fixtures
     const message = "Testing logging";
-    const base = new Base("testing");
+    const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method which resolves after a timeout
     base.setSync(async logs => {
@@ -445,6 +446,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      throwExceptions: true,
       burstProtectionMilliseconds: 100,
       burstProtectionMax: 100,
     });
@@ -479,6 +481,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      throwExceptions: true,
       burstProtectionMilliseconds: 100,
       burstProtectionMax: 50,
     });
@@ -520,7 +523,10 @@ describe("base class tests", () => {
   it("should not limit sent requests if burst protection disabled", async () => {
     // Fixtures
     const message = "Testing logging";
-    const base = new Base("testing", { burstProtectionMax: 0 });
+    const base = new Base("testing", {
+      throwExceptions: true,
+      burstProtectionMax: 0,
+    });
 
     // Add a mock sync method
     base.setSync(async logs => logs);

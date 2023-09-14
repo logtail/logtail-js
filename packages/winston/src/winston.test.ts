@@ -25,7 +25,7 @@ async function testLevel(
   };
 
   // Logtail fixtures
-  const logtail = new Logtail("test");
+  const logtail = new Logtail("test", { throwExceptions: true });
   const logged = new Promise<ILogtailLog[]>(resolve => {
     logtail.setSync(async logs => {
       resolve(logs);
@@ -94,6 +94,7 @@ describe("Winston logging tests", () => {
 
     // Fixtures
     const logtail = new Logtail("test", {
+      throwExceptions: true,
       batchInterval: 1000, // <-- shouldn't be exceeded
       batchSize: entries.length,
     });
@@ -123,7 +124,7 @@ describe("Winston logging tests", () => {
   });
 
   it("should log metadata with the message and level", async () => {
-    const logtail = new Logtail("test");
+    const logtail = new Logtail("test", { throwExceptions: true });
     const logged = new Promise<ILogtailLog[]>(resolve => {
       logtail.setSync(async logs => {
         resolve(logs);
@@ -155,7 +156,7 @@ describe("Winston logging tests", () => {
   });
 
   it("should log defaultMetadata with the message and level", async () => {
-    const logtail = new Logtail("test");
+    const logtail = new Logtail("test", { throwExceptions: true });
     const logged = new Promise<ILogtailLog[]>(resolve => {
       logtail.setSync(async logs => {
         resolve(logs);
@@ -191,7 +192,7 @@ describe("Winston logging tests", () => {
   });
 
   it("should include correct context fields", async () => {
-    const logtail = new Logtail("test");
+    const logtail = new Logtail("test", { throwExceptions: true });
     const logged = new Promise<ILogtailLog[]>(resolve => {
       logtail.setSync(async logs => {
         resolve(logs);
