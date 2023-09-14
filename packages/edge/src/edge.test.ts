@@ -20,10 +20,15 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
   };
 }
 
+const originalConsoleWarn = console.warn;
+
 describe("edge tests", () => {
   beforeEach(() => {
     // Mock console warnings
     console.warn = jest.fn();
+  });
+  afterEach(() => {
+    console.warn = originalConsoleWarn;
   });
 
   it("should echo log if logtail sends 20x status code", async () => {
