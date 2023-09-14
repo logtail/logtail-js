@@ -17,6 +17,14 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
 (global as any).btoa = base64Encode;
 
 describe("browser tests", () => {
+  beforeEach(() => {
+    nock.restore();
+    nock.activate();
+  });
+  afterEach(() => {
+    nock.restore();
+  });
+
   // Awaiting: https://bugs.chromium.org/p/chromium/issues/detail?id=571722
 
   // it("should set a User-Agent based on the right version number", () => {
@@ -32,7 +40,9 @@ describe("browser tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const browser = new Browser("valid source token");
+    const browser = new Browser("valid source token", {
+      throwExceptions: true,
+    });
     const echoedLog = await browser.log(message);
     expect(echoedLog.message).toEqual(expectedLog.message);
   });
@@ -43,7 +53,6 @@ describe("browser tests", () => {
       .reply(401);
 
     const browser = new Browser("invalid source token", {
-      ignoreExceptions: false,
       throwExceptions: true,
     });
     const message: string = String(Math.random);

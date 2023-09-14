@@ -20,16 +20,21 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
   };
 }
 
+const originalConsoleWarn = console.warn;
+
 describe("edge tests", () => {
   beforeEach(() => {
     // Mock console warnings
     console.warn = jest.fn();
   });
+  afterEach(() => {
+    console.warn = originalConsoleWarn;
+  });
 
   it("should echo log if logtail sends 20x status code", async () => {
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const edge = new Edge("valid source token");
+    const edge = new Edge("valid source token", { throwExceptions: true });
 
     edge.setSync(async logs => logs);
 
@@ -39,10 +44,7 @@ describe("edge tests", () => {
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    const edge = new Edge("invalid source token", {
-      ignoreExceptions: false,
-      throwExceptions: true,
-    });
+    const edge = new Edge("invalid source token", { throwExceptions: true });
 
     edge.setSync(async () => {
       throw new Error("Mocked error in logging");
@@ -59,7 +61,7 @@ describe("edge tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const edge = new Edge("valid source token");
+    const edge = new Edge("valid source token", { throwExceptions: true });
 
     edge.setSync(async logs => logs);
 
@@ -70,7 +72,7 @@ describe("edge tests", () => {
 
   it("should contain context info", async () => {
     const message: string = String(Math.random());
-    const edge = new Edge("valid source token");
+    const edge = new Edge("valid source token", { throwExceptions: true });
 
     edge.setSync(async logs => logs);
 
@@ -84,7 +86,7 @@ describe("edge tests", () => {
 
   it("should warn about missing ExecutionContext only once", async () => {
     const message: string = String(Math.random());
-    const edge = new Edge("valid source token");
+    const edge = new Edge("valid source token", { throwExceptions: true });
 
     edge.setSync(async logs => logs);
 
@@ -102,7 +104,7 @@ describe("edge tests", () => {
 
   it("should not warn about missing ExecutionContext if set", async () => {
     const message: string = String(Math.random());
-    const edge = new Edge("valid source token");
+    const edge = new Edge("valid source token", { throwExceptions: true });
     edge.setSync(async logs => logs);
 
     const edgeWithCtx = edge.withExecutionContext({

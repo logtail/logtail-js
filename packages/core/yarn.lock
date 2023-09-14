@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@logtail/tools@^0.4.9":
-  version "0.4.9"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.9.tgz#c234ba144af68a8daae7b321b7239564918edea8"
-  integrity sha512-JfLG01JARLNmbCvrqGdQ7c7O1cVTNWLWgJ81+mQ/ZtlQVTJezVH+uQHwa2Qcez1vKOYOlgbL0s1/xJm0QJPKHQ==
+"@logtail/tools@^0.4.10":
+  version "0.4.10"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.10.tgz#79158f9bb4965710c037adfca4555b90335bb942"
+  integrity sha512-F+BCUIBXz8wf8DBfVuF4X6R9PWBrIhv+Bbvn9ywwvkWMCbkb+nd3nObBHGXar528NZis0CAz5oHXRuwslwRIpQ==
   dependencies:
     "@logtail/types" "^0.4.9"
 

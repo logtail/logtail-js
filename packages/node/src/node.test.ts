@@ -7,6 +7,7 @@ import nock from "nock";
 import { ILogtailLog, LogLevel } from "@logtail/types";
 
 import { Node } from "./node";
+import { Mock } from "jest-mock";
 
 /**
  * Create a log with a random string / current date
@@ -27,7 +28,7 @@ describe("node tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const node = new Node("valid source token");
+    const node = new Node("valid source token", { throwExceptions: true });
     const echoedLog = await node.log(message);
     expect(echoedLog.message).toEqual(expectedLog.message);
   });
@@ -37,10 +38,7 @@ describe("node tests", () => {
       .post("/")
       .reply(401);
 
-    const node = new Node("invalid source token", {
-      ignoreExceptions: false,
-      throwExceptions: true,
-    });
+    const node = new Node("invalid source token", { throwExceptions: true });
     const message: string = String(Math.random);
     await expect(node.log(message)).rejects.toThrow();
   });
@@ -53,11 +51,21 @@ describe("node tests", () => {
     let circularContext: any = { foo: { value: 42 } };
     circularContext.foo.bar = circularContext;
 
+    // Mock console warnings
+    const originalConsoleWarn = console.warn;
+    console.warn = jest.fn();
+
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const node = new Node("valid source token");
+    const node = new Node("valid source token", { throwExceptions: true });
     const echoedLog = await node.log(message, LogLevel.Info, circularContext);
     expect(echoedLog.message).toEqual(expectedLog.message);
+
+    expect((console.warn as Mock).mock.calls).toHaveLength(1);
+    expect((console.warn as Mock).mock.calls[0][0]).toBe(
+      "[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.",
+    );
+    console.warn = originalConsoleWarn;
   });
 
   it("should enable piping logs to a writable stream", async () => {
@@ -79,7 +87,7 @@ describe("node tests", () => {
     });
 
     // Fixtures
-    const logtail = new Node("test");
+    const logtail = new Node("test", { throwExceptions: true });
     logtail.pipe(writeStream);
 
     const message = "This should be streamed";
@@ -102,7 +110,7 @@ describe("node tests", () => {
     const passThrough = new PassThrough();
 
     // Pass write stream to Better Stack
-    const logtail = new Node("test");
+    const logtail = new Node("test", { throwExceptions: true });
     logtail.pipe(passThrough).pipe(writeStream);
 
     // Mock the sync method by simply returning the same logs

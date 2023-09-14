@@ -35,6 +35,14 @@ function calcEndTime(start: [number, number]): number {
 }
 
 describe("batch tests", () => {
+  beforeEach(() => {
+    nock.restore();
+    nock.activate();
+  });
+  afterEach(() => {
+    nock.restore();
+  });
+
   it("should not fire timeout while a send was happening.", async () => {
     nock("http://example.com")
       .get("/")
@@ -58,7 +66,6 @@ describe("batch tests", () => {
       throw e;
     });
     expect(called).toHaveBeenCalledTimes(1);
-    nock.restore();
   });
 
   it("should retry 3 times.", async () => {
@@ -176,6 +183,5 @@ describe("batch tests", () => {
       throw e;
     }
     expect(called).toHaveBeenCalledTimes(1);
-    nock.restore();
   });
 });
