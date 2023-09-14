@@ -85,7 +85,8 @@ export class Edge extends Base {
 
       const warningMessage =
         "ExecutionContext hasn't been passed to the `log` method, which means syncing logs cannot be guaranteed. " +
-        "To ensure your logs will reach Better Stack, use `logger.withExecutionContext(ctx)` to log in your handler function.";
+        "To ensure your logs will reach Better Stack, use `logger.withExecutionContext(ctx)` to log in your handler function. " +
+        "See https://betterstack.com/docs/logs/js-edge-execution-context/ for details.";
       console.warn(warningMessage);
       this.log(warningMessage, LogLevel.Warn, stackContext).catch(() => {});
 
