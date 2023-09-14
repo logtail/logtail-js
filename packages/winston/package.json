@@ -1,6 +1,6 @@
 {
   "name": "@logtail/winston",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "description": "Better Stack Winston transport (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -47,7 +47,7 @@
     "winston": ">=3.2.1"
   },
   "dependencies": {
-    "@logtail/node": "^0.4.11",
+    "@logtail/node": "^0.4.12",
     "@logtail/types": "^0.4.11",
     "winston-transport": "^4.3.0"
   },
