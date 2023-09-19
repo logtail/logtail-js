@@ -37,7 +37,13 @@ jobs:
         working-directory: ./example-project
 
       - name: Run example project with invalid token
-        run: if node index.js INVALID_TOKEN; then echo "This should have failed but didn't"; exit 1; else "Failed successfully"; fi
+        run: |
+          if node index.js INVALID_TOKEN; then
+            echo "This should have failed but didn't"
+            exit 1
+          else
+            echo "Failed successfully"
+          fi
         working-directory: ./example-project
 
   tests-bun:
@@ -65,5 +71,11 @@ jobs:
         working-directory: ./example-project
 
       - name: Run example project with invalid token
-        run: if bun run index.js INVALID_TOKEN; then echo "This should have failed but didn't"; exit 1; else "Failed successfully"; fi
+        run: |
+          if bun run index.js INVALID_TOKEN; then
+            echo "This should have failed but didn't"
+            exit 1
+          else
+            echo "Failed successfully"
+          fi
         working-directory: ./example-project
