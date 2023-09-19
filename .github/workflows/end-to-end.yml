@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - ph/test-bun-runtime
   schedule:
     - cron: '20 5 * * 1'
   workflow_dispatch:
