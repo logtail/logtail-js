@@ -91,7 +91,4 @@ jobs:
         run: yarn build
 
       - name: Run tests
-        run: yarn test
-
-      - name: Is node installed?
-        run: node -v
+        run: bun test
