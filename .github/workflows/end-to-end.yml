@@ -31,8 +31,12 @@ jobs:
         run: npm install
         working-directory: ./example-project
 
-      - name: Run tests
+      - name: Run example project with valid token
         run: node index.js ${{ secrets.SOURCE_TOKEN }}
+        working-directory: ./example-project
+
+      - name: Run example project with invalid token
+        run: if node index.js INVALID_TOKEN; then echo "This should have failed but didn't"; exit 1; else "Failed successfully"; fi
         working-directory: ./example-project
 
   tests-bun:
@@ -55,6 +59,10 @@ jobs:
         run: bun install
         working-directory: ./example-project
 
-      - name: Run tests
+      - name: Run example project with valid token
         run: bun run index.js ${{ secrets.SOURCE_TOKEN }}
+        working-directory: ./example-project
+
+      - name: Run example project with invalid token
+        run: if bun run index.js INVALID_TOKEN; then echo "This should have failed but didn't"; exit 1; else "Failed successfully"; fi
         working-directory: ./example-project
