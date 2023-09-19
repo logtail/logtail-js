@@ -19,7 +19,7 @@ const logger = new Logtail(process.argv[2], { sendLogsToConsoleOutput: true });
 // Usage
 
 // Send debug level log using the debug() method
-const debugLog = logger.debug("I am using Better Stack!");
+const debugLog = logger.debug(`I am using Better Stack! (${process.title} v${process.versions?.[process.title]})`);
 
 // Send info level log using the info() method
 const infoLog = logger.info("An interesting event occurred!");
