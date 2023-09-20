@@ -19,7 +19,7 @@ const logger = new Logtail(process.argv[2], { sendLogsToConsoleOutput: true });
 // Usage
 
 // Send debug level log using the debug() method
-const debugLog = logger.debug("I am using Better Stack!");
+const debugLog = logger.debug(`I am using Better Stack! (${process.title} v${process.versions?.[process.title]})`);
 
 // Send info level log using the info() method
 const infoLog = logger.info("An interesting event occurred!");
@@ -50,8 +50,15 @@ try {
 
 // Logging methods are async function returning Promises
 Promise.all([debugLog, infoLog, warningLog, errorLog]).then(
-    // OnResolve write message
     function() {
-        console.log("All done! You can check your logs now.")
+        console.info("All done! You can check your logs now.");
+
+        console.log("Logs created: ", logger.logged);
+        console.log("Successfully synced logs: ", logger.synced);
+
+        if (logger.logged !== logger.synced) {
+            console.error("Not all logs have been synced!");
+            process.exit(1);
+        }
     }
 );
