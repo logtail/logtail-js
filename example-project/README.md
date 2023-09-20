@@ -18,7 +18,7 @@ To run the example application, simply run the following command:
 node index.js <source-token>
 ```
 
-*Don't forget to replace <source-token> with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit.*
+_Don't forget to replace <source-token> with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit._
 
 You should see the following output:
 
@@ -28,7 +28,7 @@ All done! You can check your logs now.
 ```
 
 This will generate a total of 4 logs, which will be displayed in your Better Stack Logs live tail view. Detail explanation follows below.
-  
+
 # Logging
 
 The `logger` instance we created in the installation section is used to send log messages to Better Stack Logs. It provides 4 logging methods for the 4 default log levels. The log levels and their method are:
@@ -98,14 +98,14 @@ This will create the following JSON output:
 You can log additional structured data to help you troubleshoot your application much quicker. Pass the structured data as the second argument to the select login method as shown in the example below:
 
 ```jsx
-logger.warn("Something is not quite right, better check on it.",{
-    user:{
-        username:"someuser",
-        email:"someuser@example.com"
-    },
-    additional_info:{
-        tried_accessing: "/url/of/error"
-    }
+logger.warn("Something is not quite right, better check on it.", {
+  user: {
+    username: "someuser",
+    email: "someuser@example.com",
+  },
+  additional_info: {
+    tried_accessing: "/url/of/error",
+  },
 });
 ```
 
@@ -113,28 +113,28 @@ This will create the following JSON output:
 
 ```json
 {
-   "dt":"2022-02-01 12:01:10.127 UTC",
-   "context":{
-      "runtime":{
-         "column_integer":"8",
-         "file_string":"index.js",
-         "line_integer":"29",
-         "type_string":"Object"
-      },
-      "system":{
-         "main_file_string":"/mnt/d/js_logtail/index.js",
-         "pid_integer":"4193"
-      }
-   },
-   "level_string":"warn",
-   "message_string":"Something is not quite right, better check on it.",
-   "additional_info":{
-      "tried_accessing_string":"/url/of/error"
-   },
-   "user":{
-      "email_string":"someuser@example.com",
-      "username_string":"someuser"
-   }
+  "dt": "2022-02-01 12:01:10.127 UTC",
+  "context": {
+    "runtime": {
+      "column_integer": "8",
+      "file_string": "index.js",
+      "line_integer": "29",
+      "type_string": "Object"
+    },
+    "system": {
+      "main_file_string": "/mnt/d/js_logtail/index.js",
+      "pid_integer": "4193"
+    }
+  },
+  "level_string": "warn",
+  "message_string": "Something is not quite right, better check on it.",
+  "additional_info": {
+    "tried_accessing_string": "/url/of/error"
+  },
+  "user": {
+    "email_string": "someuser@example.com",
+    "username_string": "someuser"
+  }
 }
 ```
 
@@ -145,10 +145,10 @@ You can intercept every logged item and modify it before it's pushed to Better S
 ```jsx
 // intercept the log and add userId to the content
 async function enrichLogs(log) {
-    return {
-        ...log,
-        userId: getCurrentUserId()
-    };
+  return {
+    ...log,
+    userId: getCurrentUserId(),
+  };
 }
 
 // tell logtail to use the intercept function
@@ -163,10 +163,10 @@ If you're using Better Stack in a TypeScript codebase, you can take advantage of
 import { ILogtailLog } from "@logtail/types";
 
 async function enrichLogs(log: ILogtailLog): Promise<ILogtailLog> {
-    return {
-        ...log,
-        userId: getCurrentUserId()
-    };
+  return {
+    ...log,
+    userId: getCurrentUserId(),
+  };
 }
 ```
 
@@ -196,13 +196,13 @@ const logtail = new Logtail("<source-token>");
 logtail.attach(koa);
 ```
 
-*Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit.*
+_Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit._
 
 ### How the middleware works
 
 **Successful requests**
 
-A *successful* request is one that returns a non-`4xx` or `5xx` status code and doesn't throw any uncaught errors while handling the requests. These are logged to Better Stack using `[LogLevel.Info](https://github.com/logtail/logtail-js/tree/master/packages/types#loglevel)`
+A _successful_ request is one that returns a non-`4xx` or `5xx` status code and doesn't throw any uncaught errors while handling the requests. These are logged to Better Stack using `[LogLevel.Info](https://github.com/logtail/logtail-js/tree/master/packages/types#loglevel)`
 
 **4xx status codes**
 
@@ -245,7 +245,7 @@ logger.log({
 });
 ```
 
-*Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit.*
+_Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit._
 
 ## Bunyan
 
@@ -278,4 +278,5 @@ const logger = bunyan.createLogger({
 // Log as normal in Bunyan - your logs will be sent to Better Stack
 logger.info("Hello from Bunyan");
 ```
-*Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit.*
+
+_Don't forget to replace with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit._
