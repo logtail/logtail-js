@@ -7,8 +7,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build",
-    "lint": "prettier -c \"packages/**\"",
-    "lint:save": "prettier --write \"packages/**\"",
+    "lint": "prettier -c \"packages/**\" \"example-project/**\"",
+    "lint:save": "prettier --write \"packages/**\" \"example-project/**\"",
     "test": "jest"
   },
   "devDependencies": {
