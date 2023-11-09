@@ -62,7 +62,7 @@ function getRelevantStackFrame(
     let index = reversedFrames.findIndex(frame => {
       return (
         frame.getFileName()?.includes(stackContextHint.fileName) &&
-        stackContextHint.methodNames.includes(frame.getMethodName())
+        stackContextHint.methodNames.includes(frame.getMethodName()) || stackContextHint.methodNames.includes(frame.getFunctionName())
       );
     });
 
