@@ -62,14 +62,15 @@ function getRelevantStackFrame(
     let index = frames.findIndex(frame => {
       return (
         frame.getFileName()?.includes(stackContextHint.fileName) &&
-        stackContextHint.methodNames.includes(frame.getMethodName()) || stackContextHint.methodNames.includes(frame.getFunctionName())
+        (stackContextHint.methodNames.includes(frame.getMethodName()) ||
+          stackContextHint.methodNames.includes(frame.getFunctionName()))
       );
     });
 
     if (index > 0) {
       return frames[index - 1];
     }
-    return frames[frames.length - 1]
+    return frames[frames.length - 1];
   }
 
   return frames[0];

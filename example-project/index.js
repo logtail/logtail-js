@@ -62,15 +62,17 @@ function logWithNodeVersion(message) {
   // Now, context.runtime should contain information about where logWithNodeVersion() was called from
   const stackContextHint = {
     fileName: "index.js",
-    methodNames: [ "logWithNodeVersion" ],
+    methodNames: ["logWithNodeVersion"],
   };
-  return logger.log(message, "info", { nodeVersion: process.version }, stackContextHint)
-}
-const customHelperLog = logWithNodeVersion("Logging using custom helper function.");
+  const context = { nodeVersion: process.version };
 
+  return logger.log(message, "info", context, stackContextHint);
+}
+const customLog = logWithNodeVersion("Logging using custom helper function.");
 
 // Logging methods are async function returning Promises
-Promise.all([debugLog, infoLog, warningLog, errorLog, customHelperLog]).then(function() {
+const logPromises = [debugLog, infoLog, warningLog, errorLog, customLog];
+Promise.all(logPromises).then(function() {
   console.info("All done! You can check your logs now.");
 
   console.log("Logs created: ", logger.logged);
