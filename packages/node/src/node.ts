@@ -54,6 +54,7 @@ export class Node extends Base {
    * @param message: string - Log message
    * @param level (LogLevel) - Level to log at (debug|info|warn|error)
    * @param context: (Context) - Log context for passing structured data
+   * @param stackContextHint: (StackContextHint|null) - Info about which methods to consider as origin in context.runtime
    * @returns Promise<ILogtailLog> after syncing
    */
   public async log<TContext extends Context>(
