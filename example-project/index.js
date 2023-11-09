@@ -43,6 +43,7 @@ const warningLog = logger.warn(
   },
 );
 
+// Example of logging errors in catch clause
 function callbackThatMightFail() {
   throw new Error("Testing error");
 }
@@ -55,8 +56,23 @@ try {
   errorLog = logger.error("Oops! An runtime ERROR occurred!", err);
 }
 
+// Example of logging in a custom helper method, ensuring context.runtime still contains helpful info
+function logWithNodeVersion(message) {
+  // The stackContextHint defines where in the call stack logger should look for the runtime context
+  // Now, context.runtime should contain information about where logWithNodeVersion() was called from
+  const stackContextHint = {
+    fileName: "index.js",
+    methodNames: ["logWithNodeVersion"],
+  };
+  const context = { nodeVersion: process.version };
+
+  return logger.log(message, "info", context, stackContextHint);
+}
+const customLog = logWithNodeVersion("Logging using custom helper function.");
+
 // Logging methods are async function returning Promises
-Promise.all([debugLog, infoLog, warningLog, errorLog]).then(function() {
+const logPromises = [debugLog, infoLog, warningLog, errorLog, customLog];
+Promise.all(logPromises).then(function() {
   console.info("All done! You can check your logs now.");
 
   console.log("Logs created: ", logger.logged);
