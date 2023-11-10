@@ -8,6 +8,7 @@ import {
   Sync,
 } from "@logtail/types";
 import { makeBatch, makeBurstProtection, makeThrottle } from "@logtail/tools";
+import { serializeError } from "serialize-error";
 
 // Types
 type Message = string | Error;
@@ -146,13 +147,6 @@ class Logtail {
     this._flush = batcher.flush;
   }
 
-  /* PRIVATE METHODS */
-  private getContextFromError(e: Error) {
-    return {
-      stack: e.stack,
-    };
-  }
-
   /* PUBLIC METHODS */
 
   /**
@@ -250,11 +244,8 @@ class Logtail {
         // Add stub
         ...log,
 
-        // Add stack trace
-        ...this.getContextFromError(message),
-
-        // Add error message
-        message: message.message,
+        // Serialize the error and add to log
+        ...serializeError(message),
       };
     } else {
       log = {

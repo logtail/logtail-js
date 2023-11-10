@@ -42,7 +42,8 @@
   },
   "dependencies": {
     "@logtail/tools": "^0.4.14",
-    "@logtail/types": "^0.4.14"
+    "@logtail/types": "^0.4.14",
+    "serialize-error": "^11.0.3"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
