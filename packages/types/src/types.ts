@@ -80,6 +80,12 @@ export interface ILogtailOptions {
    **/
   sendLogsToBetterStack: boolean;
 }
+export interface ILogtailEdgeOptions extends ILogtailOptions {
+  /**
+   * Boolean to produce a warning when ExecutionContext hasn't been passed to the `log` method
+   **/
+  warnAboutMissingExecutionContext: boolean;
+}
 
 export type ILogLevel = LogLevel | string;
 export enum LogLevel {
