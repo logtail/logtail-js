@@ -1,6 +1,6 @@
 {
   "name": "@logtail/node",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "description": "Better Stack Node.js logger (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -46,7 +46,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@logtail/core": "^0.4.14",
+    "@logtail/core": "^0.4.15",
     "@logtail/types": "^0.4.14",
     "@msgpack/msgpack": "^2.5.1",
     "@types/stack-trace": "^0.0.29",

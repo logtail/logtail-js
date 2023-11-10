@@ -1,6 +1,6 @@
 {
   "name": "@logtail/bunyan",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "description": "Better Stack Bunyan writable stream (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -50,7 +50,7 @@
     "bunyan": ">=1.8.12"
   },
   "dependencies": {
-    "@logtail/node": "^0.4.14",
+    "@logtail/node": "^0.4.15",
     "@logtail/types": "^0.4.14"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"

@@ -1,6 +1,6 @@
 {
   "name": "@logtail/browser",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "description": "Better Stack browser logging (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -54,7 +54,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@logtail/core": "^0.4.14",
+    "@logtail/core": "^0.4.15",
     "@logtail/tools": "^0.4.14",
     "cross-fetch": "^3.0.4"
   },
