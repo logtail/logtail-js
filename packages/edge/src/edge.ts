@@ -20,12 +20,16 @@ type Message = string | Error;
 export class Edge extends Base {
   private _warnedAboutMissingCtx: Boolean = false;
 
-  private warnAboutMissingExecutionContext: Boolean;
+  private readonly warnAboutMissingExecutionContext: Boolean;
 
-  public constructor(sourceToken: string, options?: Partial<ILogtailEdgeOptions>) {
+  public constructor(
+    sourceToken: string,
+    options?: Partial<ILogtailEdgeOptions>,
+  ) {
     super(sourceToken, options);
 
-    this.warnAboutMissingExecutionContext = options?.warnAboutMissingExecutionContext ?? true;
+    this.warnAboutMissingExecutionContext =
+      options?.warnAboutMissingExecutionContext ?? true;
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
@@ -84,7 +88,10 @@ export class Edge extends Base {
 
     if (ctx) {
       ctx.waitUntil(log);
-    } else if (this.warnAboutMissingExecutionContext && !this._warnedAboutMissingCtx) {
+    } else if (
+      this.warnAboutMissingExecutionContext &&
+      !this._warnedAboutMissingCtx
+    ) {
       this._warnedAboutMissingCtx = true;
 
       const warningMessage =
