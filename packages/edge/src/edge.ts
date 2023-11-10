@@ -4,7 +4,7 @@ import {
   Context,
   ILogLevel,
   ILogtailLog,
-  ILogtailOptions,
+  ILogtailEdgeOptions,
   LogLevel,
 } from "@logtail/types";
 import { Base } from "@logtail/core";
@@ -20,8 +20,16 @@ type Message = string | Error;
 export class Edge extends Base {
   private _warnedAboutMissingCtx: Boolean = false;
 
-  public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
+  private readonly warnAboutMissingExecutionContext: Boolean;
+
+  public constructor(
+    sourceToken: string,
+    options?: Partial<ILogtailEdgeOptions>,
+  ) {
     super(sourceToken, options);
+
+    this.warnAboutMissingExecutionContext =
+      options?.warnAboutMissingExecutionContext ?? true;
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
@@ -80,7 +88,10 @@ export class Edge extends Base {
 
     if (ctx) {
       ctx.waitUntil(log);
-    } else if (!this._warnedAboutMissingCtx) {
+    } else if (
+      this.warnAboutMissingExecutionContext &&
+      !this._warnedAboutMissingCtx
+    ) {
       this._warnedAboutMissingCtx = true;
 
       const warningMessage =
