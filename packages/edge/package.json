@@ -1,6 +1,6 @@
 {
   "name": "@logtail/edge",
-  "version": "0.4.13",
+  "version": "0.4.14",
   "description": "Better Stack Edge runtime logger (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -47,8 +47,8 @@
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20230904.0",
-    "@logtail/core": "^0.4.13",
-    "@logtail/types": "^0.4.13",
+    "@logtail/core": "^0.4.14",
+    "@logtail/types": "^0.4.14",
     "@msgpack/msgpack": "^2.5.1",
     "@types/stack-trace": "^0.0.29",
     "minimatch": "^3.0.4",
