@@ -1,4 +1,5 @@
 import { Duplex, Writable } from "stream";
+import { serializeError } from "serialize-error";
 
 import fetch from "cross-fetch";
 import { encode } from "@msgpack/msgpack";
@@ -131,11 +132,7 @@ export class Node extends Base {
 
       return value.toISOString();
     } else if (value instanceof Error) {
-      return {
-        name: value.name,
-        message: value.message,
-        stack: value.stack?.split("\n"),
-      };
+      return serializeError(value);
     } else if (
       (typeof value === "object" || Array.isArray(value)) &&
       (maxDepth < 1 || visitedObjects.has(value))
