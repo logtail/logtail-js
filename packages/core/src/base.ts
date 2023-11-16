@@ -196,6 +196,16 @@ class Logtail {
     level: ILogLevel = LogLevel.Info,
     context: TContext = {} as TContext,
   ): Promise<ILogtailLog & TContext> {
+    // Wrap context in an object, if it's not already
+    if (typeof context !== "object") {
+      const wrappedContext: unknown = { extra: context };
+      context = wrappedContext as TContext;
+    }
+    if (context instanceof Error) {
+      const wrappedContext: unknown = { error: context };
+      context = wrappedContext as TContext;
+    }
+
     if (this._options.sendLogsToConsoleOutput) {
       switch (level) {
         case "debug":
@@ -234,28 +244,10 @@ class Logtail {
 
       // Add initial context
       ...context,
+
+      // Add string message or serialized error
+      ...(message instanceof Error ? serializeError(message) : { message }),
     };
-
-    // Determine the type of message...
-
-    // Is this an error?
-    if (message instanceof Error) {
-      log = {
-        // Add stub
-        ...log,
-
-        // Serialize the error and add to log
-        ...serializeError(message),
-      };
-    } else {
-      log = {
-        // Add stub
-        ...log,
-
-        // Add string message
-        message,
-      };
-    }
 
     let transformedLog = log as ILogtailLog | null;
     for (const middleware of this._middleware) {
@@ -266,6 +258,12 @@ class Logtail {
       }
       transformedLog = newTransformedLog;
     }
+
+    // Manually serialize the log data
+    transformedLog = this.serialize(
+      transformedLog,
+      this._options.contextObjectMaxDepth,
+    );
 
     if (!this._options.sendLogsToBetterStack) {
       // Return the resulting log before sending it
@@ -295,6 +293,82 @@ class Logtail {
 
     // Return the resulting log
     return transformedLog as ILogtailLog & TContext;
+  }
+
+  private serialize(
+    value: any,
+    maxDepth: number,
+    visitedObjects: WeakSet<any> = new WeakSet(),
+  ): any {
+    if (
+      value === null ||
+      typeof value === "boolean" ||
+      typeof value === "number" ||
+      typeof value === "string"
+    ) {
+      return value;
+    } else if (value instanceof Date) {
+      // Date instances can be invalid & toISOString() will fail
+      if (isNaN(value.getTime())) {
+        return value.toString();
+      }
+
+      return value.toISOString();
+    } else if (value instanceof Error) {
+      return serializeError(value);
+    } else if (
+      (typeof value === "object" || Array.isArray(value)) &&
+      (maxDepth < 1 || visitedObjects.has(value))
+    ) {
+      if (visitedObjects.has(value)) {
+        if (this._options.contextObjectCircularRefWarn) {
+          console.warn(
+            `[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.`,
+          );
+        }
+        return "<omitted circular reference>";
+      }
+      if (this._options.contextObjectMaxDepthWarn) {
+        console.warn(
+          `[Logtail] Max depth of ${this._options.contextObjectMaxDepth} reached when serializing logs. Please do not use excessive object depth in your logs.`,
+        );
+      }
+      return `<omitted context beyond configured max depth: ${this._options.contextObjectMaxDepth}>`;
+    } else if (Array.isArray(value)) {
+      visitedObjects.add(value);
+      const serializedArray = value.map(item =>
+        this.serialize(item, maxDepth - 1, visitedObjects),
+      );
+      visitedObjects.delete(value);
+
+      return serializedArray;
+    } else if (typeof value === "object") {
+      const serializedObject: { [key: string]: any } = {};
+
+      visitedObjects.add(value);
+
+      Object.entries(value).forEach(item => {
+        const key = item[0];
+        const value = item[1];
+
+        const serializedValue = this.serialize(
+          value,
+          maxDepth - 1,
+          visitedObjects,
+        );
+        if (serializedValue !== undefined) {
+          serializedObject[key] = serializedValue;
+        }
+      });
+
+      visitedObjects.delete(value);
+
+      return serializedObject;
+    } else if (typeof value === "undefined") {
+      return undefined;
+    } else {
+      return `<omitted unserializable ${typeof value}>`;
+    }
   }
 
   /**
