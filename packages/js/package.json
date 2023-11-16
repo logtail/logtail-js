@@ -1,6 +1,6 @@
 {
   "name": "@logtail/js",
-  "version": "0.4.16",
+  "version": "0.4.17",
   "description": "Better Stack Node.js + browser logging (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -43,8 +43,8 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@logtail/browser": "^0.4.16",
-    "@logtail/node": "^0.4.16"
+    "@logtail/browser": "^0.4.17",
+    "@logtail/node": "^0.4.17"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
