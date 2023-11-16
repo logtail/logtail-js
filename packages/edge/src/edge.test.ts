@@ -61,13 +61,19 @@ describe("edge tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const edge = new Edge("valid source token", { throwExceptions: true });
+    const edge = new Edge("valid source token", {
+      throwExceptions: true,
+      warnAboutMissingExecutionContext: false,
+    });
 
     edge.setSync(async logs => logs);
 
     const echoedLog = await edge.log(message, LogLevel.Info, circularContext);
     expect(echoedLog.message).toEqual(expectedLog.message);
     expect((console.warn as Mock).mock.calls).toHaveLength(1);
+    expect((console.warn as Mock).mock.calls[0][0]).toBe(
+      "[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.",
+    );
   });
 
   it("should contain context info", async () => {
