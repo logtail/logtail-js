@@ -13,7 +13,8 @@ import { Base } from "@logtail/core";
 
 export class Browser extends Base {
   public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
-    super(sourceToken, options);
+    // After reaching 48KiB, the batch will get flushed automatically to avoid 64KiB body limit for keepalive requests
+    super(sourceToken, { batchSizeKiB: 48, ...options });
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {

@@ -7,7 +7,7 @@ import {
   Middleware,
   Sync,
 } from "@logtail/types";
-import { makeBatch, makeBurstProtection, makeThrottle } from "@logtail/tools";
+import { makeBatch, makeBurstProtection, makeThrottle, calculateJsonLogSizeBytes } from "@logtail/tools";
 import { serializeError } from "serialize-error";
 
 // Types
@@ -20,6 +20,9 @@ const defaultOptions: ILogtailOptions = {
 
   // Maximum number of logs to sync in a single request to Better Stack
   batchSize: 1000,
+
+  // Size of logs (in KiB) to trigger sync to Better Stack (0 to disable)
+  batchSizeKiB: 0,
 
   // Max interval (in milliseconds) before a batch of logs proceeds to syncing
   batchInterval: 1000,
@@ -60,6 +63,9 @@ const defaultOptions: ILogtailOptions = {
 
   // If true, all logs will be sent to Better Stack
   sendLogsToBetterStack: true,
+
+  // Function to be used to calculate size of logs in bytes (to evaluate batchSizeLimitKiB)
+  calculateLogSizeBytes: calculateJsonLogSizeBytes,
 };
 
 /**
@@ -138,6 +144,8 @@ class Logtail {
       this._options.batchInterval,
       this._options.retryCount,
       this._options.retryBackoff,
+      this._options.batchSizeKiB * 1024,
+      this._options.calculateLogSizeBytes,
     );
 
     this._batch = batcher.initPusher((logs: any) => {

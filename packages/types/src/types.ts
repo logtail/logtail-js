@@ -14,6 +14,11 @@ export interface ILogtailOptions {
   batchSize: number;
 
   /**
+   * Size of logs (in KiB) to trigger sync to Better Stack (0 to disable)
+   */
+  batchSizeKiB: number;
+
+  /**
    * Max interval (in milliseconds) before a batch of logs proceeds to syncing
    */
   batchInterval: number;
@@ -79,6 +84,11 @@ export interface ILogtailOptions {
    * If true, all logs will be sent to Better Stack
    **/
   sendLogsToBetterStack: boolean;
+
+  /**
+   * Function to be used to calculate size of logs in bytes (to evaluate batchSizeKiB). JSON length by default.
+   **/
+  calculateLogSizeBytes: (logs: ILogtailLog) => number;
 }
 export interface ILogtailEdgeOptions extends ILogtailOptions {
   /**

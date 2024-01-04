@@ -31,6 +31,11 @@ const DEFAULT_RETRY_COUNT = 3;
  */
 const DEFAULT_RETRY_BACKOFF = 100;
 
+/*
+ * Default function for computing log size (serialized JSON length + 1 for comma)
+ */
+export const calculateJsonLogSizeBytes = (log: ILogtailLog) => JSON.stringify(log).length + 1;
+
 /**
  * batch the buffer coming in, process them and then resolve
  *
@@ -38,16 +43,21 @@ const DEFAULT_RETRY_BACKOFF = 100;
  * @param flushTimeout - Number
  * @param retryCount - Number
  * @param retryBackoff - Number
+ * @param sizeBytes - Size of the batch (in bytes) that triggers flushing. Set to 0 to disable.
+ * @param calculateLogSizeBytes - Function to calculate size of a single ILogtailLog instance (in bytes).
  */
 export default function makeBatch(
   size: number = DEFAULT_BUFFER_SIZE,
   flushTimeout: number = DEFAULT_FLUSH_TIMEOUT,
   retryCount: number = DEFAULT_RETRY_COUNT,
   retryBackoff: number = DEFAULT_RETRY_BACKOFF,
+  sizeBytes: number = 0,
+  calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
 ) {
   let timeout: NodeJS.Timeout | null;
   let cb: Function;
   let buffer: IBuffer[] = [];
+  let bufferSizeBytes = 0;
   let retry: number = 0;
   // Wait until the minimum retry backoff time has passed before retrying
   let minRetryBackoff: number = 0;
@@ -61,7 +71,9 @@ export default function makeBatch(
     timeout = null;
 
     const currentBuffer = buffer;
+    const currentBufferSizeKB = bufferSizeBytes;
     buffer = [];
+    bufferSizeBytes = 0;
 
     try {
       await cb(currentBuffer.map(d => d.log));
@@ -72,6 +84,7 @@ export default function makeBatch(
         retry++;
         minRetryBackoff = Date.now() + retryBackoff;
         buffer = buffer.concat(currentBuffer);
+        bufferSizeBytes += currentBufferSizeKB;
         await setupTimeout();
         return;
       }
@@ -111,10 +124,15 @@ export default function makeBatch(
       return async function(log: ILogtailLog): Promise<ILogtailLog> {
         return new Promise<ILogtailLog>(async (resolve, reject) => {
           buffer.push({ log, resolve, reject });
+          // We can skip log size calculation if there is no max size set
+          if (sizeBytes > 0) {
+            bufferSizeBytes += calculateLogSizeBytes(log);
+          }
 
           // If the buffer is full enough, flush it
           // Unless we're still waiting for the minimum retry backoff time
-          if (buffer.length >= size && Date.now() > minRetryBackoff) {
+          const isBufferFullEnough = buffer.length >= size || (sizeBytes > 0 && bufferSizeBytes >= sizeBytes);
+          if (isBufferFullEnough && Date.now() > minRetryBackoff) {
             await flush();
           } else {
             await setupTimeout();
