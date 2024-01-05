@@ -19,29 +19,22 @@ const logger = new Logtail(process.argv[2], { sendLogsToConsoleOutput: true });
 // Usage
 
 // Send debug level log using the debug() method
-const debugLog = logger.debug(
-  `I am using Better Stack! (${process.title} v${
-    process.versions?.[process.title]
-  })`,
-);
+const debugLog = logger.debug(`I am using Better Stack! (${process.title} v${process.versions?.[process.title]})`);
 
 // Send info level log using the info() method
 const infoLog = logger.info("An interesting event occurred!");
 
 // Send warn level log using the warn() method
 // You can add additional structured data to help you troubleshoot your code as shown below
-const warningLog = logger.warn(
-  "Something is not quite right, better check on it.",
-  {
-    user: {
-      username: "someuser",
-      email: "someuser@example.com",
-    },
-    additional_info: {
-      tried_accessing: "/url/of/error",
-    },
+const warningLog = logger.warn("Something is not quite right, better check on it.", {
+  user: {
+    username: "someuser",
+    email: "someuser@example.com",
   },
-);
+  additional_info: {
+    tried_accessing: "/url/of/error",
+  },
+});
 
 // Example of logging errors in catch clause
 function callbackThatMightFail() {

@@ -36,30 +36,18 @@ interface IKoaOptions {
 }
 
 const defaultKoaOpt: IKoaOptions = {
-  contextPaths: [
-    "statusCode",
-    "request.headers",
-    "request.method",
-    "request.length",
-    "request.url",
-    "request.query",
-  ],
+  contextPaths: ["statusCode", "request.headers", "request.method", "request.length", "request.url", "request.query"],
   excludedRoutes: [],
   excludedMethods: [],
   level: LogLevel.Info,
   messageFormatter: ctx => `Koa HTTP request: ${ctx.status}`,
-  errorMessageFormatter: (ctx, e) =>
-    `Koa HTTP request error: ${(typeof e === "object" && e.message) || e}`,
+  errorMessageFormatter: (ctx, e) => `Koa HTTP request error: ${(typeof e === "object" && e.message) || e}`,
 };
 
 class KoaLogtail extends Logtail {
   protected _koaOptions: IKoaOptions;
 
-  public constructor(
-    sourceToken: string,
-    logtailOpt?: Partial<ILogtailOptions>,
-    koaOpt?: Partial<IKoaOptions>,
-  ) {
+  public constructor(sourceToken: string, logtailOpt?: Partial<ILogtailOptions>, koaOpt?: Partial<IKoaOptions>) {
     super(sourceToken, logtailOpt);
 
     // Set Koa-specific logging options
@@ -115,8 +103,7 @@ class KoaLogtail extends Logtail {
       if (
         !this._koaOptions.excludedMethods.includes(ctx.request.method) &&
         !this._koaOptions.excludedRoutes.includes(ctx.request.url) &&
-        this._toLevelNumber(logLevel) >=
-          this._toLevelNumber(this._koaOptions.level)
+        this._toLevelNumber(logLevel) >= this._toLevelNumber(this._koaOptions.level)
       ) {
         void this[logLevel](msg!, this._fromContext(ctx));
       }

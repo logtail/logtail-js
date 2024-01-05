@@ -309,12 +309,7 @@ describe("base class tests", () => {
       return logs;
     });
 
-    await Promise.all([
-      base.debug(message),
-      base.info(message),
-      base.warn(message),
-      base.error(message),
-    ]);
+    await Promise.all([base.debug(message), base.info(message), base.warn(message), base.error(message)]);
 
     // Should sync all logs in single call
     expect(syncCount).toBe(1);

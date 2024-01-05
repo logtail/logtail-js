@@ -1,12 +1,7 @@
 import build from "pino-abstract-transport";
 
 import { Logtail } from "@logtail/node";
-import {
-  Context,
-  LogLevel,
-  ILogtailOptions,
-  StackContextHint,
-} from "@logtail/types";
+import { Context, LogLevel, ILogtailOptions, StackContextHint } from "@logtail/types";
 
 import { getLogLevel } from "./helpers";
 
@@ -27,16 +22,7 @@ export interface IPinoLogtailOptions {
 
 const stackContextHint = {
   fileName: "node_modules/pino",
-  methodNames: [
-    "log",
-    "fatal",
-    "error",
-    "warn",
-    "info",
-    "debug",
-    "trace",
-    "silent",
-  ],
+  methodNames: ["log", "fatal", "error", "warn", "info", "debug", "trace", "silent"],
 };
 
 export async function logtailTransport(options: IPinoLogtailOptions) {
@@ -57,9 +43,7 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
 
       // Carry over any additional data fields
       Object.keys(obj)
-        .filter(
-          key => ["time", "msg", "message", "level", "v"].indexOf(key) < 0,
-        )
+        .filter(key => ["time", "msg", "message", "level", "v"].indexOf(key) < 0)
         .forEach(key => (meta[key] = obj[key]));
 
       // Get message

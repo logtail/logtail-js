@@ -1,11 +1,6 @@
 import "cross-fetch/polyfill";
 
-import {
-  Context,
-  ILogLevel,
-  ILogtailLog,
-  ILogtailOptions,
-} from "@logtail/types";
+import { Context, ILogLevel, ILogtailLog, ILogtailOptions } from "@logtail/types";
 import { Base } from "@logtail/core";
 
 // Awaiting: https://bugs.chromium.org/p/chromium/issues/detail?id=571722
@@ -55,11 +50,7 @@ export class Browser extends Base {
    * @param context: (Context) - Log context for passing structured data
    * @returns Promise<ILogtailLog> after syncing
    */
-  public async log<TContext extends Context>(
-    message: string,
-    level?: ILogLevel,
-    context: TContext = {} as TContext,
-  ) {
+  public async log<TContext extends Context>(message: string, level?: ILogLevel, context: TContext = {} as TContext) {
     // Wrap context in an object, if it's not already
     if (typeof context !== "object") {
       const wrappedContext: unknown = { extra: context };

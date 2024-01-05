@@ -51,8 +51,7 @@ export class LogtailStream extends Writable {
     // Get message
     // NOTE: Bunyan passes empty 'msg' when msg is missing
     const use_msg_field = log.msg !== undefined && log.msg.length > 0;
-    const msg =
-      (use_msg_field ? log.msg : log.message) || "<no message provided>";
+    const msg = (use_msg_field ? log.msg : log.message) || "<no message provided>";
 
     // Prevent overriding 'message' with 'msg'
     // Save 'message' as 'message_field' if we are using 'msg' as message
@@ -64,12 +63,7 @@ export class LogtailStream extends Writable {
     const level = getLogLevel(log.level);
 
     // Log to Logtail
-    void this._logtail.log(
-      msg,
-      level,
-      meta,
-      stackContextHint as StackContextHint,
-    );
+    void this._logtail.log(msg, level, meta, stackContextHint as StackContextHint);
 
     next();
   }

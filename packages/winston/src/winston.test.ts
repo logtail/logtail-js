@@ -13,11 +13,7 @@ const message = "Something to do with something";
  * @param logLevel LogLevel - Logtail log level
  * @param levels Use custom log levels
  */
-async function testLevel(
-  level: string,
-  logLevel: LogLevel,
-  levels?: { [key: string]: number },
-) {
+async function testLevel(level: string, logLevel: LogLevel, levels?: { [key: string]: number }) {
   // Sample log
   const log: LogEntry = {
     level,

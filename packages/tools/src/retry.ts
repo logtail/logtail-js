@@ -19,9 +19,7 @@ function delay(sec: number): Promise<any> {
  *
  * @param fn - (logs: ILogtailLog[]) => Promise<ILogtailLog[]>
  */
-export default async function makeRetry(
-  fn: (logs: ILogtailLog[]) => Promise<ILogtailLog[]>,
-) {
+export default async function makeRetry(fn: (logs: ILogtailLog[]) => Promise<ILogtailLog[]>) {
   /**
    * number of retries
    */

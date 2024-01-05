@@ -10,10 +10,7 @@ const mainFile = mainFileName();
  *
  * @returns Context The caller's filename and the line number
  */
-export function getStackContext(
-  logtail: Node,
-  stackContextHint?: StackContextHint,
-): Context {
+export function getStackContext(logtail: Node, stackContextHint?: StackContextHint): Context {
   const stackFrame = getCallingFrame(logtail, stackContextHint);
   if (stackFrame === null) return {};
 
@@ -35,17 +32,8 @@ export function getStackContext(
   };
 }
 
-function getCallingFrame(
-  logtail: Node,
-  stackContextHint?: StackContextHint,
-): StackFrame | null {
-  for (let fn of [
-    logtail.warn,
-    logtail.error,
-    logtail.info,
-    logtail.debug,
-    logtail.log,
-  ]) {
+function getCallingFrame(logtail: Node, stackContextHint?: StackContextHint): StackFrame | null {
+  for (let fn of [logtail.warn, logtail.error, logtail.info, logtail.debug, logtail.log]) {
     const stack = stackTrace.get(fn as any);
     if (stack.length > 0) return getRelevantStackFrame(stack, stackContextHint);
   }
@@ -53,10 +41,7 @@ function getCallingFrame(
   return null;
 }
 
-function getRelevantStackFrame(
-  frames: StackFrame[],
-  stackContextHint?: StackContextHint,
-): StackFrame {
+function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackContextHint): StackFrame {
   if (stackContextHint) {
     frames.reverse();
     let index = frames.findIndex(frame => {

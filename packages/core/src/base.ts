@@ -1,18 +1,5 @@
-import {
-  ILogLevel,
-  ILogtailLog,
-  ILogtailOptions,
-  Context,
-  LogLevel,
-  Middleware,
-  Sync,
-} from "@logtail/types";
-import {
-  makeBatch,
-  makeBurstProtection,
-  makeThrottle,
-  calculateJsonLogSizeBytes,
-} from "@logtail/tools";
+import { ILogLevel, ILogtailLog, ILogtailOptions, Context, LogLevel, Middleware, Sync } from "@logtail/types";
+import { makeBatch, makeBurstProtection, makeThrottle, calculateJsonLogSizeBytes } from "@logtail/tools";
 import { serializeError } from "serialize-error";
 
 // Types
@@ -273,10 +260,7 @@ class Logtail {
     }
 
     // Manually serialize the log data
-    transformedLog = this.serialize(
-      transformedLog,
-      this._options.contextObjectMaxDepth,
-    );
+    transformedLog = this.serialize(transformedLog, this._options.contextObjectMaxDepth);
 
     if (!this._options.sendLogsToBetterStack) {
       // Return the resulting log before sending it
@@ -308,17 +292,8 @@ class Logtail {
     return transformedLog as ILogtailLog & TContext;
   }
 
-  private serialize(
-    value: any,
-    maxDepth: number,
-    visitedObjects: WeakSet<any> = new WeakSet(),
-  ): any {
-    if (
-      value === null ||
-      typeof value === "boolean" ||
-      typeof value === "number" ||
-      typeof value === "string"
-    ) {
+  private serialize(value: any, maxDepth: number, visitedObjects: WeakSet<any> = new WeakSet()): any {
+    if (value === null || typeof value === "boolean" || typeof value === "number" || typeof value === "string") {
       return value;
     } else if (value instanceof Date) {
       // Date instances can be invalid & toISOString() will fail
@@ -329,10 +304,7 @@ class Logtail {
       return value.toISOString();
     } else if (value instanceof Error) {
       return serializeError(value);
-    } else if (
-      (typeof value === "object" || Array.isArray(value)) &&
-      (maxDepth < 1 || visitedObjects.has(value))
-    ) {
+    } else if ((typeof value === "object" || Array.isArray(value)) && (maxDepth < 1 || visitedObjects.has(value))) {
       if (visitedObjects.has(value)) {
         if (this._options.contextObjectCircularRefWarn) {
           console.warn(
@@ -349,9 +321,7 @@ class Logtail {
       return `<omitted context beyond configured max depth: ${this._options.contextObjectMaxDepth}>`;
     } else if (Array.isArray(value)) {
       visitedObjects.add(value);
-      const serializedArray = value.map(item =>
-        this.serialize(item, maxDepth - 1, visitedObjects),
-      );
+      const serializedArray = value.map(item => this.serialize(item, maxDepth - 1, visitedObjects));
       visitedObjects.delete(value);
 
       return serializedArray;
@@ -364,11 +334,7 @@ class Logtail {
         const key = item[0];
         const value = item[1];
 
-        const serializedValue = this.serialize(
-          value,
-          maxDepth - 1,
-          visitedObjects,
-        );
+        const serializedValue = this.serialize(value, maxDepth - 1, visitedObjects);
         if (serializedValue !== undefined) {
           serializedObject[key] = serializedValue;
         }
@@ -392,10 +358,7 @@ class Logtail {
    * @param context: (Pick<ILogtailLog, "context">) - Context (optional)
    * @returns Promise<ILogtailLog> after syncing
    */
-  public async debug<TContext extends Context>(
-    message: Message,
-    context: TContext = {} as TContext,
-  ) {
+  public async debug<TContext extends Context>(message: Message, context: TContext = {} as TContext) {
     return this.log(message, LogLevel.Debug, context);
   }
 
@@ -407,10 +370,7 @@ class Logtail {
    * @param context: (Pick<ILogtailLog, "context">) - Context (optional)
    * @returns Promise<ILogtailLog> after syncing
    */
-  public async info<TContext extends Context>(
-    message: Message,
-    context: TContext = {} as TContext,
-  ) {
+  public async info<TContext extends Context>(message: Message, context: TContext = {} as TContext) {
     return this.log(message, LogLevel.Info, context);
   }
 
@@ -422,10 +382,7 @@ class Logtail {
    * @param context: (Pick<ILogtailLog, "context">) - Context (optional)
    * @returns Promise<ILogtailLog> after syncing
    */
-  public async warn<TContext extends Context>(
-    message: Message,
-    context: TContext = {} as TContext,
-  ) {
+  public async warn<TContext extends Context>(message: Message, context: TContext = {} as TContext) {
     return this.log(message, LogLevel.Warn, context);
   }
 
@@ -437,10 +394,7 @@ class Logtail {
    * @param context: (Pick<ILogtailLog, "context">) - Context (optional)
    * @returns Promise<ILogtailLog> after syncing
    */
-  public async error<TContext extends Context>(
-    message: Message,
-    context: TContext = {} as TContext,
-  ) {
+  public async error<TContext extends Context>(message: Message, context: TContext = {} as TContext) {
     return this.log(message, LogLevel.Error, context);
   }
 
