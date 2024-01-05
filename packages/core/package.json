@@ -1,6 +1,6 @@
 {
   "name": "@logtail/core",
-  "version": "0.4.17",
+  "version": "0.4.19",
   "description": "Better Stack logging core (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -41,8 +41,8 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@logtail/tools": "^0.4.16",
-    "@logtail/types": "^0.4.14",
+    "@logtail/tools": "^0.4.19",
+    "@logtail/types": "^0.4.19",
     "serialize-error": "^8.1.0"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
