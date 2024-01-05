@@ -1,12 +1,6 @@
 import { encode } from "@msgpack/msgpack";
 
-import {
-  Context,
-  ILogLevel,
-  ILogtailLog,
-  ILogtailEdgeOptions,
-  LogLevel,
-} from "@logtail/types";
+import { Context, ILogLevel, ILogtailLog, ILogtailEdgeOptions, LogLevel } from "@logtail/types";
 import { Base } from "@logtail/core";
 
 import { ExecutionContext } from "@cloudflare/workers-types";
@@ -22,14 +16,10 @@ export class Edge extends Base {
 
   private readonly warnAboutMissingExecutionContext: Boolean;
 
-  public constructor(
-    sourceToken: string,
-    options?: Partial<ILogtailEdgeOptions>,
-  ) {
+  public constructor(sourceToken: string, options?: Partial<ILogtailEdgeOptions>) {
     super(sourceToken, options);
 
-    this.warnAboutMissingExecutionContext =
-      options?.warnAboutMissingExecutionContext ?? true;
+    this.warnAboutMissingExecutionContext = options?.warnAboutMissingExecutionContext ?? true;
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
@@ -78,10 +68,7 @@ export class Edge extends Base {
 
     if (ctx) {
       ctx.waitUntil(log);
-    } else if (
-      this.warnAboutMissingExecutionContext &&
-      !this._warnedAboutMissingCtx
-    ) {
+    } else if (this.warnAboutMissingExecutionContext && !this._warnedAboutMissingCtx) {
       this._warnedAboutMissingCtx = true;
 
       const warningMessage =
@@ -134,10 +121,6 @@ export class Edge extends Base {
   private encodeAsMsgpack(logs: ILogtailLog[]): Uint8Array {
     const encoded = encode(logs);
 
-    return new Uint8Array(
-      encoded.buffer,
-      encoded.byteOffset,
-      encoded.byteLength,
-    );
+    return new Uint8Array(encoded.buffer, encoded.byteOffset, encoded.byteLength);
   }
 }

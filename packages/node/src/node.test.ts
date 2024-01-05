@@ -71,11 +71,7 @@ describe("node tests", () => {
   it("should enable piping logs to a writable stream", async () => {
     // Create a writable stream
     const writeStream = new Writable({
-      write(
-        chunk: any,
-        encoding: string,
-        callback: (error?: Error | null) => void,
-      ): void {
+      write(chunk: any, encoding: string, callback: (error?: Error | null) => void): void {
         // Will be a buffered JSON string -- parse
         const log: ILogtailLog = JSON.parse(chunk.toString());
 

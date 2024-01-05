@@ -150,8 +150,7 @@ describe("batch tests", () => {
     const end = calcEndTime(start);
 
     // Expect time to have taken at least this long...
-    const expectedTime =
-      ((numberOfLogs / batchSize) * throttleResolveAfter) / maxThrottle;
+    const expectedTime = ((numberOfLogs / batchSize) * throttleResolveAfter) / maxThrottle;
 
     expect(end).toBeGreaterThanOrEqual(expectedTime);
   });
@@ -196,14 +195,7 @@ describe("batch tests", () => {
     const sizeBytes = 500;
     const calculateSize = (_log: ILogtailLog) => 50;
 
-    const batcher = makeBatch(
-      size,
-      sendTimeout,
-      retryCount,
-      retryBackoff,
-      sizeBytes,
-      calculateSize,
-    );
+    const batcher = makeBatch(size, sendTimeout, retryCount, retryBackoff, sizeBytes, calculateSize);
     const logger = batcher.initPusher(async (_batch: ILogtailLog[]) => {
       called();
     });
@@ -225,8 +217,7 @@ describe("JSON log size calculator", () => {
     };
 
     const actualLogSizeBytes = calculateJsonLogSizeBytes(log);
-    const expectedLogSizeBytes = '{"dt":"????-??-??T??:??:??.???Z","level":"INFO","message":"My message"},'
-      .length;
+    const expectedLogSizeBytes = '{"dt":"????-??-??T??:??:??.???Z","level":"INFO","message":"My message"},'.length;
 
     expect(actualLogSizeBytes).toEqual(expectedLogSizeBytes);
   });

@@ -30,9 +30,7 @@ export default function makeBurstProtection<T extends (...args: any[]) => any>(
     }
 
     // Prepend callCounts with correct number of zeroes and keep its length to RESOLUTION at max
-    const intervalCountSinceLast = Math.floor(
-      (now - lastIntervalTime) / intervalLength,
-    );
+    const intervalCountSinceLast = Math.floor((now - lastIntervalTime) / intervalLength);
     callCounts = Array(Math.min(intervalCountSinceLast, RESOLUTION))
       .fill(0)
       .concat(callCounts)
@@ -59,9 +57,7 @@ export default function makeBurstProtection<T extends (...args: any[]) => any>(
       const now = Date.now();
       if (lastErrorOutput < now - milliseconds) {
         lastErrorOutput = now;
-        console.error(
-          `${functionName} was called more than ${max} times during last ${milliseconds}ms. Ignoring.`,
-        );
+        console.error(`${functionName} was called more than ${max} times during last ${milliseconds}ms. Ignoring.`);
       }
     };
   };

@@ -3,14 +3,7 @@ import { Duplex, Writable } from "stream";
 import fetch from "cross-fetch";
 import { encode } from "@msgpack/msgpack";
 
-import {
-  Context,
-  ILogLevel,
-  ILogtailLog,
-  ILogtailOptions,
-  LogLevel,
-  StackContextHint,
-} from "@logtail/types";
+import { Context, ILogLevel, ILogtailLog, ILogtailOptions, LogLevel, StackContextHint } from "@logtail/types";
 import { Base } from "@logtail/core";
 
 import { getStackContext } from "./context";
@@ -88,11 +81,7 @@ export class Node extends Base {
 
   private encodeAsMsgpack(logs: ILogtailLog[]): Buffer {
     const encoded = encode(logs);
-    const buffer = Buffer.from(
-      encoded.buffer,
-      encoded.byteOffset,
-      encoded.byteLength,
-    );
+    const buffer = Buffer.from(encoded.buffer, encoded.byteOffset, encoded.byteLength);
     return buffer;
   }
 }

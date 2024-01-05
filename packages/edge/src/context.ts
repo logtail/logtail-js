@@ -27,13 +27,7 @@ export function getStackContext(logtail: Edge): Context {
 }
 
 function getCallingFrame(logtail: Edge): StackFrame | null {
-  for (let fn of [
-    logtail.warn,
-    logtail.error,
-    logtail.info,
-    logtail.debug,
-    logtail.log,
-  ]) {
+  for (let fn of [logtail.warn, logtail.error, logtail.info, logtail.debug, logtail.log]) {
     const stack = stackTrace.get(fn as any);
     if (stack.length > 0) return getRelevantStackFrame(stack);
   }
@@ -43,9 +37,7 @@ function getCallingFrame(logtail: Edge): StackFrame | null {
 
 function getRelevantStackFrame(frames: StackFrame[]): StackFrame {
   let reversedFrames = frames.reverse();
-  let index = reversedFrames.findIndex(
-    frame => frame.getTypeName() === "EdgeWithExecutionContext",
-  );
+  let index = reversedFrames.findIndex(frame => frame.getTypeName() === "EdgeWithExecutionContext");
 
   if (index > 0) return reversedFrames[index - 1];
 

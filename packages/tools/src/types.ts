@@ -16,6 +16,4 @@ export interface IQueue<T> {
  * Infer arguments based on the Promise return value
  */
 
-export type InferArgs<T> = T extends (...args: any[]) => Promise<infer U>
-  ? U
-  : void;
+export type InferArgs<T> = T extends (...args: any[]) => Promise<infer U> ? U : void;
