@@ -1,7 +1,7 @@
 import { IQueue } from "./types";
 import Queue from "./queue";
 import { base64Encode } from "./encode";
-import makeBatch from "./batch";
+import makeBatch, { calculateJsonLogSizeBytes } from "./batch";
 import makeBurstProtection from "./burstProtection";
 import makeThrottle from "./throttle";
 
@@ -15,4 +15,5 @@ export {
   makeBatch,
   makeBurstProtection,
   makeThrottle,
+  calculateJsonLogSizeBytes,
 };

@@ -1,7 +1,7 @@
 import nock from "nock";
 import fetch from "cross-fetch";
 import { ILogtailLog, LogLevel } from "@logtail/types";
-import makeBatch from "./batch";
+import makeBatch, { calculateJsonLogSizeBytes } from "./batch";
 import makeThrottle from "./throttle";
 
 /**
@@ -183,5 +183,51 @@ describe("batch tests", () => {
       throw e;
     }
     expect(called).toHaveBeenCalledTimes(1);
+  });
+
+  it("should send large logs in multiple batches", async () => {
+    const called = jest.fn();
+    const size = 1000;
+    const sendTimeout = 1000;
+    const retryCount = 0;
+    const retryBackoff = 0;
+
+    // Every log is calculated to have 50B and there's 500B limit
+    const sizeBytes = 500;
+    const calculateSize = (_log: ILogtailLog) => 50;
+
+    const batcher = makeBatch(
+      size,
+      sendTimeout,
+      retryCount,
+      retryBackoff,
+      sizeBytes,
+      calculateSize,
+    );
+    const logger = batcher.initPusher(async (_batch: ILogtailLog[]) => {
+      called();
+    });
+
+    // 100 logs with 50B each is 5000B in total - expecting 10 batches of 500B
+    await Promise.all(logNumberTimes(logger, 100)).catch(e => {
+      throw e;
+    });
+    expect(called).toHaveBeenCalledTimes(10);
+  });
+});
+
+describe("JSON log size calculator", () => {
+  it("should calculate log size as JSON length", async () => {
+    const log: ILogtailLog = {
+      dt: new Date(),
+      level: LogLevel.Info,
+      message: "My message",
+    };
+
+    const actualLogSizeBytes = calculateJsonLogSizeBytes(log);
+    const expectedLogSizeBytes = '{"dt":"????-??-??T??:??:??.???Z","level":"INFO","message":"My message"},'
+      .length;
+
+    expect(actualLogSizeBytes).toEqual(expectedLogSizeBytes);
   });
 });
