@@ -196,7 +196,14 @@ describe("batch tests", () => {
     const sizeBytes = 500;
     const calculateSize = (_log: ILogtailLog) => 50;
 
-    const batcher = makeBatch(size, sendTimeout, retryCount, retryBackoff, sizeBytes, calculateSize);
+    const batcher = makeBatch(
+      size,
+      sendTimeout,
+      retryCount,
+      retryBackoff,
+      sizeBytes,
+      calculateSize,
+    );
     const logger = batcher.initPusher(async (_batch: ILogtailLog[]) => {
       called();
     });
@@ -211,10 +218,15 @@ describe("batch tests", () => {
 
 describe("JSON log size calculator", () => {
   it("should calculate log size as JSON length", async () => {
-    const log: ILogtailLog = {dt: new Date(), level: LogLevel.Info, message: "My message"};
+    const log: ILogtailLog = {
+      dt: new Date(),
+      level: LogLevel.Info,
+      message: "My message",
+    };
 
     const actualLogSizeBytes = calculateJsonLogSizeBytes(log);
-    const expectedLogSizeBytes = '{"dt":"????-??-??T??:??:??.???Z","level":"INFO","message":"My message"},'.length;
+    const expectedLogSizeBytes = '{"dt":"????-??-??T??:??:??.???Z","level":"INFO","message":"My message"},'
+      .length;
 
     expect(actualLogSizeBytes).toEqual(expectedLogSizeBytes);
   });

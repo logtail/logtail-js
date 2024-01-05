@@ -7,7 +7,12 @@ import {
   Middleware,
   Sync,
 } from "@logtail/types";
-import { makeBatch, makeBurstProtection, makeThrottle, calculateJsonLogSizeBytes } from "@logtail/tools";
+import {
+  makeBatch,
+  makeBurstProtection,
+  makeThrottle,
+  calculateJsonLogSizeBytes,
+} from "@logtail/tools";
 import { serializeError } from "serialize-error";
 
 // Types

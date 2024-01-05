@@ -63,15 +63,20 @@ describe("browser tests", () => {
     let calledCount = 0;
 
     nock("https://in.logs.betterstack.com")
-        .post("/")
-        .twice()
-        .reply(201, () => { calledCount++ });
+      .post("/")
+      .twice()
+      .reply(201, () => {
+        calledCount++;
+      });
 
-    const browser = new Browser("valid source token", { throwExceptions: true, batchInterval: 100 });
+    const browser = new Browser("valid source token", {
+      throwExceptions: true,
+      batchInterval: 100,
+    });
 
     // 6 logs, each over 12 KiB (each logs also contains context, datetime, etc.)
     const over12KiB = "X".repeat(13000);
-    await Promise.all([...Array(6)].map(() => browser.log(over12KiB)))
+    await Promise.all([...Array(6)].map(() => browser.log(over12KiB)));
 
     expect(calledCount).toEqual(2);
   });
@@ -80,12 +85,17 @@ describe("browser tests", () => {
     let calledCount = 0;
 
     nock("https://in.logs.betterstack.com")
-        .post("/")
-        .reply(201, () => { calledCount++ });
+      .post("/")
+      .reply(201, () => {
+        calledCount++;
+      });
 
-    const browser = new Browser("valid source token", { throwExceptions: true, batchInterval: 100 });
+    const browser = new Browser("valid source token", {
+      throwExceptions: true,
+      batchInterval: 100,
+    });
 
-    await Promise.all([...Array(100)].map(() => browser.log("small")))
+    await Promise.all([...Array(100)].map(() => browser.log("small")));
 
     expect(calledCount).toEqual(1);
   });

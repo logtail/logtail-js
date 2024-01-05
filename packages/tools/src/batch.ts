@@ -34,7 +34,8 @@ const DEFAULT_RETRY_BACKOFF = 100;
 /*
  * Default function for computing log size (serialized JSON length + 1 for comma)
  */
-export const calculateJsonLogSizeBytes = (log: ILogtailLog) => JSON.stringify(log).length + 1;
+export const calculateJsonLogSizeBytes = (log: ILogtailLog) =>
+  JSON.stringify(log).length + 1;
 
 /**
  * batch the buffer coming in, process them and then resolve
@@ -52,7 +53,9 @@ export default function makeBatch(
   retryCount: number = DEFAULT_RETRY_COUNT,
   retryBackoff: number = DEFAULT_RETRY_BACKOFF,
   sizeBytes: number = 0,
-  calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
+  calculateLogSizeBytes: (
+    log: ILogtailLog,
+  ) => number = calculateJsonLogSizeBytes,
 ) {
   let timeout: NodeJS.Timeout | null;
   let cb: Function;
@@ -131,7 +134,9 @@ export default function makeBatch(
 
           // If the buffer is full enough, flush it
           // Unless we're still waiting for the minimum retry backoff time
-          const isBufferFullEnough = buffer.length >= size || (sizeBytes > 0 && bufferSizeBytes >= sizeBytes);
+          const isBufferFullEnough =
+            buffer.length >= size ||
+            (sizeBytes > 0 && bufferSizeBytes >= sizeBytes);
           if (isBufferFullEnough && Date.now() > minRetryBackoff) {
             await flush();
           } else {
