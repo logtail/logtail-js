@@ -26,41 +26,40 @@
     "@babel/helper-validator-identifier" "^7.22.15"
     to-fast-properties "^2.0.0"
 
-"@logtail/core@^0.4.15":
-  version "0.4.15"
-  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.15.tgz#d8415bc9e222b5492960fa3b68e5e96bba59eb37"
-  integrity sha512-2bQABWAYcM+k6RpvDCHJ7Lg9uZzBadIXvHv82BbgIlM6WylgvBVIrJ6Ve0nBhzRdas22kPWuuXBIKsaG2mBeqQ==
+"@logtail/core@^0.4.20":
+  version "0.4.20"
+  resolved "https://registry.yarnpkg.com/@logtail/core/-/core-0.4.20.tgz#b3d6f52420de7857fd5d9cc1b8cc5b442db352ba"
+  integrity sha512-6Ij6InFtz5rF/cBjdr3UUCN3jSgCP08syJPYZV+tyVSpUyUtOPP1L5ln2B5ooIsBT3uJtjV5LbGUm1zeOkh3+A==
   dependencies:
-    "@logtail/tools" "^0.4.14"
-    "@logtail/types" "^0.4.14"
+    "@logtail/tools" "^0.4.20"
+    "@logtail/types" "^0.4.20"
     serialize-error "^8.1.0"
 
-"@logtail/node@^0.4.15":
-  version "0.4.15"
-  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.15.tgz#d8d953b7abff242e2ed0f2f9ee76d450dd237d24"
-  integrity sha512-g+ZgHHZW/qwtNDJquT7qisqGt+4Nmc8ioXe58QeDUe9ZNS8M2GxdQodNscxaw2ZTxrpclzqfFGlu0CRb0FwKGQ==
+"@logtail/node@^0.4.20":
+  version "0.4.20"
+  resolved "https://registry.yarnpkg.com/@logtail/node/-/node-0.4.20.tgz#43545ff45b9dc3bdebb4027b0eb40c5c69581bb7"
+  integrity sha512-KJegdSKIAk3e8XMEuj6Yb+jIpDKdWyzaRZAECo6++Nyl6zLB4p6xYRNB39lPhDI2YqyzEE4d4N8p6kWVfzJ2Tg==
   dependencies:
-    "@logtail/core" "^0.4.15"
-    "@logtail/types" "^0.4.14"
+    "@logtail/core" "^0.4.20"
+    "@logtail/types" "^0.4.20"
     "@msgpack/msgpack" "^2.5.1"
     "@types/stack-trace" "^0.0.29"
     cross-fetch "^3.0.4"
     minimatch "^3.0.4"
+    serialize-error "^8.1.0"
     stack-trace "^0.0.10"
 
-"@logtail/tools@^0.4.14":
-  version "0.4.14"
-  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.14.tgz#9084a4bb414dbe16585df71591164abbada66d15"
-  integrity sha512-RJXTBf9C68Sct32Llu9tAA6BsyRfsqo/5IEmLBon4Dx/WxrUGECSwjFDmJImhLJbN/3T96dDuczv8U37nsNKRg==
+"@logtail/tools@^0.4.20":
+  version "0.4.20"
+  resolved "https://registry.yarnpkg.com/@logtail/tools/-/tools-0.4.20.tgz#a733d78c111801676da3f39d949208d18c281351"
+  integrity sha512-EBqet6u78Byekwo4tBbJ0ZkcYkCefFhxZCvz+l8WORGtcpDq/8bfMZoE4BSnr9Y/jerCxuCarJ6Feqyd5A2ioA==
   dependencies:
-    "@logtail/types" "^0.4.14"
+    "@logtail/types" "^0.4.20"
 
-"@logtail/types@^0.4.14":
-  version "0.4.14"
-  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.14.tgz#85b3b7f71d56dfcbb47a30832ab97c25b944221c"
-  integrity sha512-oRAER5vmUyW1rK56EoL+GotVbbCDgttVvg0F9i08WOD6/PjiGcsPH7wNHNYGdvB/KdAXxAhD4+81ZShNKFkZdg==
-  dependencies:
-    js "^0.1.0"
+"@logtail/types@^0.4.20":
+  version "0.4.20"
+  resolved "https://registry.yarnpkg.com/@logtail/types/-/types-0.4.20.tgz#8c61a0851ea0764f09d78ec943994fed31d84ca0"
+  integrity sha512-nYsum10eJMTo+ySBlYXvSrvgD1NDCVUeOlxLBbelq3XUmHu9L48VNR3P0BOmhLamYCTEgjatTj0PyPLfjL1W9g==
 
 "@msgpack/msgpack@^2.5.1":
   version "2.8.0"
@@ -183,13 +182,6 @@ color-name@1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.3.tgz#a7d0558bd89c42f795dd42328f740831ca53bc25"
   integrity sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==
-
-commander@~1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-1.1.1.tgz#50d1651868ae60eccff0a2d9f34595376bc6b041"
-  integrity sha512-71Rod2AhcH3JhkBikVpNd0pA+fWsmAaVoti6OR38T76chA7vE3pSerS0Jor4wDw+tOueD2zLVvFOw5H0Rcj7rA==
-  dependencies:
-    keypress "0.1.x"
 
 concat-map@0.0.1:
   version "0.0.1"
@@ -560,22 +552,10 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
 
-js@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/js/-/js-0.1.0.tgz#e1d0afd55ea39c2b28da304e8143eaf2c133f366"
-  integrity sha512-ZBbGYOpact8QAH9RprFWL4RAESYwbDodxiuDjOnzwzzk9pBzKycoifGuUrHHcDixE/eLMKPHRaXenTgu1qXBqA==
-  dependencies:
-    commander "~1.1.1"
-
 json-parse-better-errors@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/json-parse-better-errors/-/json-parse-better-errors-1.0.2.tgz#bb867cfb3450e69107c131d1c514bab3dc8bcaa9"
   integrity sha512-mrqyZKfX5EhL7hvqcV6WG1yYjnjeuYDzDhhcAAUrq8Po85NBQBJP+ZDUT75qZQ98IkUoBqdkExkukOU7Ts2wrw==
-
-keypress@0.1.x:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/keypress/-/keypress-0.1.0.tgz#4a3188d4291b66b4f65edb99f806aa9ae293592a"
-  integrity sha512-x0yf9PL/nx9Nw9oLL8ZVErFAk85/lslwEP7Vz7s5SI1ODXZIgit3C5qyWjw4DxOuO/3Hb4866SQh28a1V1d+WA==
 
 load-json-file@^4.0.0:
   version "4.0.0"
