@@ -9,12 +9,8 @@ on:
     inputs:
       clearLockFiles:
         description: 'Clear yarn.lock files?'
-        required: true
-        default: 'no'
-        type: choice
-        options:
-          - yes
-          - no
+        required: false
+        type: boolean
 
 jobs:
   tests:
@@ -49,7 +45,7 @@ jobs:
         run: npm install -g yarn
 
       - name: Clear lock files
-        if: ${{ inputs.clearLockFiles == 'yes' }}
+        if: ${{ inputs.clearLockFiles }}
         run: rm yarn.lock packages/*/yarn.lock
 
       - name: Install dependencies
