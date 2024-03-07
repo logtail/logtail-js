@@ -5,6 +5,10 @@ on:
     branches:
       - master
   pull_request:
+  workflow_dispatch:
+
+env:
+  CLEAR_LOCK_FILES: false
 
 jobs:
   tests:
@@ -16,6 +20,10 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: Check variables
+        if: ${{ env.CLEAR_LOCK_FILES != 'true' && env.CLEAR_LOCK_FILES != 'false' }}
+        run: echo "Variable CLEAR_LOCK_FILES is ${{ env.CLEAR_LOCK_FILES }}, but should be 'true' or 'false'" && exit 1
+
       - uses: actions/checkout@v3
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -37,6 +45,10 @@ jobs:
 
       - name: Setup yarn
         run: npm install -g yarn
+
+      - name: Clear lock files
+        if: ${{ env.CLEAR_LOCK_FILES == 'true' }}
+        run: rm yarn.lock packages/*/yarn.lock
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
