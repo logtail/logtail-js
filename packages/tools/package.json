@@ -1,6 +1,6 @@
 {
   "name": "@logtail/tools",
-  "version": "0.4.20",
+  "version": "0.4.21",
   "description": "Better Stack JavaScript logging tools (formerly Logtail)",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
