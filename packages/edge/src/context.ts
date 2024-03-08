@@ -29,7 +29,7 @@ export function getStackContext(logtail: Edge): Context {
 function getCallingFrame(logtail: Edge): StackFrame | null {
   for (let fn of [logtail.warn, logtail.error, logtail.info, logtail.debug, logtail.log]) {
     const stack = stackTrace.get(fn as any);
-    if (stack.length > 0) return getRelevantStackFrame(stack);
+    if (stack?.length > 0) return getRelevantStackFrame(stack);
   }
 
   return null;
