@@ -33,7 +33,7 @@
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
-    "pino": "^7.0.0 || ^8.0.0"
+    "pino": "^7.0.0 || ^8.0.0 || ^9.0.0"
   },
   "dependencies": {
     "@logtail/node": "^0.4.21",
