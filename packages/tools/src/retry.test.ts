@@ -34,9 +34,7 @@ describe("retry tests", () => {
     const called = jest.fn();
     const logs: ILogtailLog[] = [getRandomLog()];
 
-    nock("http://example.com")
-      .get("/")
-      .reply(200, logs);
+    nock("http://example.com").get("/").reply(200, logs);
 
     const sync = makeSync(called);
     const retry = await makeRetry(sync);
@@ -48,11 +46,7 @@ describe("retry tests", () => {
     const called = jest.fn();
     const logs: ILogtailLog[] = [getRandomLog()];
 
-    nock("http://example.com")
-      .get("/")
-      .reply(500, "Bad")
-      .get("/")
-      .reply(200, logs);
+    nock("http://example.com").get("/").reply(500, "Bad").get("/").reply(200, logs);
 
     const sync = makeSync(called);
     const retry = await makeRetry(sync);
@@ -64,13 +58,7 @@ describe("retry tests", () => {
     const called = jest.fn();
     const logs: ILogtailLog[] = [getRandomLog()];
 
-    nock("http://example.com")
-      .get("/")
-      .reply(500, "Bad")
-      .get("/")
-      .reply(500, "Bad")
-      .get("/")
-      .reply(200, logs);
+    nock("http://example.com").get("/").reply(500, "Bad").get("/").reply(500, "Bad").get("/").reply(200, logs);
 
     const sync = makeSync(called);
     const retry = await makeRetry(sync);

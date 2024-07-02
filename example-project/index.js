@@ -65,7 +65,7 @@ const customLog = logWithNodeVersion("Logging using custom helper function.");
 
 // Logging methods are async function returning Promises
 const logPromises = [debugLog, infoLog, warningLog, errorLog, customLog];
-Promise.all(logPromises).then(function() {
+Promise.all(logPromises).then(function () {
   console.info("All done! You can check your logs now.");
 
   console.log("Logs created: ", logger.logged);

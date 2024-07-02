@@ -77,7 +77,7 @@ All log levels return a Promise that will resolve once the log has been synced w
 
 ```typescript
 // Will resolve when synced with Better Stack (or reject if there's an error)
-logtail.log("some log message").then(log => {
+logtail.log("some log message").then((log) => {
   // `log` is the transformed log, after going through middleware
 });
 ```

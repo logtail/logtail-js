@@ -34,9 +34,7 @@ describe("browser tests", () => {
   // });
 
   it("should echo log if logtail sends 20x status code", async () => {
-    nock("https://in.logs.betterstack.com")
-      .post("/")
-      .reply(201);
+    nock("https://in.logs.betterstack.com").post("/").reply(201);
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
@@ -48,9 +46,7 @@ describe("browser tests", () => {
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    nock("https://in.logs.betterstack.com")
-      .post("/")
-      .reply(401);
+    nock("https://in.logs.betterstack.com").post("/").reply(401);
 
     const browser = new Browser("invalid source token", {
       throwExceptions: true,

@@ -10,7 +10,10 @@ const stackContextHint = {
 };
 
 export class LogtailTransport extends Transport {
-  public constructor(private _logtail: Logtail, opts?: Transport.TransportStreamOptions) {
+  public constructor(
+    private _logtail: Logtail,
+    opts?: Transport.TransportStreamOptions,
+  ) {
     super(opts);
   }
 

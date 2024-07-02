@@ -5,7 +5,7 @@ import { Edge } from "./edge";
 import { Mock } from "jest-mock";
 import { ExecutionContext } from "@cloudflare/workers-types";
 
-addEventListener("fetch", event => {
+addEventListener("fetch", (event) => {
   console.log(event);
 });
 
@@ -36,7 +36,7 @@ describe("edge tests", () => {
     const expectedLog = getRandomLog(message);
     const edge = new Edge("valid source token", { throwExceptions: true });
 
-    edge.setSync(async logs => logs);
+    edge.setSync(async (logs) => logs);
 
     const echoedLog = await edge.log(message);
     expect(echoedLog.message).toEqual(expectedLog.message);
@@ -66,7 +66,7 @@ describe("edge tests", () => {
       warnAboutMissingExecutionContext: false,
     });
 
-    edge.setSync(async logs => logs);
+    edge.setSync(async (logs) => logs);
 
     const echoedLog = await edge.log(message, LogLevel.Info, circularContext);
     expect(echoedLog.message).toEqual(expectedLog.message);
@@ -80,7 +80,7 @@ describe("edge tests", () => {
     const message: string = String(Math.random());
     const edge = new Edge("valid source token", { throwExceptions: true });
 
-    edge.setSync(async logs => logs);
+    edge.setSync(async (logs) => logs);
 
     const echoedLog = await edge.log(message);
     expect(typeof echoedLog.context).toBe("object");
@@ -94,7 +94,7 @@ describe("edge tests", () => {
     const message: string = String(Math.random());
     const edge = new Edge("valid source token", { throwExceptions: true });
 
-    edge.setSync(async logs => logs);
+    edge.setSync(async (logs) => logs);
 
     edge.log(message);
     edge.info(message);
@@ -112,7 +112,7 @@ describe("edge tests", () => {
   it("should not warn about missing ExecutionContext if set", async () => {
     const message: string = String(Math.random());
     const edge = new Edge("valid source token", { throwExceptions: true });
-    edge.setSync(async logs => logs);
+    edge.setSync(async (logs) => logs);
 
     const edgeWithCtx = edge.withExecutionContext({
       waitUntil() {},

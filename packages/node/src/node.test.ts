@@ -22,9 +22,7 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
 
 describe("node tests", () => {
   it("should echo log if logtail sends 20x status code", async () => {
-    nock("https://in.logs.betterstack.com")
-      .post("/")
-      .reply(201);
+    nock("https://in.logs.betterstack.com").post("/").reply(201);
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
@@ -34,9 +32,7 @@ describe("node tests", () => {
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    nock("https://in.logs.betterstack.com")
-      .post("/")
-      .reply(401);
+    nock("https://in.logs.betterstack.com").post("/").reply(401);
 
     const node = new Node("invalid source token", { throwExceptions: true });
     const message: string = String(Math.random);
@@ -44,9 +40,7 @@ describe("node tests", () => {
   });
 
   it("should warn and echo log even with circular reference as context", async () => {
-    nock("https://in.logs.betterstack.com")
-      .post("/")
-      .reply(201);
+    nock("https://in.logs.betterstack.com").post("/").reply(201);
 
     let circularContext: any = { foo: { value: 42 } };
     circularContext.foo.bar = circularContext;
@@ -89,7 +83,7 @@ describe("node tests", () => {
     const message = "This should be streamed";
 
     // Mock the sync method by simply returning the same logs
-    logtail.setSync(async logs => logs);
+    logtail.setSync(async (logs) => logs);
 
     // Fire a log event
     await logtail.log(message);
@@ -110,13 +104,13 @@ describe("node tests", () => {
     logtail.pipe(passThrough).pipe(writeStream);
 
     // Mock the sync method by simply returning the same logs
-    logtail.setSync(async logs => logs);
+    logtail.setSync(async (logs) => logs);
 
     // Create messages
     const messages = ["message 1", "message 2"];
 
     // Log messages
-    await Promise.all(messages.map(msg => logtail.log(msg)));
+    await Promise.all(messages.map((msg) => logtail.log(msg)));
 
     writeStream.on("finish", () => {
       // Get the stored data, and translate back to JSON
@@ -125,7 +119,7 @@ describe("node tests", () => {
         .toString()
         .trim()
         .split("\n")
-        .map(line => JSON.parse(line));
+        .map((line) => JSON.parse(line));
 
       // Messages should match
       for (let i = 0; i < messages.length; i++) {

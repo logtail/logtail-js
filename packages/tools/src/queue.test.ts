@@ -25,7 +25,7 @@ describe("queue tests", () => {
 
     // Map over plain array (which is ordered), and test
     // against the values from the queue
-    list.forEach(item => {
+    list.forEach((item) => {
       expect(q.shift()).toEqual(item);
     });
 

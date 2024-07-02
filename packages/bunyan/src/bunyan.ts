@@ -45,8 +45,8 @@ export class LogtailStream extends Writable {
     // WARN: Bunyan ignores 'msg' field in the passed object!
     //       I have messaged Bunyan author here: https://github.com/trentm/node-bunyan/issues/515#issuecomment-1702682901
     Object.keys(log)
-      .filter(key => ["time", "msg", "message", "level", "v"].indexOf(key) < 0)
-      .forEach(key => (meta[key] = log[key]));
+      .filter((key) => ["time", "msg", "message", "level", "v"].indexOf(key) < 0)
+      .forEach((key) => (meta[key] = log[key]));
 
     // Get message
     // NOTE: Bunyan passes empty 'msg' when msg is missing

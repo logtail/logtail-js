@@ -43,8 +43,8 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
 
       // Carry over any additional data fields
       Object.keys(obj)
-        .filter(key => ["time", "msg", "message", "level", "v"].indexOf(key) < 0)
-        .forEach(key => (meta[key] = obj[key]));
+        .filter((key) => ["time", "msg", "message", "level", "v"].indexOf(key) < 0)
+        .forEach((key) => (meta[key] = obj[key]));
 
       // Get message
       // NOTE: Pino passes messages as obj.msg but if user passes object to Pino it will pass it to us

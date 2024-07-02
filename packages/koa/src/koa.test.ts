@@ -22,14 +22,14 @@ function getServer(): [KoaLogtail, Koa] {
 
   // Create a new router, with test routes
   const router = new KoaRouter()
-    .get("/ping", async ctx => {
+    .get("/ping", async (ctx) => {
       ctx.body = "pong";
     })
-    .get("/unauthorized", ctx => {
+    .get("/unauthorized", (ctx) => {
       ctx.status = 401;
       ctx.body = "Unauthorized";
     })
-    .get("/internal_error", ctx => {
+    .get("/internal_error", (ctx) => {
       ctx.status = 500;
       ctx.body = "Internal server error";
     });
@@ -46,7 +46,7 @@ describe("Koa Logtail tests", () => {
     const [logtail, koa] = getServer();
 
     // Mock out the sync method
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       // Should be 1 log
       expect(logs.length).toBe(1);
 
@@ -59,16 +59,14 @@ describe("Koa Logtail tests", () => {
       return logs;
     });
 
-    await request(koa.callback())
-      .get("/ping")
-      .expect(200);
+    await request(koa.callback()).get("/ping").expect(200);
   });
 
   it("should log at 'warn' level when status is 401", async () => {
     const [logtail, koa] = getServer();
 
     // Mock out the sync method
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       // Should be 1 log
       expect(logs.length).toBe(1);
 
@@ -81,16 +79,14 @@ describe("Koa Logtail tests", () => {
       return logs;
     });
 
-    await request(koa.callback())
-      .get("/unauthorized")
-      .expect(401);
+    await request(koa.callback()).get("/unauthorized").expect(401);
   });
 
   it("should log at 'warn' level when status is 404", async () => {
     const [logtail, koa] = getServer();
 
     // Mock out the sync method
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       // Should be 1 log
       expect(logs.length).toBe(1);
 
@@ -103,16 +99,14 @@ describe("Koa Logtail tests", () => {
       return logs;
     });
 
-    await request(koa.callback())
-      .get("/not_found")
-      .expect(404);
+    await request(koa.callback()).get("/not_found").expect(404);
   });
 
   it("should log at 'error' level when status is 500", async () => {
     const [logtail, koa] = getServer();
 
     // Mock out the sync method
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       // Should be 1 log
       expect(logs.length).toBe(1);
 
@@ -125,9 +119,7 @@ describe("Koa Logtail tests", () => {
       return logs;
     });
 
-    await request(koa.callback())
-      .get("/internal_error")
-      .expect(500);
+    await request(koa.callback()).get("/internal_error").expect(500);
   });
 
   it("should log at 'error' level when Koa middleware throws", async () => {
@@ -142,7 +134,7 @@ describe("Koa Logtail tests", () => {
     });
 
     // Mock out the sync method
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       // Should be 1 log
       expect(logs.length).toBe(1);
 
@@ -155,9 +147,7 @@ describe("Koa Logtail tests", () => {
       return logs;
     });
 
-    await request(koa.callback())
-      .get("/throw")
-      .expect(404);
+    await request(koa.callback()).get("/throw").expect(404);
   });
 
   it("should not log 'Info' logs when the level is 'Warn'", async () => {
@@ -166,7 +156,7 @@ describe("Koa Logtail tests", () => {
     logtail.setLevel(LogLevel.Warn);
 
     // Mock out the sync method
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       // Should be 1 log
       expect(logs.length).toBe(1);
 
@@ -180,13 +170,9 @@ describe("Koa Logtail tests", () => {
     });
 
     // This request should log "info", and thus not be logged.
-    await request(koa.callback())
-      .get("/ping")
-      .expect(200);
+    await request(koa.callback()).get("/ping").expect(200);
 
     // This request should log "warn", and thus be logged.
-    await request(koa.callback())
-      .get("/throw")
-      .expect(404);
+    await request(koa.callback()).get("/throw").expect(404);
   });
 });

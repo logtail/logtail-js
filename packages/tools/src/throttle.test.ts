@@ -20,8 +20,8 @@ describe("Throttle tests", () => {
 
     // Create the pipeline function to use the throttle
     const pipeline = throttle(
-      async log =>
-        new Promise<ILog>(resolve => {
+      async (log) =>
+        new Promise<ILog>((resolve) => {
           setTimeout(() => {
             resolve(log);
           }, throttleTime);
@@ -61,7 +61,7 @@ describe("Throttle tests", () => {
     let errors = 0;
 
     // Create a throttled function that will throw half the time
-    const pipeline = throttle(async i => {
+    const pipeline = throttle(async (i) => {
       if (i % 2 == 0) {
         throw new Error("Thrown inside throttled function!");
       }

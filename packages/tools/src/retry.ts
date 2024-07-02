@@ -11,7 +11,7 @@ let MAX_TRIES = 3;
  * @param sec - Number
  */
 function delay(sec: number): Promise<any> {
-  return new Promise(resolve => setTimeout(resolve, sec * 1000));
+  return new Promise((resolve) => setTimeout(resolve, sec * 1000));
 }
 
 /**

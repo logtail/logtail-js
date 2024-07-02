@@ -22,7 +22,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async logs => logs);
+    base.setSync(async (logs) => logs);
 
     // Pass the log through the `.log()` function and get the result
     const result = await base.log(message);
@@ -56,7 +56,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     void (await base.log("Test"));
 
@@ -68,8 +68,8 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Create a sync function that resolves after 500ms
-    base.setSync(async log => {
-      return new Promise<ILogtailLog[]>(resolve => {
+    base.setSync(async (log) => {
+      return new Promise<ILogtailLog[]>((resolve) => {
         setTimeout(() => {
           resolve(log);
         }, 500);
@@ -101,8 +101,8 @@ describe("base class tests", () => {
     });
 
     // Create a sync function that resolves after 50ms
-    base.setSync(async log => {
-      return new Promise<ILogtailLog[]>(resolve => {
+    base.setSync(async (log) => {
+      return new Promise<ILogtailLog[]>((resolve) => {
         setTimeout(() => {
           resolve(log);
         }, 50);
@@ -131,13 +131,13 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     // Message to replacement with
     const newMessage = "Second message";
 
     // Add a custom pipeline that replaces `message`
-    base.use(async log => {
+    base.use(async (log) => {
       return {
         ...log,
         message: newMessage,
@@ -176,7 +176,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     // Log
     const log = await base.log(message);
@@ -191,7 +191,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     // Log
     const log = await base.debug(message);
@@ -206,7 +206,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     // Log
     const log = await base.info(message);
@@ -221,7 +221,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     // Log
     const log = await base.warn(message);
@@ -236,7 +236,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     // Log
     const log = await base.error(message);
@@ -252,7 +252,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     // Log
     const log = await base.error(e);
@@ -303,7 +303,7 @@ describe("base class tests", () => {
     // Add a mock sync method which counts sync calls and sent logs
     let syncCount = 0;
     let logsCount = 0;
-    base.setSync(async logs => {
+    base.setSync(async (logs) => {
       syncCount++;
       logsCount = logs.length;
       return logs;
@@ -328,7 +328,7 @@ describe("base class tests", () => {
 
     // Add a mock sync method which counts sync calls
     let syncCount = 0;
-    base.setSync(async log => {
+    base.setSync(async (log) => {
       syncCount++;
       return log;
     });
@@ -359,7 +359,7 @@ describe("base class tests", () => {
     });
 
     // Add a mock sync method
-    base.setSync(async log => log);
+    base.setSync(async (log) => log);
 
     // Mock console methods
     const originalConsole = console;
@@ -407,8 +407,8 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Add a mock sync method which resolves after a timeout
-    base.setSync(async logs => {
-      return new Promise<ILogtailLog[]>(resolve => {
+    base.setSync(async (logs) => {
+      return new Promise<ILogtailLog[]>((resolve) => {
         setTimeout(() => resolve(logs), 100);
       });
     });
@@ -447,7 +447,7 @@ describe("base class tests", () => {
     });
 
     // Add a mock sync method
-    base.setSync(async logs => logs);
+    base.setSync(async (logs) => logs);
 
     // Mock console.error()
     const mockedConsoleError = jest.fn();
@@ -458,7 +458,7 @@ describe("base class tests", () => {
     for (let i = 0; i < 500; i++) {
       logs.push(base.info(message));
       // Wait for 1ms after every log
-      await new Promise(resolve => setTimeout(resolve, 1));
+      await new Promise((resolve) => setTimeout(resolve, 1));
     }
 
     await Promise.all(logs);
@@ -482,7 +482,7 @@ describe("base class tests", () => {
     });
 
     // Add a mock sync method
-    base.setSync(async logs => logs);
+    base.setSync(async (logs) => logs);
 
     // Mock console.error()
     const mockedConsoleError = jest.fn();
@@ -493,7 +493,7 @@ describe("base class tests", () => {
     for (let i = 0; i < 500; i++) {
       // Send logs with 1ms delay between them
       logs.push(
-        new Promise(resolve => {
+        new Promise((resolve) => {
           setTimeout(() => base.info(message).then(resolve), i);
         }),
       );
@@ -524,7 +524,7 @@ describe("base class tests", () => {
     });
 
     // Add a mock sync method
-    base.setSync(async logs => logs);
+    base.setSync(async (logs) => logs);
 
     // Mock console.error()
     const mockedConsoleError = jest.fn();
