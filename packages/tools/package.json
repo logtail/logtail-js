@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/nock": "^11.1.0",
     "@types/source-map": "^0.5.7",
-    "cross-fetch": "^3.0.4",
+    "cross-fetch": "^4.0.0",
     "nock": "^13.3.3"
   },
   "dependencies": {

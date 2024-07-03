@@ -1414,7 +1414,7 @@
   dependencies:
     "@types/koa" "*"
 
-"@types/koa-router@^7.0.42":
+"@types/koa-router@^7.4.8":
   version "7.4.8"
   resolved "https://registry.yarnpkg.com/@types/koa-router/-/koa-router-7.4.8.tgz#471d0c9c20d4caa05721b50b0ae4d08c22a7cb03"
   integrity sha512-SkWlv4F9f+l3WqYNQHnWjYnyTxYthqt8W9az2RTdQW7Ay8bc00iRZcrb8MC75iEfPqnGcg2csEl8tTG1NQPD4A==
