@@ -55,18 +55,3 @@ jobs:
 
       - name: Run tests
         run: yarn test
-
-      # Special handling since Lerna now only works on 18.x and up but the packages should work on 16.x
-      - name: Convert to 16.x for edge case
-        if: ${{ matrix.node-version == '18.x' }}
-        run: |
-          echo "Switching to Node.js 16.x"
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash --no-use
-          export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
-      - name: Node 16.x tests
-        if: ${{ matrix.node-version == '18.x' }}
-        run: |
-          nvm install 16
-          nvm use 16
-          yarn test
