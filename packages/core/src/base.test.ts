@@ -13,7 +13,7 @@ describe("base class tests", () => {
     const base = new Base("testing", { throwExceptions: true });
 
     // Expect logging to throw an error, since we're missing a `sync` func
-    await expect(base.log("Test")).rejects.toThrowError(/sync/);
+    await expect(base.log("Test")).rejects.toThrow(/sync/);
   });
 
   it("should add an implicit `dt` timestamp", async () => {
