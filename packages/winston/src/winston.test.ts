@@ -229,7 +229,7 @@ describe("Winston logging tests", () => {
     });
 
     const finished = new Promise<void>(resolve => {
-      logger.on('finish', resolve);
+      logger.on("finish", resolve);
     });
 
     // Act
