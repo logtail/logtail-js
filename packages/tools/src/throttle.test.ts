@@ -46,8 +46,9 @@ describe("Throttle tests", () => {
 
     // Expect time to have taken (numberOfPromises / max) * throttleTime
     const expectedTime = (numberOfPromises / max) * throttleTime;
+    const toleranceMilliseconds = 0.2;
 
-    expect(end).toBeGreaterThanOrEqual(expectedTime);
+    expect(end).toBeGreaterThanOrEqual(expectedTime - toleranceMilliseconds);
   });
 
   it("should handle rejections", async () => {

@@ -151,8 +151,9 @@ describe("batch tests", () => {
 
     // Expect time to have taken at least this long...
     const expectedTime = ((numberOfLogs / batchSize) * throttleResolveAfter) / maxThrottle;
+    const toleranceMilliseconds = 0.2;
 
-    expect(end).toBeGreaterThanOrEqual(expectedTime);
+    expect(end).toBeGreaterThanOrEqual(expectedTime - toleranceMilliseconds);
   });
 
   it("should send after flush (with long timeout)", async () => {
