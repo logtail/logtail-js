@@ -212,4 +212,36 @@ describe("Winston logging tests", () => {
     const context = logs[0].context;
     expect(context.runtime.file).toMatch("winston.test.ts");
   });
+
+  it("should flush logtail when the logger is closed", async () => {
+    let logs: ILogtailLog[] = [];
+
+    const logtail = new Logtail("test", { throwExceptions: true });
+
+    logtail.setSync(async (_logs: ILogtailLog[]) => {
+      logs.push(..._logs);
+      return logs;
+    });
+
+    const logger = winston.createLogger({
+      level: LogLevel.Info,
+      transports: [new LogtailTransport(logtail)],
+    });
+
+    const finished = new Promise<void>(resolve => {
+      logger.on("finish", resolve);
+    });
+
+    // Act
+    logger.info("a test message");
+    logger.end();
+
+    await finished;
+
+    // Should be exactly one log
+    expect(logs.length).toBe(1);
+
+    // Message should match
+    expect(logs[0].message).toBe("a test message");
+  });
 });

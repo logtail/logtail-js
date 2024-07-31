@@ -14,7 +14,16 @@ export class LogtailTransport extends Transport {
     private _logtail: Logtail,
     opts?: Transport.TransportStreamOptions,
   ) {
-    super(opts);
+    super({
+      ...opts,
+      close: () => {
+        this._logtail.flush().then(() => {
+          if (opts?.close) {
+            opts.close();
+          }
+        });
+      },
+    });
   }
 
   public log(info: LogEntry, cb: Function) {
