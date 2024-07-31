@@ -228,7 +228,7 @@ describe("Winston logging tests", () => {
       transports: [new LogtailTransport(logtail)],
     });
 
-    const finished = new Promise<void>(resolve => {
+    const finished = new Promise<void>((resolve) => {
       logger.on("finish", resolve);
     });
 
