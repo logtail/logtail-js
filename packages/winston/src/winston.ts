@@ -11,17 +11,7 @@ const stackContextHint = {
 
 export class LogtailTransport extends Transport {
   public constructor(private _logtail: Logtail, opts?: Transport.TransportStreamOptions) {
-    super({
-      ...opts,
-      close: () => {
-        this._logtail.flush()
-          .then(() => {
-            if (opts?.close) {
-              opts.close();
-            }
-          });
-      },
-    });
+    super(opts);
   }
 
   public log(info: LogEntry, cb: Function) {
