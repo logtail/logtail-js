@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - ph/end-to-end-tests
   schedule:
     - cron: "20 5 * * *"
   workflow_dispatch:
