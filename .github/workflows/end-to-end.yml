@@ -47,7 +47,7 @@ jobs:
           fi
         working-directory: ./example-project
 
-  tests-bun:
+  bun:
     runs-on: ubuntu-latest
 
     strategy:
