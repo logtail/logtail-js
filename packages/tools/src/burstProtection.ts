@@ -31,10 +31,7 @@ export default function makeBurstProtection<T extends (...args: any[]) => any>(
 
     // Prepend callCounts with correct number of zeroes and keep its length to RESOLUTION at max
     const intervalCountSinceLast = Math.floor((now - lastIntervalTime) / intervalLength);
-    callCounts = Array(Math.min(intervalCountSinceLast, RESOLUTION))
-      .fill(0)
-      .concat(callCounts)
-      .slice(0, RESOLUTION);
+    callCounts = Array(Math.min(intervalCountSinceLast, RESOLUTION)).fill(0).concat(callCounts).slice(0, RESOLUTION);
     lastIntervalTime += intervalCountSinceLast * intervalLength;
   }
 

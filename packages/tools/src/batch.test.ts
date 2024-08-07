@@ -46,7 +46,7 @@ describe("batch tests", () => {
   it("should not fire timeout while a send was happening.", async () => {
     nock("http://example.com")
       .get("/")
-      .reply(200, new Promise(res => setTimeout(() => res(200), 1003)));
+      .reply(200, new Promise((res) => setTimeout(() => res(200), 1003)));
 
     const called = jest.fn();
     const size = 5;
@@ -62,7 +62,7 @@ describe("batch tests", () => {
       }
     });
 
-    await Promise.all(logNumberTimes(logger, 5)).catch(e => {
+    await Promise.all(logNumberTimes(logger, 5)).catch((e) => {
       throw e;
     });
     expect(called).toHaveBeenCalledTimes(1);
@@ -82,7 +82,7 @@ describe("batch tests", () => {
       throw err;
     });
 
-    await Promise.all(logNumberTimes(logger, 5)).catch(e => {});
+    await Promise.all(logNumberTimes(logger, 5)).catch((e) => {});
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
   });
 
@@ -100,7 +100,7 @@ describe("batch tests", () => {
       throw err;
     });
 
-    logger(getRandomLog()).catch(e => {});
+    logger(getRandomLog()).catch((e) => {});
     await batcher.flush();
 
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
@@ -117,8 +117,8 @@ describe("batch tests", () => {
     const throttle = makeThrottle(maxThrottle);
 
     // Resolve the throttler after 1 second
-    const throttler = throttle(async logs => {
-      return new Promise(resolve => {
+    const throttler = throttle(async (logs) => {
+      return new Promise((resolve) => {
         setTimeout(() => resolve(logs), throttleResolveAfter);
       });
     });
@@ -159,7 +159,7 @@ describe("batch tests", () => {
   it("should send after flush (with long timeout)", async () => {
     nock("http://example.com")
       .get("/")
-      .reply(200, new Promise(res => setTimeout(() => res(200), 1003)));
+      .reply(200, new Promise((res) => setTimeout(() => res(200), 1003)));
 
     const called = jest.fn();
     const size = 50;
@@ -202,7 +202,7 @@ describe("batch tests", () => {
     });
 
     // 100 logs with 50B each is 5000B in total - expecting 10 batches of 500B
-    await Promise.all(logNumberTimes(logger, 100)).catch(e => {
+    await Promise.all(logNumberTimes(logger, 100)).catch((e) => {
       throw e;
     });
     expect(called).toHaveBeenCalledTimes(10);

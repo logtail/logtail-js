@@ -5,7 +5,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '20 5 * * *'
+    - cron: "20 5 * * *"
   workflow_dispatch:
 
 jobs:
@@ -14,14 +14,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x]
+        node-version: [16.x, 18.x, 20.x, 22.x]
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -54,7 +54,7 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Bun ${{ matrix.bun-version }}
         uses: oven-sh/setup-bun@v1

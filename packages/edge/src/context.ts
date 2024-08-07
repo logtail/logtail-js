@@ -37,7 +37,7 @@ function getCallingFrame(logtail: Edge): StackFrame | null {
 
 function getRelevantStackFrame(frames: StackFrame[]): StackFrame {
   let reversedFrames = frames.reverse();
-  let index = reversedFrames.findIndex(frame => frame.getTypeName() === "EdgeWithExecutionContext");
+  let index = reversedFrames.findIndex((frame) => frame.getTypeName() === "EdgeWithExecutionContext");
 
   if (index > 0) return reversedFrames[index - 1];
 

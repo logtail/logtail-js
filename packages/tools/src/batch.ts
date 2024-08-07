@@ -76,8 +76,8 @@ export default function makeBatch(
     bufferSizeBytes = 0;
 
     try {
-      await cb(currentBuffer.map(d => d.log));
-      currentBuffer.forEach(d => d.resolve(d.log));
+      await cb(currentBuffer.map((d) => d.log));
+      currentBuffer.forEach((d) => d.resolve(d.log));
       retry = 0;
     } catch (e) {
       if (retry < retryCount) {
@@ -88,7 +88,7 @@ export default function makeBatch(
         await setupTimeout();
         return;
       }
-      currentBuffer.map(d => d.reject(e));
+      currentBuffer.map((d) => d.reject(e));
       retry = 0;
     }
   }
@@ -101,8 +101,8 @@ export default function makeBatch(
       return;
     }
 
-    return new Promise<void>(resolve => {
-      timeout = setTimeout(async function() {
+    return new Promise<void>((resolve) => {
+      timeout = setTimeout(async function () {
         await flush();
         resolve();
       }, flushTimeout);
@@ -114,14 +114,14 @@ export default function makeBatch(
    * @param fn - Any function to process list
    */
   return {
-    initPusher: function(fn: Function) {
+    initPusher: function (fn: Function) {
       cb = fn;
 
       /*
        * Pushes each log into list
        * @param log: ILogtailLog - Any object to push into list
        */
-      return async function(log: ILogtailLog): Promise<ILogtailLog> {
+      return async function (log: ILogtailLog): Promise<ILogtailLog> {
         return new Promise<ILogtailLog>(async (resolve, reject) => {
           buffer.push({ log, resolve, reject });
           // We can skip log size calculation if there is no max size set

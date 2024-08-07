@@ -321,7 +321,7 @@ class Logtail {
       return `<omitted context beyond configured max depth: ${this._options.contextObjectMaxDepth}>`;
     } else if (Array.isArray(value)) {
       visitedObjects.add(value);
-      const serializedArray = value.map(item => this.serialize(item, maxDepth - 1, visitedObjects));
+      const serializedArray = value.map((item) => this.serialize(item, maxDepth - 1, visitedObjects));
       visitedObjects.delete(value);
 
       return serializedArray;
@@ -330,7 +330,7 @@ class Logtail {
 
       visitedObjects.add(value);
 
-      Object.entries(value).forEach(item => {
+      Object.entries(value).forEach((item) => {
         const key = item[0];
         const value = item[1];
 
@@ -425,7 +425,7 @@ class Logtail {
    * @returns void
    */
   public remove(fn: Middleware): void {
-    this._middleware = this._middleware.filter(p => p !== fn);
+    this._middleware = this._middleware.filter((p) => p !== fn);
   }
 }
 

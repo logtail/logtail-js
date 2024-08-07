@@ -39,7 +39,7 @@ async function testLevel(level: LogLevelString, logLevel: LogLevel) {
     throwExceptions: true,
     batchInterval: 1,
   });
-  logtail.setSync(async logs => {
+  logtail.setSync(async (logs) => {
     // Should be exactly one log
     expect(logs.length).toBe(1);
 
@@ -96,7 +96,7 @@ describe("Bunyan tests", () => {
       batchSize: levels.length,
     });
 
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       expect(logs.length).toBe(levels.length);
 
       return logs;
@@ -106,12 +106,12 @@ describe("Bunyan tests", () => {
     const logger = createLogger(logtail);
 
     // Cycle through levels, and log
-    levels.forEach(level => logger[level[2]](message));
+    levels.forEach((level) => logger[level[2]](message));
   });
 
   it("should include arbitrary extra data fields", async () => {
     const logtail = new Logtail("test", { throwExceptions: true });
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       expect(logs).toHaveLength(1);
       expect(logs[0].message).toEqual("i am the message");
       expect(logs[0].foo).toEqual("bar");
@@ -125,7 +125,7 @@ describe("Bunyan tests", () => {
 
   it("should include correct context fields", async () => {
     const logtail = new Logtail("test", { throwExceptions: true });
-    logtail.setSync(async logs => {
+    logtail.setSync(async (logs) => {
       const context = logs[0].context;
       expect(context.runtime.file).toMatch("bunyan.test.ts");
 

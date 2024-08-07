@@ -40,7 +40,7 @@ const defaultKoaOpt: IKoaOptions = {
   excludedRoutes: [],
   excludedMethods: [],
   level: LogLevel.Info,
-  messageFormatter: ctx => `Koa HTTP request: ${ctx.status}`,
+  messageFormatter: (ctx) => `Koa HTTP request: ${ctx.status}`,
   errorMessageFormatter: (ctx, e) => `Koa HTTP request error: ${(typeof e === "object" && e.message) || e}`,
 };
 
@@ -61,7 +61,7 @@ class KoaLogtail extends Logtail {
   private _fromContext(ctx: Context) {
     const context = {};
 
-    this._koaOptions.contextPaths.forEach(p => {
+    this._koaOptions.contextPaths.forEach((p) => {
       // @ts-ignore
       context[p] = path(p, ctx);
     });

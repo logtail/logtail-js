@@ -66,8 +66,8 @@ const logtail = new Logtail("sourceToken");
 const throttle = makeThrottle(2);
 
 // Create a basic pipeline function which resolves after 2 seconds
-const pipeline = async log =>
-  new Promise(resolve => {
+const pipeline = async (log) =>
+  new Promise((resolve) => {
     setTimeout(() => resolve(log), 2000);
   });
 

@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       clearLockFiles:
-        description: 'Clear yarn.lock files?'
+        description: "Clear yarn.lock files?"
         required: false
         type: boolean
 
@@ -18,13 +18,12 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x, 22.x]
+        node-version: [18.x, 20.x, 22.x]
       fail-fast: false
-
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: yarn
@@ -50,9 +49,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-
-      - name: Bootstrap packages
-        run: yarn bootstrap
 
       - name: Build packages
         run: yarn build

@@ -44,7 +44,7 @@ function getCallingFrame(logtail: Node, stackContextHint?: StackContextHint): St
 function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackContextHint): StackFrame {
   if (stackContextHint) {
     frames.reverse();
-    let index = frames.findIndex(frame => {
+    let index = frames.findIndex((frame) => {
       return (
         frame.getFileName()?.includes(stackContextHint.fileName) &&
         (stackContextHint.methodNames.includes(frame.getMethodName()) ||

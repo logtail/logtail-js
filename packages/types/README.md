@@ -165,7 +165,7 @@ The type of the function passed to `.setSync()`, for syncing a log with [Better 
 Note: Differs from the `Middleware` type because it receives - and resolves to a Promise of - an array of batched `ILogtailLog`.
 
 ```typescript
-Sync = (logs: ILogtailLog[]) => Promise<ILogtailLog[]>
+Sync = (logs: ILogtailLog[]) => Promise<ILogtailLog[]>;
 ```
 
 ## LICENSE
