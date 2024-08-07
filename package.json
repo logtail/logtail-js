@@ -5,6 +5,7 @@
   "homepage": "https://github.com/logtail/logtail-js",
   "private": true,
   "scripts": {
+    "bootstrap-example": "rm -rf example-project/node_modules/@logtail && ln -s ../../packages example-project/node_modules/@logtail",
     "build": "lerna run build",
     "lint": "prettier -c \"packages/**\" \"example-project/**\"",
     "lint:save": "prettier --write \"packages/**\" \"example-project/**\"",
