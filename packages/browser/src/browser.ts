@@ -69,7 +69,7 @@ export class Browser extends Base {
   protected getCurrentContext(): Context {
     const context: Context = {};
 
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       context.url = window.location?.href;
       context.device_pixel_ratio = window.devicePixelRatio;
       context.screen_width = window.screen?.width;
@@ -77,7 +77,7 @@ export class Browser extends Base {
       context.window_width = window.innerWidth;
       context.window_height = window.innerHeight;
     }
-    if (typeof navigator !== 'undefined') {
+    if (typeof navigator !== "undefined") {
       context.user_locale = (navigator as any).userLanguage || navigator.language;
       context.user_agent = navigator.userAgent;
     }
