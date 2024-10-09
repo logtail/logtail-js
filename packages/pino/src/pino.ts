@@ -23,6 +23,7 @@ export interface IPinoLogtailOptions {
 const stackContextHint = {
   fileName: "node_modules/pino",
   methodNames: ["log", "fatal", "error", "warn", "info", "debug", "trace", "silent"],
+  required: true,
 };
 
 export async function logtailTransport(options: IPinoLogtailOptions) {

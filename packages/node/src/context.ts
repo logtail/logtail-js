@@ -41,7 +41,7 @@ function getCallingFrame(logtail: Node, stackContextHint?: StackContextHint): St
   return null;
 }
 
-function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackContextHint): StackFrame {
+function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackContextHint): StackFrame | null {
   if (stackContextHint) {
     frames.reverse();
     let index = frames.findIndex((frame) => {
@@ -55,6 +55,11 @@ function getRelevantStackFrame(frames: StackFrame[], stackContextHint?: StackCon
     if (index > 0) {
       return frames[index - 1];
     }
+
+    if (stackContextHint.required) {
+      return null;
+    }
+
     return frames[frames.length - 1];
   }
 
