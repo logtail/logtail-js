@@ -1,6 +1,6 @@
 {
   "name": "@logtail/js",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Better Stack Node.js + browser logging (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -39,8 +39,8 @@
     "url": "https://github.com/logtail/logtail-js/issues"
   },
   "dependencies": {
-    "@logtail/browser": "^0.5.1",
-    "@logtail/node": "^0.5.0"
+    "@logtail/browser": "^0.5.2",
+    "@logtail/node": "^0.5.2"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@logtail/tools",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "description": "Better Stack JavaScript logging tools (formerly Logtail)",
   "main": "dist/cjs/index.js",
   "module": "dist/es6/index.js",
@@ -34,7 +34,7 @@
     "nock": "^13.3.3"
   },
   "dependencies": {
-    "@logtail/types": "^0.5.0",
+    "@logtail/types": "^0.5.2",
     "cross-fetch": "^4.0.0"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
