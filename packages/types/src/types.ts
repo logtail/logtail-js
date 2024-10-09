@@ -118,7 +118,7 @@ export enum LogLevel {
  */
 export type ContextKey = any;
 export type Context = { [key: string]: ContextKey };
-export type StackContextHint = { fileName: string; methodNames: string[] };
+export type StackContextHint = { fileName: string; methodNames: string[]; required?: true };
 
 /**
  * Interface representing a minimal Logtail log
