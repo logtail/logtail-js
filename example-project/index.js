@@ -7,26 +7,24 @@
  * For more infromation visit https://github.com/logtail/logtail-js
  */
 
-// Require Logtail Class for backend code (Node.js)
-const { Node: Logtail } = require("@logtail/js");
-
-// In frontend code use the following:
-// import { Browser as Logtail } from "@logtail/js";
-
-// Create a logger from a Logtail class
-const logger = new Logtail(process.argv[2], { sendLogsToConsoleOutput: true });
+const pino = require('pino');
+const transport = pino.transport({
+  target: "@logtail/pino",
+  options: { sourceToken: process.argv[2] }
+});
+const logger = pino(transport);
 
 // Usage
 
 // Send debug level log using the debug() method
-const debugLog = logger.debug(`I am using Better Stack! (${process.title} v${process.versions?.[process.title]})`);
+logger.debug(`I am using Better Stack! (${process.title} v${process.versions?.[process.title]})`);
 
 // Send info level log using the info() method
-const infoLog = logger.info("An interesting event occurred!");
+logger.info("An interesting event occurred!");
 
 // Send warn level log using the warn() method
 // You can add additional structured data to help you troubleshoot your code as shown below
-const warningLog = logger.warn("Something is not quite right, better check on it.", {
+logger.warn("Something is not quite right, better check on it.", {
   user: {
     username: "someuser",
     email: "someuser@example.com",
@@ -41,38 +39,13 @@ function callbackThatMightFail() {
   throw new Error("Testing error");
 }
 
-let errorLog;
 try {
   callbackThatMightFail();
 } catch (err) {
   // Send error level log using the error() method
-  errorLog = logger.error("Oops! An runtime ERROR occurred!", err);
+  logger.error("Oops! An runtime ERROR occurred!", err);
 }
 
-// Example of logging in a custom helper method, ensuring context.runtime still contains helpful info
-function logWithNodeVersion(message) {
-  // The stackContextHint defines where in the call stack logger should look for the runtime context
-  // Now, context.runtime should contain information about where logWithNodeVersion() was called from
-  const stackContextHint = {
-    fileName: "index.js",
-    methodNames: ["logWithNodeVersion"],
-  };
-  const context = { nodeVersion: process.version };
+logger.info("Logs can be \033[1mbold\033[0m, \033[31mred\033[0m, or \033[1;32mbold green\033[0m (octal escape).");
 
-  return logger.log(message, "info", context, stackContextHint);
-}
-const customLog = logWithNodeVersion("Logging using custom helper function.");
-
-// Logging methods are async function returning Promises
-const logPromises = [debugLog, infoLog, warningLog, errorLog, customLog];
-Promise.all(logPromises).then(function () {
-  console.info("All done! You can check your logs now.");
-
-  console.log("Logs created: ", logger.logged);
-  console.log("Successfully synced logs: ", logger.synced);
-
-  if (logger.logged !== logger.synced) {
-    console.error("Not all logs have been synced!");
-    process.exit(1);
-  }
-});
+logger.info("Logs can be \u001B[1mbold\u001B[0m, \u001B[31mred\u001B[0m, or \u001B[1;32mbold green\u001B[0m (unicode escape).");
