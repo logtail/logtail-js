@@ -1,5 +1,3 @@
-import "cross-fetch/polyfill";
-
 import { Context, ILogLevel, ILogtailLog, ILogtailOptions } from "@logtail/types";
 import { Base } from "@logtail/core";
 

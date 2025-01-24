@@ -1,7 +1,7 @@
 module.exports = {
   projects: [
     {
-      displayName: 'Node',
+      displayName: "Node",
       coverageDirectory: "coverage",
       coveragePathIgnorePatterns: ["node_modules/", "dist/"],
       moduleDirectories: ["node_modules"],
@@ -10,24 +10,25 @@ module.exports = {
       testMatch: ["<rootDir>/packages/**/*.test.ts"],
       testPathIgnorePatterns: ["/node_modules/", "/dist/", "/packages/browser/", "/packages/edge/"],
       transform: {
-        "^.+\\.ts$": ["ts-jest", "tsconfig.json"]
+        "^.+\\.ts$": ["ts-jest", "tsconfig.json"],
       },
     },
     {
-      displayName: 'Browser',
+      displayName: "Browser",
       coverageDirectory: "coverage",
       coveragePathIgnorePatterns: ["node_modules/", "dist/"],
       moduleDirectories: ["node_modules"],
       moduleFileExtensions: ["ts", "js"],
-      testEnvironment: "jsdom",
+      // https://mswjs.io/docs/migrations/1.x-to-2.x#requestresponsetextencoder-is-not-defined-jest
+      testEnvironment: "jest-fixed-jsdom",
       testMatch: ["<rootDir>/packages/browser/**/*.test.ts"],
       testPathIgnorePatterns: ["/node_modules/", "/dist/"],
       transform: {
-        "^.+\\.ts$": ["ts-jest", "tsconfig.json"]
+        "^.+\\.ts$": ["ts-jest", "tsconfig.json"],
       },
     },
     {
-      displayName: 'Edge',
+      displayName: "Edge",
       coverageDirectory: "coverage",
       coveragePathIgnorePatterns: ["node_modules/", "dist/"],
       moduleDirectories: ["node_modules"],
@@ -36,8 +37,8 @@ module.exports = {
       testMatch: ["<rootDir>/packages/edge/**/*.test.ts"],
       testPathIgnorePatterns: ["/node_modules/", "/dist/"],
       transform: {
-        "^.+\\.ts$": ["ts-jest", "tsconfig.json"]
+        "^.+\\.ts$": ["ts-jest", "tsconfig.json"],
       },
     },
-  ]
+  ],
 };
