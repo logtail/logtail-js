@@ -15,10 +15,10 @@ npm install
 To run the example application, simply run the following command:
 
 ```bash
-node index.js <source-token>
+node index.js <source-token> <ingesting-host>
 ```
 
-_Don't forget to replace <source-token> with your actual source token which you can find by going to logs.betterstack.com -> sources -> edit._
+_Don't forget to replace `<source-token>` and `<ingesting-host>` with your actual source token and ingesting host which you can find by going to **[Sources](https://telemetry.betterstack.com/team/0/sources) -> Configure** in Better Stack._
 
 You should see the following output:
 
@@ -190,7 +190,9 @@ const { Logtail } = require("@logtail/koa");
 const koa = new Koa();
 
 // Create a new Better Stack Logs client
-const logtail = new Logtail("<source-token>");
+const logtail = new Logtail("<source-token>", {
+  endpoint: "<ingesting-host>", // optional
+});
 
 // Attach Koa to enable HTTP request logging
 logtail.attach(koa);
@@ -231,7 +233,9 @@ const { Logtail } = require("@logtail/node");
 const { LogtailTransport } = require("@logtail/winston");
 
 // Create a Better Stack Logs client
-const logtail = new Logtail("<source-token>");
+const logtail = new Logtail("<source-token>", {
+  endpoint: "<ingesting-host>", // optional
+});
 
 // Create a Winston logger - passing in the Logtail transport
 const logger = winston.createLogger({
@@ -262,7 +266,9 @@ const { Logtail } = require("@logtail/node");
 const { LogtailStream } = require("@logtail/bunyan");
 
 // Create a Better Stack Logs client
-const logtail = new Logtail("logtail-source-token");
+const logtail = new Logtail("logtail-source-token", {
+  endpoint: "<ingesting-host>", // optional
+});
 
 // Create a Bunyan logger - passing in the Logtail stream
 const logger = bunyan.createLogger({
