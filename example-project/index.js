@@ -13,13 +13,10 @@ const { Node: Logtail } = require("@logtail/js");
 // In frontend code use the following:
 // import { Browser as Logtail } from "@logtail/js";
 
-// Set ingesting host using command line argument or omit to use the default
-const endpoint = process.argv[3] || "https://in.logs.betterstack.com";
-
 // Create a logger from a Logtail class
 const logger = new Logtail(process.argv[2], {
-	sendLogsToConsoleOutput: true,
-	endpoint,
+  sendLogsToConsoleOutput: true,
+  endpoint: process.argv[3],
 });
 
 // Usage

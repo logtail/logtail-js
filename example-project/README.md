@@ -18,9 +18,7 @@ To run the example application, simply run the following command:
 node index.js <source-token> <ingesting-host>
 ```
 
-_Don't forget to replace <source-token> with your actual source token which you can find by going to telemetry.betterstack.com -> sources -> configure._
-
-The `<ingesting-host>` variable is optional. It defaults to `https://in.logs.betterstack.com` but you can provide a different host by heading to **[Sources](https://telemetry.betterstack.com/team/0/sources) -> Configure** in Better Stack.
+_Don't forget to replace `<source-token>` and `<ingesting-host>` with your actual source token and ingesting host which you can find by going to **[Sources](https://telemetry.betterstack.com/team/0/sources) -> Configure** in Better Stack._
 
 You should see the following output:
 
