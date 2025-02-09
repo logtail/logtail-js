@@ -48,7 +48,6 @@
     "@types/stack-trace": "^0.0.33",
     "cross-fetch": "^4.0.0",
     "minimatch": "^9.0.5",
-    "serialize-error": "8.1.0",
     "stack-trace": "0.0.10"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
