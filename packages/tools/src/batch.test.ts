@@ -1,5 +1,4 @@
 import nock from "nock";
-import fetch from "cross-fetch";
 import { ILogtailLog, LogLevel } from "@logtail/types";
 import makeBatch, { calculateJsonLogSizeBytes } from "./batch";
 import makeThrottle from "./throttle";
