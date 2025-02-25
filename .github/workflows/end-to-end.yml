@@ -58,6 +58,7 @@ jobs:
 
     strategy:
       matrix:
+        infrastructure: [legacy, cloud]
         bun-version: [latest, 1.0.0]
         dependencies: [install, update]
       fail-fast: false
