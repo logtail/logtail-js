@@ -16,7 +16,7 @@ const { Node: Logtail } = require("@logtail/js");
 // Create a logger from a Logtail class
 const logger = new Logtail(process.argv[2], {
   sendLogsToConsoleOutput: true,
-  endpoint: process.argv[3],
+  endpoint: `https://${process.argv[3]}`,
 });
 
 // Usage
