@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/end-to-end.yml
-      - example-project/
+      - example-project/**
   schedule:
     - cron: "20 5 * * *"
   workflow_dispatch:
