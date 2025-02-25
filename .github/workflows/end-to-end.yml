@@ -2,8 +2,9 @@ name: E2E Tests
 
 on:
   push:
-    branches:
-      - master
+    paths:
+      - .github/workflows/end-to-end.yml
+      - example-project/
   schedule:
     - cron: "20 5 * * *"
   workflow_dispatch:
