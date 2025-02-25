@@ -2,8 +2,9 @@ name: E2E Tests
 
 on:
   push:
-    branches:
-      - master
+    paths:
+      - .github/workflows/end-to-end.yml
+      - example-project/**
   schedule:
     - cron: "20 5 * * *"
   workflow_dispatch:
@@ -14,6 +15,7 @@ jobs:
 
     strategy:
       matrix:
+        infrastructure: [legacy, cloud]
         node-version: [16.x, 18.x, 20.x, 22.x]
         dependencies: [install, update]
       fail-fast: false
@@ -33,12 +35,17 @@ jobs:
         working-directory: ./example-project
 
       - name: Run example project with valid token
-        run: node index.js ${{ secrets.SOURCE_TOKEN }}
+        env:
+          INGESTING_HOST: ${{ matrix.infrastructure == 'cloud' && secrets.CLOUD_INGESTING_HOST || 'in.logs.betterstack.com' }}
+          SOURCE_TOKEN: ${{ matrix.infrastructure == 'cloud' && secrets.CLOUD_SOURCE_TOKEN || secrets.SOURCE_TOKEN }}
+        run: node index.js ${{ env.SOURCE_TOKEN }} ${{ env.INGESTING_HOST }}
         working-directory: ./example-project
 
       - name: Run example project with invalid token
+        env:
+          INGESTING_HOST: ${{ matrix.infrastructure == 'cloud' && secrets.CLOUD_INGESTING_HOST || 'in.logs.betterstack.com' }}
         run: |
-          if node index.js INVALID_TOKEN; then
+          if node index.js INVALID_TOKEN ${{ env.INGESTING_HOST }}; then
             echo "This should have failed but didn't"
             exit 1
           else
@@ -51,6 +58,7 @@ jobs:
 
     strategy:
       matrix:
+        infrastructure: [legacy, cloud]
         bun-version: [latest, 1.0.0]
         dependencies: [install, update]
       fail-fast: false
@@ -68,12 +76,17 @@ jobs:
         working-directory: ./example-project
 
       - name: Run example project with valid token
-        run: bun run index.js ${{ secrets.SOURCE_TOKEN }}
+        env:
+          INGESTING_HOST: ${{ matrix.infrastructure == 'cloud' && secrets.CLOUD_INGESTING_HOST || 'in.logs.betterstack.com' }}
+          SOURCE_TOKEN: ${{ matrix.infrastructure == 'cloud' && secrets.CLOUD_SOURCE_TOKEN || secrets.SOURCE_TOKEN }}
+        run: bun run index.js ${{ env.SOURCE_TOKEN }} ${{ env.INGESTING_HOST }}
         working-directory: ./example-project
 
       - name: Run example project with invalid token
+        env:
+          INGESTING_HOST: ${{ matrix.infrastructure == 'cloud' && secrets.CLOUD_INGESTING_HOST || 'in.logs.betterstack.com' }}
         run: |
-          if bun run index.js INVALID_TOKEN; then
+          if bun run index.js INVALID_TOKEN ${{ env.INGESTING_HOST }}; then
             echo "This should have failed but didn't"
             exit 1
           else
