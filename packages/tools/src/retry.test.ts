@@ -1,5 +1,4 @@
 import { ILogtailLog, LogLevel } from "@logtail/types";
-import fetch from "cross-fetch";
 import nock from "nock";
 import makeRetry from "./retry";
 
