@@ -5,7 +5,7 @@ import { fetch } from "cross-fetch";
 import http from "node:http";
 import https from "node:https";
 
-import { Context, ILogLevel, ILogtailLog, ILogtailOptions, LogLevel, StackContextHint } from "@logtail/types";
+import { Context, ILogLevel, ILogtailLog, ILogtailNodeOptions, LogLevel, StackContextHint } from "@logtail/types";
 import { Base } from "@logtail/core";
 
 import { getStackContext } from "./context";
@@ -17,10 +17,10 @@ export class Node extends Base {
    */
   private _writeStream?: Writable | Duplex;
 
-  public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
+  public constructor(sourceToken: string, options?: Partial<ILogtailNodeOptions>) {
     super(sourceToken, options);
 
-    const agent = this.createAgent(this._options);
+    const agent = this.createAgent();
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
@@ -91,9 +91,10 @@ export class Node extends Base {
     return buffer;
   }
 
-  private createAgent(options: ILogtailOptions) {
-    const family = options.useIPv6 ? 6 : 4;
-    if (options.endpoint.startsWith("https")) {
+  private createAgent() {
+    const nodeOptions = this._options as ILogtailNodeOptions;
+    const family = nodeOptions.useIPv6 ? 6 : 4;
+    if (nodeOptions.endpoint.startsWith("https")) {
       return new https.Agent({
         family,
       });
