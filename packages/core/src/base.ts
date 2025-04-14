@@ -58,9 +58,6 @@ const defaultOptions: ILogtailOptions = {
 
   // Function to be used to calculate size of logs in bytes (to evaluate batchSizeLimitKiB)
   calculateLogSizeBytes: calculateJsonLogSizeBytes,
-
-  // Use IPv6 for sending logs to Better Stack. Enable this if you are running on nodejs in an IPv6-only network.
-  useIPv6: false,
 };
 
 /**

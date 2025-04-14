@@ -86,15 +86,18 @@ export interface ILogtailOptions {
   sendLogsToBetterStack: boolean;
 
   /**
-   * Use IPv6 for sending logs to Better Stack. Enable this if you are running on nodejs in an IPv6-only network.
-   */
-  useIPv6: boolean;
-
-  /**
    * Function to be used to calculate size of logs in bytes (to evaluate batchSizeKiB). JSON length by default.
    **/
   calculateLogSizeBytes: (logs: ILogtailLog) => number;
 }
+
+export interface ILogtailNodeOptions extends ILogtailOptions {
+  /**
+   * Use IPv6 for sending logs to Better Stack. Enable this if you are running on nodejs in an IPv6-only network.
+   */
+  useIPv6: boolean;
+}
+
 export interface ILogtailEdgeOptions extends ILogtailOptions {
   /**
    * Boolean to produce a warning when ExecutionContext hasn't been passed to the `log` method
