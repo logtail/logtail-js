@@ -1,7 +1,6 @@
 import { Duplex, Writable } from "stream";
 
 import { encode } from "@msgpack/msgpack";
-import { fetch } from "cross-fetch";
 import http from "node:http";
 import https from "node:https";
 
@@ -24,23 +23,31 @@ export class Node extends Base {
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
-      const res = await fetch(this._options.endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/msgpack",
-          Authorization: `Bearer ${this._sourceToken}`,
-          "User-Agent": "logtail-js(node)",
-        },
-        body: this.encodeAsMsgpack(logs),
-        // @ts-ignore (cross-fetch does not expose the agent option)
-        agent,
+      const request = this.getHttpModule().request(
+        this._options.endpoint,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/msgpack',
+            'Authorization': `Bearer ${this._sourceToken}`,
+            'User-Agent': 'logtail-js(node)',
+          },
+          agent,
+        }
+      );
+
+      const response : http.IncomingMessage = await new Promise((resolve, reject) => {
+        request.on('response', resolve);
+        request.on('error', reject);
+        request.write(this.encodeAsMsgpack(logs));
+        request.end();
       });
 
-      if (res.ok) {
+      if (response.statusCode && response.statusCode >= 200 && response.statusCode < 300) {
         return logs;
       }
 
-      throw new Error(res.statusText);
+      throw new Error(response.statusMessage);
     };
 
     // Set the throttled sync function
@@ -94,14 +101,12 @@ export class Node extends Base {
   private createAgent() {
     const nodeOptions = this._options as ILogtailNodeOptions;
     const family = nodeOptions.useIPv6 ? 6 : 4;
-    if (nodeOptions.endpoint.startsWith("https")) {
-      return new https.Agent({
-        family,
-      });
-    }
-
-    return new http.Agent({
+    return new (this.getHttpModule()).Agent({
       family,
     });
+  }
+
+  private getHttpModule(): typeof http | typeof https {
+    return this._options.endpoint.startsWith('https') ? https : http;
   }
 }
