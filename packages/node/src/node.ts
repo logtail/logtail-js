@@ -1,8 +1,11 @@
 import { Duplex, Writable } from "stream";
 
 import { encode } from "@msgpack/msgpack";
+import { fetch } from "cross-fetch";
+import http from "node:http";
+import https from "node:https";
 
-import { Context, ILogLevel, ILogtailLog, ILogtailOptions, LogLevel, StackContextHint } from "@logtail/types";
+import { Context, ILogLevel, ILogtailLog, ILogtailNodeOptions, LogLevel, StackContextHint } from "@logtail/types";
 import { Base } from "@logtail/core";
 
 import { getStackContext } from "./context";
@@ -14,8 +17,10 @@ export class Node extends Base {
    */
   private _writeStream?: Writable | Duplex;
 
-  public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
+  public constructor(sourceToken: string, options?: Partial<ILogtailNodeOptions>) {
     super(sourceToken, options);
+
+    const agent = this.createAgent();
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
@@ -27,6 +32,8 @@ export class Node extends Base {
           "User-Agent": "logtail-js(node)",
         },
         body: this.encodeAsMsgpack(logs),
+        // @ts-ignore (cross-fetch does not expose the agent option)
+        agent,
       });
 
       if (res.ok) {
@@ -82,5 +89,19 @@ export class Node extends Base {
     const encoded = encode(logs);
     const buffer = Buffer.from(encoded.buffer, encoded.byteOffset, encoded.byteLength);
     return buffer;
+  }
+
+  private createAgent() {
+    const nodeOptions = this._options as ILogtailNodeOptions;
+    const family = nodeOptions.useIPv6 ? 6 : 4;
+    if (nodeOptions.endpoint.startsWith("https")) {
+      return new https.Agent({
+        family,
+      });
+    }
+
+    return new http.Agent({
+      family,
+    });
   }
 }

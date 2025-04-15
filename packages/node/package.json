@@ -1,6 +1,6 @@
 {
   "name": "@logtail/node",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Better Stack Node.js logger (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -42,12 +42,11 @@
     "nock": "^14.0.1"
   },
   "dependencies": {
-    "@logtail/core": "^0.5.2",
-    "@logtail/types": "^0.5.2",
+    "@logtail/core": "^0.5.3",
+    "@logtail/types": "^0.5.3",
     "@msgpack/msgpack": "^2.5.1",
     "@types/stack-trace": "^0.0.33",
     "minimatch": "^9.0.5",
-    "serialize-error": "8.1.0",
     "stack-trace": "0.0.10"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
