@@ -23,22 +23,19 @@ export class Node extends Base {
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
-      const request = this.getHttpModule().request(
-        this._options.endpoint,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/msgpack',
-            'Authorization': `Bearer ${this._sourceToken}`,
-            'User-Agent': 'logtail-js(node)',
-          },
-          agent,
-        }
-      );
+      const request = this.getHttpModule().request(this._options.endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/msgpack",
+          Authorization: `Bearer ${this._sourceToken}`,
+          "User-Agent": "logtail-js(node)",
+        },
+        agent,
+      });
 
-      const response : http.IncomingMessage = await new Promise((resolve, reject) => {
-        request.on('response', resolve);
-        request.on('error', reject);
+      const response: http.IncomingMessage = await new Promise((resolve, reject) => {
+        request.on("response", resolve);
+        request.on("error", reject);
         request.write(this.encodeAsMsgpack(logs));
         request.end();
       });
@@ -101,12 +98,12 @@ export class Node extends Base {
   private createAgent() {
     const nodeOptions = this._options as ILogtailNodeOptions;
     const family = nodeOptions.useIPv6 ? 6 : 4;
-    return new (this.getHttpModule()).Agent({
+    return new (this.getHttpModule().Agent)({
       family,
     });
   }
 
   private getHttpModule(): typeof http | typeof https {
-    return this._options.endpoint.startsWith('https') ? https : http;
+    return this._options.endpoint.startsWith("https") ? https : http;
   }
 }
