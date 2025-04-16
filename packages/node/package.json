@@ -39,14 +39,13 @@
   "devDependencies": {
     "@types/fetch-mock": "^7.3.1",
     "@types/nock": "^11.1.0",
-    "nock": "^13.3.3"
+    "nock": "^14.0.1"
   },
   "dependencies": {
     "@logtail/core": "^0.5.3",
     "@logtail/types": "^0.5.3",
     "@msgpack/msgpack": "^2.5.1",
     "@types/stack-trace": "^0.0.33",
-    "cross-fetch": "^4.0.0",
     "minimatch": "^9.0.5",
     "stack-trace": "0.0.10"
   },
