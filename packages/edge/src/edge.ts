@@ -25,7 +25,7 @@ export class Edge extends Base {
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
       // Compress the data using CompressionStream
       const compressedData = await new Response(
-        new Blob([this.encodeAsMsgpack(logs)]).stream().pipeThrough(new CompressionStream("gzip"))
+        new Blob([this.encodeAsMsgpack(logs)]).stream().pipeThrough(new CompressionStream("gzip")),
       ).arrayBuffer();
 
       const res = await fetch(this._options.endpoint, {
