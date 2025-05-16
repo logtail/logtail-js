@@ -1,8 +1,8 @@
 import { Duplex, Writable } from "stream";
-
 import { encode } from "@msgpack/msgpack";
 import http from "node:http";
 import https from "node:https";
+import zlib from "node:zlib";
 
 import { Context, ILogLevel, ILogtailLog, ILogtailNodeOptions, LogLevel, StackContextHint } from "@logtail/types";
 import { Base } from "@logtail/core";
@@ -27,6 +27,7 @@ export class Node extends Base {
         method: "POST",
         headers: {
           "Content-Type": "application/msgpack",
+          "Content-Encoding": "gzip",
           Authorization: `Bearer ${this._sourceToken}`,
           "User-Agent": "logtail-js(node)",
         },
@@ -36,8 +37,16 @@ export class Node extends Base {
       const response: http.IncomingMessage = await new Promise((resolve, reject) => {
         request.on("response", resolve);
         request.on("error", reject);
-        request.write(this.encodeAsMsgpack(logs));
-        request.end();
+
+        // Compress the logs using gzip
+        zlib.gzip(this.encodeAsMsgpack(logs), (err, compressedData) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          request.write(compressedData);
+          request.end();
+        });
       });
 
       if (response.statusCode && response.statusCode >= 200 && response.statusCode < 300) {
