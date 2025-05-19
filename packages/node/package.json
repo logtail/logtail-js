@@ -1,6 +1,6 @@
 {
   "name": "@logtail/node",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Better Stack Node.js logger (formerly Logtail)",
   "keywords": [
     "Better Stack",
