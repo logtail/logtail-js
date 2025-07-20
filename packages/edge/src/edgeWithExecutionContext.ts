@@ -1,6 +1,6 @@
 import { Context, ILogLevel, ILogtailLog } from "@logtail/types";
 
-import { ExecutionContext } from "@cloudflare/workers-types";
+import type { ExecutionContext } from "@cloudflare/workers-types";
 
 import { Edge } from "./edge";
 

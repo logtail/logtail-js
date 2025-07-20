@@ -3,7 +3,7 @@ import { ILogtailLog, LogLevel } from "@logtail/types";
 import { Edge } from "./edge";
 
 import { Mock } from "jest-mock";
-import { ExecutionContext } from "@cloudflare/workers-types";
+import type { ExecutionContext } from "@cloudflare/workers-types";
 
 addEventListener("fetch", (event) => {
   console.log(event);
@@ -117,7 +117,7 @@ describe("edge tests", () => {
     const edgeWithCtx = edge.withExecutionContext({
       waitUntil() {},
       passThroughOnException() {},
-    } as ExecutionContext);
+    } as unknown as ExecutionContext);
 
     edgeWithCtx.log(message);
     edgeWithCtx.info(message);
