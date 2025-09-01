@@ -40,6 +40,12 @@ export interface ILogtailOptions {
   syncMax: number;
 
   /**
+   * Maximum number of sync requests that can be queued when all concurrent slots are busy.
+   * When the queue limit is reached, new logs will be dropped. (-1 for unlimited queue)
+   */
+  syncQueuedMax: number;
+
+  /**
    * Length of the checked window for logs burst protection in milliseconds (0 to disable)
    */
   burstProtectionMilliseconds: number;
@@ -96,6 +102,11 @@ export interface ILogtailNodeOptions extends ILogtailOptions {
    * Use IPv6 for sending logs to Better Stack. Enable this if you are running on nodejs in an IPv6-only network.
    */
   useIPv6: boolean;
+
+  /**
+   * Request timeout in milliseconds for HTTP requests to Better Stack (0 to disable).
+   */
+  timeout: number;
 }
 
 export interface ILogtailEdgeOptions extends ILogtailOptions {

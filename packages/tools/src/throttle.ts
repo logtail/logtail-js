@@ -4,8 +4,9 @@ import { InferArgs } from "./types";
 /**
  * Create a throttle which runs up to `max` async functions at once
  * @param max - maximum number of async functions to run
+ * @param queueMax - maximum number of functions to queue (-1 = unlimited, default)
  */
-export default function makeThrottle<T extends (...args: any[]) => any>(max: number) {
+export default function makeThrottle<T extends (...args: any[]) => any>(max: number, queueMax: number = -1) {
   // Current iteration cycle
   let current = 0;
 
@@ -44,9 +45,13 @@ export default function makeThrottle<T extends (...args: any[]) => any>(max: num
             if (queue.length > 0) {
               queue.shift()!();
             }
-          } else {
-            // The `max` has been exceeded - push onto the queue to wait
+          } else if (queueMax < 0 || queue.length < queueMax) {
+            // The `max` has been exceeded and if queue limit hasn't been hit - push onto the queue to wait
             queue.push(handler);
+          } else {
+            // Reject this call due to queue limit
+            reject(new Error("Queue max limit exceeded"));
+            return;
           }
         }
 

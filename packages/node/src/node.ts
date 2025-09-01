@@ -17,13 +17,18 @@ export class Node extends Base {
   private _writeStream?: Writable | Duplex;
 
   public constructor(sourceToken: string, options?: Partial<ILogtailNodeOptions>) {
+    options = {
+      timeout: 30000, // 30 seconds default timeout
+      ...options,
+    };
     super(sourceToken, options);
 
     const agent = this.createAgent();
 
     // Sync function
     const sync = async (logs: ILogtailLog[]): Promise<ILogtailLog[]> => {
-      const request = this.getHttpModule().request(this._options.endpoint, {
+      const nodeOptions = this._options as ILogtailNodeOptions;
+      const request = this.getHttpModule().request(nodeOptions.endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/msgpack",
@@ -32,9 +37,17 @@ export class Node extends Base {
           "User-Agent": "logtail-js(node)",
         },
         agent,
+        timeout: nodeOptions.timeout > 0 ? nodeOptions.timeout : undefined,
       });
 
       const response: http.IncomingMessage = await new Promise((resolve, reject) => {
+        // Setup timeout handler if timeout is configured
+        if (nodeOptions.timeout > 0) {
+          request.on("timeout", () => {
+            request.destroy();
+            reject(new Error(`Request timeout after ${nodeOptions.timeout}ms`));
+          });
+        }
         request.on("response", resolve);
         request.on("error", reject);
 
