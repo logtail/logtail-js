@@ -129,4 +129,46 @@ describe("node tests", () => {
 
     writeStream.end();
   });
+
+  it("should drop logs when queue limit is exceeded", async () => {
+    let requestCount = 0;
+    nock("https://in.logs.betterstack.com")
+      .post("/")
+      .times(10)
+      .delay(500) // 500ms delay
+      .reply(201, () => { requestCount++; });
+
+    const node = new Node("test-token", {
+      syncMax: 2, // Only 2 concurrent batches
+      syncQueuedMax: 3, // Only 3 batches can be queued
+      batchSize: 2, // Two logs per batch
+      ignoreExceptions: true, // Do not print the exceptions to console during test
+      retryCount: 0,
+    });
+
+    // Send 24 logs rapidly
+    const promises = [];
+    for (let i = 0; i < 24; i++) {
+      promises.push(node.log(`Message ${i}`));
+    }
+
+    // Wait a bit for queue processing
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // 2 immediate batches of 2
+    expect(requestCount).toBe(2);
+    // which haven't synced yet
+    expect(node.synced).toBe(0);
+    // 24 logs in total - 2 immediate batches of 2 - 3 queued batches of 2
+    expect(node.dropped).toBe(14);
+
+    // Wait for the queue to finish
+    await Promise.all(promises);
+
+    // 2 immediate batches of 2 + 3 queued batches of 2
+    expect(requestCount).toBe(5);
+    expect(node.synced).toBe(10);
+    // 24 in total - 5 done batches of 2
+    expect(node.dropped).toBe(14);
+  });
 });

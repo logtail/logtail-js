@@ -40,6 +40,12 @@ export interface ILogtailOptions {
   syncMax: number;
 
   /**
+   * Maximum number of sync requests that can be queued when all concurrent slots are busy.
+   * When the queue limit is reached, new logs will be dropped. (-1 for unlimited queue)
+   */
+  syncQueuedMax: number;
+
+  /**
    * Length of the checked window for logs burst protection in milliseconds (0 to disable)
    */
   burstProtectionMilliseconds: number;
