@@ -163,7 +163,6 @@ describe("node tests", () => {
     expect(node.synced).toBe(0);
     // 24 logs in total - 2 immediate batches of 2 - 3 queued batches of 2
     expect(node.dropped).toBe(14);
-    pa;
 
     // Wait for the queue to finish
     await Promise.all(promises);
