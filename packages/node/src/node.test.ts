@@ -171,4 +171,57 @@ describe("node tests", () => {
     // 24 in total - 5 done batches of 2
     expect(node.dropped).toBe(14);
   });
+
+  it("should timeout when request takes longer than configured timeout", async () => {
+    // Mock a slow endpoint
+    nock("https://in.logs.betterstack.com")
+      .post("/")
+      .delay(300) // 300ms delay
+      .reply(201);
+
+    const node = new Node("test-token", {
+      timeout: 200, // 200ms timeout
+      throwExceptions: true,
+      retryCount: 0,
+    });
+
+    // This should timeout
+    await expect(node.log("Test message")).rejects.toThrow("Request timeout after 200ms");
+  });
+
+  it("should complete successfully when request is within timeout", async () => {
+    // Mock a normal endpoint
+    nock("https://in.logs.betterstack.com")
+      .post("/")
+      .delay(100) // 100ms delay
+      .reply(201);
+
+    const node = new Node("test-token", {
+      timeout: 200, // 200ms timeout
+      throwExceptions: true,
+      retryCount: 0,
+    });
+
+    // This should succeed
+    const result = await node.log("Test message");
+    expect(result).toHaveProperty("message", "Test message");
+  });
+
+  it("should work without timeout when timeout is 0", async () => {
+    // Mock a slow endpoint
+    nock("https://in.logs.betterstack.com")
+      .post("/")
+      .delay(100) // 100ms delay
+      .reply(200);
+
+    const node = new Node("test-token", {
+      timeout: 0, // No timeout
+      throwExceptions: true,
+      retryCount: 0,
+    });
+
+    // This should complete despite the delay
+    const result = await node.log("Test message");
+    expect(result).toHaveProperty("message", "Test message");
+  });
 });

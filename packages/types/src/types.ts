@@ -102,6 +102,11 @@ export interface ILogtailNodeOptions extends ILogtailOptions {
    * Use IPv6 for sending logs to Better Stack. Enable this if you are running on nodejs in an IPv6-only network.
    */
   useIPv6: boolean;
+
+  /**
+   * Request timeout in milliseconds for HTTP requests to Better Stack (0 to disable).
+   */
+  timeout: number;
 }
 
 export interface ILogtailEdgeOptions extends ILogtailOptions {
