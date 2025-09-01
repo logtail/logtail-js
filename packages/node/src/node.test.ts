@@ -199,7 +199,7 @@ describe("node tests", () => {
       .reply(201);
 
     const node = new Node("test-token", {
-      timeout: 500, // 500ms timeout
+      timeout: 1000, // 1s timeout
       throwExceptions: true,
       retryCount: 0,
     });
