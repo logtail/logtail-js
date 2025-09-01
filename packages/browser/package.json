@@ -1,6 +1,6 @@
 {
   "name": "@logtail/browser",
-  "version": "0.5.4",
+  "version": "0.5.6",
   "description": "Better Stack browser logging (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -39,7 +39,7 @@
     "url": "https://github.com/logtail/logtail-js/issues"
   },
   "devDependencies": {
-    "@logtail/types": "^0.5.3",
+    "@logtail/types": "^0.5.6",
     "@types/nock": "^11.1.0",
     "@types/webpack": "^5.28.2",
     "nock": "^14.0.1",
@@ -48,8 +48,8 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@logtail/core": "^0.5.4",
-    "@logtail/tools": "^0.5.4"
+    "@logtail/core": "^0.5.6",
+    "@logtail/tools": "^0.5.6"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
