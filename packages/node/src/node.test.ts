@@ -136,7 +136,9 @@ describe("node tests", () => {
       .post("/")
       .times(10)
       .delay(500) // 500ms delay
-      .reply(201, () => { requestCount++; });
+      .reply(201, () => {
+        requestCount++;
+      });
 
     const node = new Node("test-token", {
       syncMax: 2, // Only 2 concurrent batches
@@ -153,7 +155,7 @@ describe("node tests", () => {
     }
 
     // Wait a bit for queue processing
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // 2 immediate batches of 2
     expect(requestCount).toBe(2);
@@ -161,6 +163,7 @@ describe("node tests", () => {
     expect(node.synced).toBe(0);
     // 24 logs in total - 2 immediate batches of 2 - 3 queued batches of 2
     expect(node.dropped).toBe(14);
+    pa;
 
     // Wait for the queue to finish
     await Promise.all(promises);

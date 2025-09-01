@@ -82,7 +82,7 @@ describe("Throttle tests", () => {
     // Create a function that takes some time to complete
     const slowFunction = async (id: number) => {
       functionCallCount++;
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       return `result ${id}`;
     };
 
@@ -95,13 +95,12 @@ describe("Throttle tests", () => {
     const promises = [];
     for (let i = 1; i <= 5; i++) {
       promises.push(
-        throttledFunction(i)
-          .catch(err => {
-            if (err.message === "Queue max limit exceeded") {
-              return `dropped ${i}`;
-            }
-            throw err;
-          })
+        throttledFunction(i).catch((err) => {
+          if (err.message === "Queue max limit exceeded") {
+            return `dropped ${i}`;
+          }
+          throw err;
+        }),
       );
     }
 
@@ -110,7 +109,7 @@ describe("Throttle tests", () => {
 
     // Verify results
     expect(functionCallCount).toBe(3); // 1 immediate + 2 queued = 3 total executed
-    
+
     // Check that we got the expected mix of results and drops
     expect(results).toStrictEqual(["result 1", "result 2", "result 3", "dropped 4", "dropped 5"]);
   });

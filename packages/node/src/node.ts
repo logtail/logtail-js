@@ -19,7 +19,7 @@ export class Node extends Base {
   public constructor(sourceToken: string, options?: Partial<ILogtailNodeOptions>) {
     options = {
       timeout: 30000, // 30 seconds default timeout
-      ...options
+      ...options,
     };
     super(sourceToken, options);
 
