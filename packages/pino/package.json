@@ -29,7 +29,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "pino": "^7.0.0 || ^8.0.0 || ^9.0.0"
+    "pino": "^7.0.0 || ^8.0.0 || ^9.0.0 || "10.0.0"
   },
   "dependencies": {
     "@logtail/node": "^0.5.6",
