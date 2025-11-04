@@ -3,7 +3,7 @@ import { encode } from "@msgpack/msgpack";
 import { Context, ILogLevel, ILogtailLog, ILogtailEdgeOptions, LogLevel } from "@logtail/types";
 import { Base } from "@logtail/core";
 
-import { ExecutionContext } from "@cloudflare/workers-types";
+import type { ExecutionContext } from "@cloudflare/workers-types";
 
 import { getStackContext } from "./context";
 import { EdgeWithExecutionContext } from "./edgeWithExecutionContext";
