@@ -1,6 +1,6 @@
 {
   "name": "@logtail/pino",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "Better Stack Pino transport (formerly Logtail)",
   "keywords": [
     "Better Stack",
