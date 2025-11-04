@@ -28,6 +28,9 @@ const defaultOptions: ILogtailOptions = {
   // Maximum number of sync requests to make concurrently
   syncMax: 5,
 
+  // Maximum number of sync requests that can be queued (-1 for unlimited queue)
+  syncQueuedMax: 100,
+
   // Length of the checked window for logs burst protection in milliseconds (0 to disable)
   burstProtectionMilliseconds: 5000,
 
@@ -115,7 +118,7 @@ class Logtail {
     this._options = { ...defaultOptions, ...options };
 
     // Create a throttler, for sync operations
-    const throttle = makeThrottle(this._options.syncMax);
+    const throttle = makeThrottle(this._options.syncMax, this._options.syncQueuedMax);
 
     // Sync after throttling
     const throttler = throttle((logs: any) => {
