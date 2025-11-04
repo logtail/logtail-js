@@ -48,10 +48,10 @@
     "stack-trace": "0.0.10"
   },
   "devDependencies": {
-     "@cloudflare/workers-types": "^4.20230904.0"
+    "@cloudflare/workers-types": "^4.20230904.0"
   },
   "peerDependencies": {
-     "@cloudflare/workers-types": "^4.20230904.0"
+    "@cloudflare/workers-types": "^4.20230904.0"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
