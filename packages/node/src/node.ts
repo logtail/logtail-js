@@ -88,8 +88,10 @@ export class Node extends Base {
     context: TContext = {} as TContext,
     stackContextHint?: StackContextHint,
   ) {
-    // Process/sync the log, per `Base` logic
-    context = { ...getStackContext(this, stackContextHint), ...context };
+    // Only capture stack context if enabled (default: true)
+    if (this._options.captureStackContext !== false) {
+      context = { ...getStackContext(this, stackContextHint), ...context } as TContext;
+    }
     const processedLog = await super.log(message, level, context);
 
     // Push the processed log to the stream, for piping

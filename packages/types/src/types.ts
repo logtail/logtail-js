@@ -95,6 +95,14 @@ export interface ILogtailOptions {
    * Function to be used to calculate size of logs in bytes (to evaluate batchSizeKiB). JSON length by default.
    **/
   calculateLogSizeBytes: (logs: ILogtailLog) => number;
+
+  /**
+   * If false, disables automatic stack context capture (file, line, method) on each log entry.
+   * Stack context capture calls Error.captureStackTrace with stackTraceLimit=Infinity up to 5x per log,
+   * costing ~12μs of synchronous event loop blocking per log entry at scale.
+   * @default true
+   */
+  captureStackContext?: boolean;
 }
 
 export interface ILogtailNodeOptions extends ILogtailOptions {

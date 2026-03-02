@@ -226,4 +226,47 @@ describe("node tests", () => {
     const result = await node.log("Test message");
     expect(result).toHaveProperty("message", "Test message");
   });
+
+  it("should skip stack context capture when captureStackContext is false", async () => {
+    nock("https://in.logs.betterstack.com").post("/").reply(201);
+
+    const node = new Node("test-token", {
+      captureStackContext: false,
+      throwExceptions: true,
+    });
+
+    const result = await node.log("test message");
+
+    expect(result.message).toBe("test message");
+    expect(result.context).toBeUndefined();
+  });
+
+  it("should include stack context by default", async () => {
+    nock("https://in.logs.betterstack.com").post("/").reply(201);
+
+    const node = new Node("test-token", {
+      throwExceptions: true,
+    });
+
+    const result = await node.log("test message");
+
+    expect(result.message).toBe("test message");
+    expect(result.context).toBeDefined();
+    expect(result.context.runtime).toBeDefined();
+  });
+
+  it("should include stack context when captureStackContext is explicitly true", async () => {
+    nock("https://in.logs.betterstack.com").post("/").reply(201);
+
+    const node = new Node("test-token", {
+      captureStackContext: true,
+      throwExceptions: true,
+    });
+
+    const result = await node.log("test message");
+
+    expect(result.message).toBe("test message");
+    expect(result.context).toBeDefined();
+    expect(result.context.runtime).toBeDefined();
+  });
 });

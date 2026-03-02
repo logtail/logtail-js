@@ -61,6 +61,9 @@ const defaultOptions: ILogtailOptions = {
 
   // Function to be used to calculate size of logs in bytes (to evaluate batchSizeLimitKiB)
   calculateLogSizeBytes: calculateJsonLogSizeBytes,
+
+  // If true, stack context (file, line, method) will be captured on each log entry
+  captureStackContext: true,
 };
 
 /**
