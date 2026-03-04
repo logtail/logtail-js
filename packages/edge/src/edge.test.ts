@@ -109,6 +109,53 @@ describe("edge tests", () => {
     );
   });
 
+  it("should skip stack context capture when captureStackContext is false", async () => {
+    const message: string = String(Math.random());
+    const edge = new Edge("valid source token", {
+      throwExceptions: true,
+      warnAboutMissingExecutionContext: false,
+      captureStackContext: false,
+    });
+
+    edge.setSync(async (logs) => logs);
+
+    const echoedLog = await edge.log(message);
+    expect(echoedLog.context).toBeUndefined();
+  });
+
+  it("should include stack context by default", async () => {
+    const message: string = String(Math.random());
+    const edge = new Edge("valid source token", {
+      throwExceptions: true,
+      warnAboutMissingExecutionContext: false,
+    });
+
+    edge.setSync(async (logs) => logs);
+
+    const echoedLog = await edge.log(message);
+    expect(typeof echoedLog.context).toBe("object");
+    expect(typeof echoedLog.context.runtime).toBe("object");
+    expect(typeof echoedLog.context.runtime.file).toBe("string");
+    expect(typeof echoedLog.context.runtime.line).toBe("number");
+  });
+
+  it("should include stack context when captureStackContext is explicitly true", async () => {
+    const message: string = String(Math.random());
+    const edge = new Edge("valid source token", {
+      throwExceptions: true,
+      warnAboutMissingExecutionContext: false,
+      captureStackContext: true,
+    });
+
+    edge.setSync(async (logs) => logs);
+
+    const echoedLog = await edge.log(message);
+    expect(typeof echoedLog.context).toBe("object");
+    expect(typeof echoedLog.context.runtime).toBe("object");
+    expect(typeof echoedLog.context.runtime.file).toBe("string");
+    expect(typeof echoedLog.context.runtime.line).toBe("number");
+  });
+
   it("should not warn about missing ExecutionContext if set", async () => {
     const message: string = String(Math.random());
     const edge = new Edge("valid source token", { throwExceptions: true });

@@ -67,9 +67,11 @@ export class Edge extends Base {
     context: any = {} as TContext,
     ctx?: ExecutionContext,
   ): Promise<ILogtailLog & TContext> {
-    // Process/sync the log, per `Base` logic
-    const stackContext = getStackContext(this);
+    // Only capture stack context if enabled (default: true)
+    const stackContext = this._options.captureStackContext !== false ? getStackContext(this) : {};
     context = { ...stackContext, ...context };
+
+    // Process/sync the log, per `Base` logic
     const log = super.log(message, level, context);
 
     if (ctx) {
