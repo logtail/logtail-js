@@ -91,3 +91,20 @@ jobs:
             echo "Failed successfully"
           fi
         working-directory: ./example-project
+
+  notify-slack:
+    if: ${{ failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.event_name == 'schedule') }}
+    needs: [node, bun]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$SLACK_WEBHOOK_URL" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"username\": \"E2E tests in JS client\",
+              \"icon_emoji\": \":warning:\",
+              \"text\": \":red_circle: *${{ github.workflow }}* failed on \`${{ github.ref_name }}\`\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View failing run>\"
+            }"
