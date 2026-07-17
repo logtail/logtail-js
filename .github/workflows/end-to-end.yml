@@ -20,10 +20,10 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -62,10 +62,10 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Bun ${{ matrix.bun-version }}
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ matrix.bun-version }}
 
