@@ -3,9 +3,8 @@ import { encode } from "@msgpack/msgpack";
 import { Context, ILogLevel, ILogtailLog, ILogtailEdgeOptions, LogLevel } from "@logtail/types";
 import { Base } from "@logtail/core";
 
-import type { ExecutionContext } from "@cloudflare/workers-types";
-
 import { getStackContext } from "./context";
+import type { ExecutionContext } from "./executionContext";
 import { EdgeWithExecutionContext } from "./edgeWithExecutionContext";
 
 // Types

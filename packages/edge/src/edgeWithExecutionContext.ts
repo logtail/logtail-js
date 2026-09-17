@@ -1,8 +1,7 @@
 import { Context, ILogLevel, ILogtailLog } from "@logtail/types";
 
-import type { ExecutionContext } from "@cloudflare/workers-types";
-
 import { Edge } from "./edge";
+import type { ExecutionContext } from "./executionContext";
 
 // Types
 type Message = string | Error;
