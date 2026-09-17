@@ -1,0 +1,133 @@
+# Publishes the @logtail/* packages to npm with trusted publishing (OIDC). No npm token exists
+# anywhere: each package on npmjs.com trusts exactly this workflow file, run from this repository
+# in the "npm" environment, so the environment's required reviewers are the release gate.
+#
+# One-time setup, both required before the first run:
+#   - GitHub: create the "npm" environment with required reviewers, deployment branches limited
+#     to master. A job that references a missing environment creates it WITHOUT protection.
+#   - npmjs.com, for every package: Settings → Trusted publisher → GitHub Actions with
+#     organization "logtail", repository "logtail-js", workflow "release.yml", environment "npm",
+#     and "npm publish" allowed.
+#
+# Release: Actions → Release → Run workflow from master, pick patch or minor, approve the
+# environment prompt. Lerna bumps the changed packages and their dependents, commits "vX.Y.Z",
+# tags it, pushes both, and publishes in dependency order with provenance attached.
+#
+# Retry: if a release failed after the version commit was pushed, run "retry" right away. It
+# publishes the versions that are in git but missing from npm and bumps nothing. Running patch or
+# minor again would fail instead, because lerna refuses to release an already tagged commit.
+#
+# Dry run: bumps in place without committing, packs every package with `npm publish --dry-run`,
+# and fails unless the OIDC token exchange succeeded for every package. npm performs the exchange
+# before it skips the upload, so this proves that every trusted publisher config on npmjs.com
+# matches without publishing anything.
+#
+# The release job holds the OIDC permission, so it runs as little third-party code as possible:
+# dependency lifecycle scripts are disabled, nothing is restored from the Actions cache, and the
+# test toolchain only runs in the unprivileged verify job. Do not add `registry-url` to
+# setup-node here: the .npmrc it writes expects a token and breaks the OIDC exchange.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "patch or minor: bump, tag and publish. retry: finish a release that failed halfway."
+        type: choice
+        options: [patch, minor, retry]
+        required: true
+      dry_run:
+        description: "Dry run: bump and pack, verify OIDC for every package, publish nothing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Run tests
+        run: yarn test
+
+  release:
+    name: Release
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: write # lerna pushes the version commit and tag
+      id-token: write # OIDC token exchange with npm
+    env:
+      RELEASE: ${{ inputs.release }}
+
+    steps:
+      - name: Releases run from master only
+        if: ${{ !inputs.dry_run && github.ref != 'refs/heads/master' }}
+        run: |
+          echo "::error::Dispatch the release from master, not from $GITHUB_REF_NAME."
+          exit 1
+
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # lerna finds the changed packages from the last release tag
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies without lifecycle scripts
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Dry run
+        if: ${{ inputs.dry_run }}
+        run: |
+          # Only npm >= 11.5.1 performs the OIDC exchange. Lerna has its own, so the real release
+          # never needs this upgrade.
+          npm install -g npm@11
+          if [ "$RELEASE" != "retry" ]; then
+            npx lerna version "$RELEASE" --yes --no-git-tag-version --no-push
+          fi
+          # --force skips npm's "cannot publish over a previously published version" check, which
+          # otherwise aborts on packages this release does not bump. Nothing is uploaded either way.
+          npm publish --workspaces --dry-run --force --ignore-scripts --loglevel verbose 2>&1 | tee publish.log
+          packed=$(grep -c 'Publishing to' publish.log)
+          exchanged=$(grep -c 'Successfully retrieved and set token' publish.log)
+          echo "OIDC token exchanges: $exchanged of $packed packages"
+          test "$packed" -gt 0 && test "$exchanged" -eq "$packed"
+
+      - name: Publish
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ "$RELEASE" = "retry" ]; then
+            # Only finish the release this exact commit was tagged as.
+            git describe --exact-match --tags HEAD
+            npx lerna publish from-package --yes
+          else
+            npx lerna publish "$RELEASE" --yes
+          fi
