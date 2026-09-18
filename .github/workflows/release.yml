@@ -58,7 +58,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x # no Node version file is tracked in this repo
+          node-version: 22.x
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
