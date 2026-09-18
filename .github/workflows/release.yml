@@ -11,11 +11,13 @@
 #
 # Release: Actions → Release → Run workflow from master, pick patch or minor, approve the
 # environment prompt. Lerna bumps the changed packages and their dependents, commits "vX.Y.Z",
-# tags it, pushes both, and publishes in dependency order with provenance attached.
+# tags it, pushes both, and publishes in dependency order with provenance attached. A GitHub
+# release with auto-generated notes is then created for the tag; edit it afterwards if needed.
 #
 # Retry: if a release failed after the version commit was pushed, run "retry" right away. It
-# publishes the versions that are in git but missing from npm and bumps nothing. Running patch or
-# minor again would fail instead, because lerna refuses to release an already tagged commit.
+# publishes the versions that are in git but missing from npm and bumps nothing, then creates the
+# GitHub release if it is still missing. Running patch or minor again would fail instead, because
+# lerna refuses to release an already tagged commit.
 #
 # Dry run: bumps in place without committing, packs every package with `npm publish --dry-run`,
 # and fails unless the OIDC token exchange succeeded for every package. npm performs the exchange
@@ -131,4 +133,19 @@ jobs:
             npx lerna publish from-package --yes
           else
             npx lerna publish "$RELEASE" --yes
+          fi
+
+      - name: Create GitHub release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="v$(node -p "require('./lerna.json').version")"
+          # Already exists when lerna found nothing to release, so this run bumped nothing.
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "Release $tag already exists."
+          else
+            # --verify-tag: only ever attach to the tag lerna pushed, never create one here.
+            gh release create "$tag" --verify-tag --generate-notes
           fi
