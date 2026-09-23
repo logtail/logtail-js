@@ -1,0 +1,54 @@
+{
+  "name": "@logtail/hono",
+  "version": "0.5.9",
+  "description": "Better Stack Hono middleware (formerly Logtail)",
+  "keywords": [
+    "Better Stack",
+    "Logtail",
+    "logger",
+    "logging",
+    "hono",
+    "middleware",
+    "edge",
+    "Cloudflare"
+  ],
+  "author": "Better Stack <hello@betterstack.com>",
+  "homepage": "https://github.com/logtail/logtail-js/tree/master/packages/hono#readme",
+  "license": "ISC",
+  "main": "dist/cjs/index.js",
+  "module": "dist/es6/index.js",
+  "types": "dist/es6/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/logtail/logtail-js.git",
+    "directory": "packages/hono"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:cjs": "tsc",
+    "build:es6": "tsc -p tsconfig.es6.json",
+    "build": "run-p build:*",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/logtail/logtail-js/issues"
+  },
+  "devDependencies": {
+    "@logtail/edge": "^0.5.9",
+    "@logtail/node": "^0.5.9",
+    "hono": "^4.13.8"
+  },
+  "dependencies": {
+    "@logtail/types": "^0.5.8"
+  },
+  "peerDependencies": {
+    "hono": ">=4.0.0"
+  }
+}
