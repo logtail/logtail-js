@@ -39,6 +39,29 @@ describe("node tests", () => {
     await expect(node.log(message)).rejects.toThrow();
   });
 
+  it("should not send a request when flushing with nothing logged", async () => {
+    const scope = nock("https://in.logs.betterstack.com").post("/").reply(201);
+
+    const node = new Node("valid source token", { throwExceptions: true });
+    await node.flush();
+
+    expect(scope.isDone()).toBe(false);
+    nock.cleanAll();
+  });
+
+  it("should send one request when logs are flushed twice", async () => {
+    const scope = nock("https://in.logs.betterstack.com").post("/").times(2).reply(201);
+
+    const node = new Node("valid source token", { throwExceptions: true });
+    const logged = node.log("flushed once");
+    await node.flush();
+    await logged;
+    await node.flush();
+
+    expect(scope.pendingMocks()).toHaveLength(1);
+    nock.cleanAll();
+  });
+
   it("should warn and echo log even with circular reference as context", async () => {
     nock("https://in.logs.betterstack.com").post("/").reply(201);
 

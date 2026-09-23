@@ -184,6 +184,33 @@ describe("batch tests", () => {
     expect(called).toHaveBeenCalledTimes(1);
   });
 
+  it("should not call the send function when flushing an empty buffer", async () => {
+    const called = jest.fn();
+    const batcher = makeBatch(5, 10000);
+    batcher.initPusher(async (_batch: ILogtailLog[]) => {
+      called();
+    });
+
+    await batcher.flush();
+
+    expect(called).toHaveBeenCalledTimes(0);
+  });
+
+  it("should not send again when flushing right after a send", async () => {
+    const called = jest.fn();
+    const batcher = makeBatch(5, 10000);
+    const logger = batcher.initPusher(async (_batch: ILogtailLog[]) => {
+      called();
+    });
+
+    const logged = logNumberTimes(logger, 3);
+    await batcher.flush();
+    await Promise.all(logged);
+    await batcher.flush();
+
+    expect(called).toHaveBeenCalledTimes(1);
+  });
+
   it("should send large logs in multiple batches", async () => {
     const called = jest.fn();
     const size = 1000;
