@@ -96,3 +96,67 @@ describe("Pino transport", () => {
     expect(stdout).toMatch(/ERROR.*: three\n/);
   });
 });
+
+describe("Pino transport levels", () => {
+  it("should use the names of custom levels configured on the logger", async () => {
+    const { logs, stderr } = await runPino(`
+      const logger = pino({ customLevels: { notice: 35, critical: 55 } }, pino.transport(logtail));
+      logger.notice("one");
+      logger.critical("two");
+      logger.info("three");
+    `);
+
+    expect(stderr).toBe("");
+    expect(logs.map((log) => [log.level, log.message])).toEqual([
+      ["notice", "one"],
+      ["critical", "two"],
+      [LogLevel.Info, "three"],
+    ]);
+  });
+
+  it("should use the names of custom levels next to pino-pretty", async () => {
+    const { logs, stderr } = await runPino(`
+      const logger = pino({ customLevels: { notice: 35 } }, pino.transport({ targets: [logtail, pretty] }));
+      logger.notice("one");
+      logger.warn("two");
+    `);
+
+    expect(stderr).toBe("");
+    expect(logs.map((log) => [log.level, log.message])).toEqual([
+      ["notice", "one"],
+      [LogLevel.Warn, "two"],
+    ]);
+  });
+
+  it("should prefer the customLevels transport option over the logger's names", async () => {
+    const { logs, stderr } = await runPino(`
+      const transport = pino.transport({ ...logtail, options: { ...logtail.options, customLevels: { important: 35 } } });
+      const logger = pino({ customLevels: { notice: 35 } }, transport);
+      logger.notice("one");
+    `);
+
+    expect(stderr).toBe("");
+    expect(logs.map((log) => log.level)).toEqual(["important"]);
+  });
+
+  it("should read the message from a custom messageKey", async () => {
+    const { logs, stderr } = await runPino(`
+      const logger = pino({ messageKey: "text" }, pino.transport(logtail));
+      logger.info("one");
+    `);
+
+    expect(stderr).toBe("");
+    expect(logs.map((log) => [log.message, log.text])).toEqual([["one", undefined]]);
+  });
+
+  it("should keep level labels produced by a level formatter", async () => {
+    const { logs, stderr } = await runPino(`
+      const logger = pino({ formatters: { level: (label) => ({ level: label }) } }, pino.transport(logtail));
+      logger.info("one");
+      logger.warn("two");
+    `);
+
+    expect(stderr).toBe("");
+    expect(logs.map((log) => log.level)).toEqual([LogLevel.Info, LogLevel.Warn]);
+  });
+});
