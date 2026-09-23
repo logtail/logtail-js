@@ -2,6 +2,8 @@ import { ILogLevel, ILogtailLog, ILogtailOptions, Context, LogLevel, Middleware,
 import { makeBatch, makeBurstProtection, makeThrottle, calculateJsonLogSizeBytes } from "@logtail/tools";
 import { serializeError } from "serialize-error";
 
+import { ConsoleMethod, consoleMethodLevels, consoleMethods, formatConsoleArgs } from "./console";
+
 // Types
 type Message = string | Error;
 
@@ -99,6 +101,12 @@ class Logtail {
 
   // Number of logs that failed to be synced to Logtail
   private _countDropped = 0;
+
+  // Console methods saved by `replaceConsoleMethods()`, so that the logger's own console output bypasses the replacements
+  private _originalConsole?: Record<ConsoleMethod, (...args: any[]) => void>;
+
+  // True while a replaced console method is being handled, so that console output produced on the way is not forwarded again
+  private _forwardingConsoleCall = false;
 
   /* CONSTRUCTOR */
 
@@ -215,19 +223,19 @@ class Logtail {
     if (this._options.sendLogsToConsoleOutput) {
       switch (level) {
         case "debug":
-          console.debug(message, context);
+          this._consoleOutput("debug", message, context);
           break;
         case "info":
-          console.info(message, context);
+          this._consoleOutput("info", message, context);
           break;
         case "warn":
-          console.warn(message, context);
+          this._consoleOutput("warn", message, context);
           break;
         case "error":
-          console.error(message, context);
+          this._consoleOutput("error", message, context);
           break;
         default:
-          console.log(`[${level.toUpperCase()}]`, message, context);
+          this._consoleOutput("log", `[${level.toUpperCase()}]`, message, context);
           break;
       }
     }
@@ -289,7 +297,7 @@ class Logtail {
           throw e;
         } else {
           // Output to console
-          console.error(e);
+          this._consoleOutput("error", e);
         }
       }
     }
@@ -313,14 +321,16 @@ class Logtail {
     } else if ((typeof value === "object" || Array.isArray(value)) && (maxDepth < 1 || visitedObjects.has(value))) {
       if (visitedObjects.has(value)) {
         if (this._options.contextObjectCircularRefWarn) {
-          console.warn(
+          this._consoleOutput(
+            "warn",
             `[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.`,
           );
         }
         return "<omitted circular reference>";
       }
       if (this._options.contextObjectMaxDepthWarn) {
-        console.warn(
+        this._consoleOutput(
+          "warn",
           `[Logtail] Max depth of ${this._options.contextObjectMaxDepth} reached when serializing logs. Please do not use excessive object depth in your logs.`,
         );
       }
@@ -432,6 +442,83 @@ class Logtail {
    */
   public remove(fn: Middleware): void {
     this._middleware = this._middleware.filter((p) => p !== fn);
+  }
+
+  /**
+   * Forwards every `console.debug()`, `console.log()`, `console.info()`, `console.warn()` and `console.error()`
+   * call to Better Stack, on top of printing it as before. Strings and other primitives form the log message,
+   * plain objects become context fields and the first Error becomes the `error` field. With
+   * `sendLogsToConsoleOutput` enabled, the console output comes from the logger instead, so nothing is printed twice.
+   *
+   * @returns this
+   */
+  public replaceConsoleMethods(): this {
+    if (this._originalConsole) {
+      return this;
+    }
+
+    const original = {} as Record<ConsoleMethod, (...args: any[]) => void>;
+    const logtail = this;
+    for (const method of consoleMethods) {
+      original[method] = console[method];
+      console[method] = function consoleForwarder(...args: any[]) {
+        logtail._forwardConsoleCall(method, args);
+      };
+    }
+    this._originalConsole = original;
+
+    return this;
+  }
+
+  /**
+   * Puts back the console methods replaced by `replaceConsoleMethods()`
+   *
+   * @returns this
+   */
+  public restoreConsoleMethods(): this {
+    if (this._originalConsole) {
+      for (const method of consoleMethods) {
+        console[method] = this._originalConsole[method];
+      }
+      this._originalConsole = undefined;
+    }
+
+    return this;
+  }
+
+  /**
+   * Logs a forwarded console call; overridden by loggers that can point the stack context at the caller
+   */
+  protected _logFromConsole(message: string, level: LogLevel, context: Context): Promise<unknown> {
+    return this.log(message, level, context);
+  }
+
+  /**
+   * Prints through the console methods saved by `replaceConsoleMethods()`, so the output is not forwarded again
+   */
+  protected _consoleOutput(method: ConsoleMethod, ...args: any[]): void {
+    (this._originalConsole?.[method] ?? console[method]).apply(console, args);
+  }
+
+  private _forwardConsoleCall(method: ConsoleMethod, args: any[]): void {
+    const original = this._originalConsole![method];
+
+    // Console output produced while a call is being forwarded is only printed
+    if (this._forwardingConsoleCall) {
+      original.apply(console, args);
+      return;
+    }
+
+    this._forwardingConsoleCall = true;
+    try {
+      if (!this._options.sendLogsToConsoleOutput) {
+        original.apply(console, args);
+      }
+      const { message, context } = formatConsoleArgs(args);
+      this._logFromConsole(message, consoleMethodLevels[method], context).catch((e) => this._consoleOutput("error", e));
+    } finally {
+      this._forwardingConsoleCall = false;
+    }
   }
 }
 

@@ -270,3 +270,28 @@ describe("node tests", () => {
     expect(result.context.runtime).toBeDefined();
   });
 });
+
+describe("replaceConsoleMethods", () => {
+  it("should point the runtime context of forwarded console calls at the caller", async () => {
+    const node = new Node("test", { throwExceptions: true });
+    const logs: ILogtailLog[] = [];
+    node.setSync(async (batch) => {
+      logs.push(...batch);
+      return batch;
+    });
+    jest.spyOn(console, "info").mockImplementation(() => {});
+
+    node.replaceConsoleMethods();
+    try {
+      console.info("Forwarded");
+      await node.flush();
+    } finally {
+      node.restoreConsoleMethods();
+      jest.restoreAllMocks();
+    }
+
+    expect(logs).toHaveLength(1);
+    expect(logs[0].message).toBe("Forwarded");
+    expect(logs[0].context.runtime.file).toMatch(/node\.test\.ts$/);
+  });
+});
