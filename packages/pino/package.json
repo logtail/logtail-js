@@ -44,5 +44,10 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "private": false,
-  "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
+  "gitHead": "0f816cacc21b352576a5707741f9151aa1481041",
+  "devDependencies": {
+    "@msgpack/msgpack": "^2.5.1",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3"
+  }
 }
