@@ -32,7 +32,7 @@ describe("Throttle tests", () => {
     const promises = [];
 
     // Start the timer
-    const start = process.hrtime();
+    const start = performance.now();
 
     for (let i = 0; i < numberOfPromises; i++) {
       promises.push(pipeline({ message: "Hey" }));
@@ -42,11 +42,17 @@ describe("Throttle tests", () => {
     await Promise.all(promises);
 
     // End the timer
-    const end = process.hrtime(start)[1] / 1000000;
+    const end = performance.now() - start;
 
     // Expect time to have taken (numberOfPromises / max) * throttleTime
     const expectedTime = (numberOfPromises / max) * throttleTime;
-    const toleranceMilliseconds = 0.2;
+
+    // Node's timers run on libuv's millisecond clock, so each setTimeout round can
+    // fire up to ~1 ms earlier than a high-resolution clock measures. Five sequential
+    // rounds can therefore finish a few milliseconds short of `expectedTime`.
+    // Without throttling all promises would resolve after a single round
+    // (~throttleTime), so a tolerance of a few milliseconds still proves throttling.
+    const toleranceMilliseconds = 10;
 
     expect(end).toBeGreaterThanOrEqual(expectedTime - toleranceMilliseconds);
   });
