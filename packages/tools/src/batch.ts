@@ -70,6 +70,11 @@ export default function makeBatch(
     }
     timeout = null;
 
+    // Nothing buffered, nothing to sync
+    if (buffer.length === 0) {
+      return;
+    }
+
     const currentBuffer = buffer;
     const currentBufferSizeKB = bufferSizeBytes;
     buffer = [];
