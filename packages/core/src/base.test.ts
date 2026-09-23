@@ -547,3 +547,153 @@ describe("base class tests", () => {
     expect(mockedConsoleError).toHaveBeenCalledTimes(0);
   });
 });
+
+describe("replaceConsoleMethods", () => {
+  function getBase(options = {}) {
+    const base = new Base("testing", { throwExceptions: true, ...options });
+    const logs: ILogtailLog[] = [];
+    base.setSync(async (batch) => {
+      logs.push(...batch);
+      return batch;
+    });
+    return { base, logs };
+  }
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("should forward console calls to Better Stack and keep printing them", async () => {
+    const { base, logs } = getBase();
+    const info = jest.spyOn(console, "info").mockImplementation(() => {});
+    const error = jest.spyOn(console, "error").mockImplementation(() => {});
+    const failure = new Error("boom");
+
+    base.replaceConsoleMethods();
+    try {
+      console.info("User logged in", { user_id: 42 });
+      console.error("Request failed", failure);
+      await base.flush();
+    } finally {
+      base.restoreConsoleMethods();
+    }
+
+    expect(logs.map((log) => [log.level, log.message])).toEqual([
+      [LogLevel.Info, "User logged in"],
+      [LogLevel.Error, "Request failed Error: boom"],
+    ]);
+    expect(logs[0].user_id).toBe(42);
+    expect(logs[1].error).toMatchObject({ name: "Error", message: "boom" });
+    expect(info).toHaveBeenCalledWith("User logged in", { user_id: 42 });
+    expect(error).toHaveBeenCalledWith("Request failed", failure);
+  });
+
+  it("should map console.log, console.debug and console.warn to info, debug and warn", async () => {
+    const { base, logs } = getBase();
+    jest.spyOn(console, "log").mockImplementation(() => {});
+    jest.spyOn(console, "debug").mockImplementation(() => {});
+    jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    base.replaceConsoleMethods();
+    try {
+      console.log("logged");
+      console.debug("debugged");
+      console.warn("warned");
+      await base.flush();
+    } finally {
+      base.restoreConsoleMethods();
+    }
+
+    expect(logs.map((log) => [log.level, log.message])).toEqual([
+      [LogLevel.Info, "logged"],
+      [LogLevel.Debug, "debugged"],
+      [LogLevel.Warn, "warned"],
+    ]);
+  });
+
+  it("should print through the logger only once with sendLogsToConsoleOutput", async () => {
+    const { base, logs } = getBase({ sendLogsToConsoleOutput: true });
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    base.replaceConsoleMethods();
+    try {
+      console.warn("Careful");
+      await base.flush();
+    } finally {
+      base.restoreConsoleMethods();
+    }
+
+    expect(logs).toHaveLength(1);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith("Careful", {});
+  });
+
+  it("should not forward the warnings the logger prints itself", async () => {
+    const { base, logs } = getBase();
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const circular: any = { name: "loop" };
+    circular.self = circular;
+
+    base.replaceConsoleMethods();
+    try {
+      console.warn("Circular", circular);
+      await base.flush();
+    } finally {
+      base.restoreConsoleMethods();
+    }
+
+    expect(logs).toHaveLength(1);
+    expect(logs[0].self).toEqual({ name: "loop", self: "<omitted circular reference>" });
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(warn).toHaveBeenLastCalledWith(
+      "[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.",
+    );
+  });
+
+  it("should report sync failures through the console instead of an unhandled rejection", async () => {
+    const base = new Base("testing", { throwExceptions: true, retryCount: 0 });
+    base.setSync(async () => {
+      throw new Error("sync failed");
+    });
+    jest.spyOn(console, "info").mockImplementation(() => {});
+    const error = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    base.replaceConsoleMethods();
+    try {
+      console.info("Lost");
+      await base.flush();
+      await new Promise((resolve) => setImmediate(resolve));
+    } finally {
+      base.restoreConsoleMethods();
+    }
+
+    expect(error).toHaveBeenCalledWith(expect.objectContaining({ message: "sync failed" }));
+  });
+
+  it("should restore the original console methods", () => {
+    const { base } = getBase();
+    const originalInfo = console.info;
+
+    base.replaceConsoleMethods();
+    expect(console.info).not.toBe(originalInfo);
+
+    base.restoreConsoleMethods();
+    expect(console.info).toBe(originalInfo);
+  });
+
+  it("should replace the console methods only once", async () => {
+    const { base, logs } = getBase();
+    jest.spyOn(console, "info").mockImplementation(() => {});
+
+    base.replaceConsoleMethods();
+    base.replaceConsoleMethods();
+    try {
+      console.info("Once");
+      await base.flush();
+    } finally {
+      base.restoreConsoleMethods();
+    }
+
+    expect(logs).toHaveLength(1);
+  });
+});
