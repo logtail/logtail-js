@@ -9,6 +9,13 @@ import { Base } from "@logtail/core";
 
 import { getStackContext } from "./context";
 
+// Points the stack context of forwarded console calls at the code that called the console
+const consoleStackContextHint: StackContextHint = {
+  fileName: "core",
+  methodNames: ["consoleForwarder"],
+  required: true,
+};
+
 export class Node extends Base {
   /**
    * Readable/Duplex stream where JSON stringified logs of type `ILogtailLog`
@@ -101,6 +108,13 @@ export class Node extends Base {
 
     // Return the transformed log
     return processedLog as ILogtailLog & TContext;
+  }
+
+  /**
+   * Override `Base` to attribute forwarded console calls to their caller instead of the console replacement
+   */
+  protected _logFromConsole(message: string, level: LogLevel, context: Context) {
+    return this.log(message, level, context, consoleStackContextHint);
   }
 
   /**
