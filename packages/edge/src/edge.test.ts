@@ -174,3 +174,46 @@ describe("edge tests", () => {
     expect((console.warn as Mock).mock.calls).toHaveLength(0);
   });
 });
+
+describe("withExecutionContext flushing", () => {
+  function getEdge() {
+    const edge = new Edge("valid source token", { throwExceptions: true });
+    const batches: ILogtailLog[][] = [];
+    edge.setSync(async (logs) => {
+      batches.push(logs);
+      return logs;
+    });
+    const waited: Promise<unknown>[] = [];
+    const ctx = {
+      waitUntil(promise: Promise<unknown>) {
+        waited.push(promise);
+      },
+    };
+    return { edge, batches, waited, ctx };
+  }
+
+  it("should send a request's logs right away instead of waiting for the batch interval", async () => {
+    const { edge, batches, waited, ctx } = getEdge();
+    const startedAt = Date.now();
+
+    const logger = edge.withExecutionContext(ctx);
+    logger.info("first");
+    logger.warn("second");
+    await Promise.all(waited);
+
+    expect(Date.now() - startedAt).toBeLessThan(500);
+    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["first", "second"]]);
+  });
+
+  it("should send logs made after an await in a flush of their own", async () => {
+    const { edge, batches, waited, ctx } = getEdge();
+
+    const logger = edge.withExecutionContext(ctx);
+    logger.info("first");
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    logger.info("second");
+    await Promise.all(waited);
+
+    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["first"], ["second"]]);
+  });
+});
