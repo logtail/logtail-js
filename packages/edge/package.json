@@ -44,7 +44,6 @@
     "@logtail/types": "^0.5.8",
     "@msgpack/msgpack": "^2.5.1",
     "@types/stack-trace": "^0.0.33",
-    "minimatch": "^9.0.5",
     "stack-trace": "0.0.10"
   },
   "devDependencies": {
