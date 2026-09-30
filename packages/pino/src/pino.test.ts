@@ -99,6 +99,17 @@ describe("Pino transport", () => {
     expect(stdout).toMatch(/INFO.*: one\n/);
     expect(stdout).toMatch(/ERROR.*: three\n/);
   });
+
+  it("should deliver logs from a Pino logger without timestamps", async () => {
+    const { logs, stderr, code } = await runPino(`
+      const logger = pino({ timestamp: false }, pino.transport(logtail));
+      logger.info("one");
+    `);
+
+    expect(stderr).toBe("");
+    expect(code).toBe(0);
+    expect(logs.map((log) => log.message)).toEqual(["one"]);
+  });
 });
 
 describe("Pino transport levels", () => {
@@ -215,6 +226,41 @@ describe("Pino in-process stream", () => {
     await logtail.flush();
 
     expect(logs.map((log) => log.level)).toEqual(["important"]);
+  });
+
+  it("should point context.runtime at the caller of a custom level method", async () => {
+    const { logtail, logs } = getLogtail();
+    const logger = pino({ customLevels: { notice: 35 } }, new LogtailStream(logtail));
+
+    logger.notice("x");
+    await logtail.flush();
+
+    expect(logs[0].context?.runtime?.file).toMatch(/pino\.test\.ts$/);
+  });
+
+  it("should deliver logs from a logger without timestamps", async () => {
+    const { logtail, logs } = getLogtail();
+    const logger = pino({ timestamp: false }, new LogtailStream(logtail));
+
+    logger.info("x");
+    await logtail.flush();
+
+    expect(logs.map((log) => log.message)).toEqual(["x"]);
+    expect(logs[0].dt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("should use the time Pino wrote as dt", async () => {
+    const { logtail, logs } = getLogtail();
+
+    // Pino's default timestamp is epoch milliseconds; pino.stdTimeFunctions.isoTime writes an ISO string
+    pino({ timestamp: () => ',"time":1704067200000' }, new LogtailStream(logtail)).info("epoch");
+    pino({ timestamp: () => ',"time":"2024-01-02T00:00:00.000Z"' }, new LogtailStream(logtail)).info("iso");
+    await logtail.flush();
+
+    expect(logs.map((log) => [log.message, log.dt])).toEqual([
+      ["epoch", "2024-01-01T00:00:00.000Z"],
+      ["iso", "2024-01-02T00:00:00.000Z"],
+    ]);
   });
 
   it("should flush the client when the stream ends", async () => {
