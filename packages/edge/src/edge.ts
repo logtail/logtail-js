@@ -16,7 +16,9 @@ export class Edge extends Base {
   private readonly warnAboutMissingExecutionContext: Boolean;
 
   public constructor(sourceToken: string, options?: Partial<ILogtailEdgeOptions>) {
-    super(sourceToken, options);
+    // Sends are not throttled by default: each request sends its own logs and must never wait on another
+    // request's send, since a runtime like workerd cancels a request left waiting without I/O of its own
+    super(sourceToken, { syncMax: Infinity, ...options });
 
     this.warnAboutMissingExecutionContext = options?.warnAboutMissingExecutionContext ?? true;
 
