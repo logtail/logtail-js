@@ -90,6 +90,9 @@ class Logtail {
   // Middleware
   protected _middleware: Middleware[] = [];
 
+  // Logs on their way to the batch buffer (e.g. still passing through middleware), for `flush()` to wait for
+  private _pendingLogs = new Set<Promise<void>>();
+
   // Sync function
   protected _sync?: Sync;
 
@@ -167,6 +170,9 @@ class Logtail {
    * Flush batched logs to Logtail
    */
   public async flush() {
+    // Wait for the logs made so far to reach the batch buffer, so they are sent with this flush
+    await Promise.all(this._pendingLogs);
+
     return this._flush();
   }
 
@@ -264,21 +270,30 @@ class Logtail {
     };
 
     let transformedLog = log as ILogtailLog | null;
-    for (const middleware of this._middleware) {
-      let newTransformedLog = await middleware(transformedLog as ILogtailLog);
-      if (newTransformedLog == null) {
-        // Don't push the log if it was filtered out in a middleware
+    let reachedBuffer!: () => void;
+    const pendingLog = new Promise<void>((resolve) => (reachedBuffer = resolve));
+    this._pendingLogs.add(pendingLog);
+    try {
+      for (const middleware of this._middleware) {
+        let newTransformedLog = await middleware(transformedLog as ILogtailLog);
+        if (newTransformedLog == null) {
+          // Don't push the log if it was filtered out in a middleware
+          return transformedLog as ILogtailLog & TContext;
+        }
+        transformedLog = newTransformedLog;
+      }
+
+      // Manually serialize the log data
+      transformedLog = this.serialize(transformedLog, this._options.contextObjectMaxDepth);
+
+      if (!this._options.sendLogsToBetterStack) {
+        // Return the resulting log before sending it
         return transformedLog as ILogtailLog & TContext;
       }
-      transformedLog = newTransformedLog;
-    }
-
-    // Manually serialize the log data
-    transformedLog = this.serialize(transformedLog, this._options.contextObjectMaxDepth);
-
-    if (!this._options.sendLogsToBetterStack) {
-      // Return the resulting log before sending it
-      return transformedLog as ILogtailLog & TContext;
+    } finally {
+      // The log is pushed to the batch buffer right after this, or not at all
+      this._pendingLogs.delete(pendingLog);
+      reachedBuffer();
     }
 
     try {
