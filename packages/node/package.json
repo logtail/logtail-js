@@ -39,13 +39,13 @@
   "devDependencies": {
     "@types/fetch-mock": "^7.3.1",
     "@types/nock": "^11.1.0",
+    "@types/stack-trace": "^0.0.33",
     "nock": "^14.0.1"
   },
   "dependencies": {
     "@logtail/core": "^0.5.10",
     "@logtail/types": "^0.5.8",
     "@msgpack/msgpack": "^2.5.1",
-    "@types/stack-trace": "^0.0.33",
     "stack-trace": "0.0.10"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"

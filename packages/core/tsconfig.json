@@ -10,5 +10,6 @@
     "moduleResolution": "node",
     "preserveSymlinks": false,
     "rootDir": "./src"
-  }
+  },
+  "include": ["./src"]
 }

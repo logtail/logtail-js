@@ -43,11 +43,11 @@
     "@logtail/core": "^0.5.10",
     "@logtail/types": "^0.5.8",
     "@msgpack/msgpack": "^2.5.1",
-    "@types/stack-trace": "^0.0.33",
     "stack-trace": "0.0.10"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20230904.0"
+    "@cloudflare/workers-types": "^4.20230904.0",
+    "@types/stack-trace": "^0.0.33"
   },
   "gitHead": "0f816cacc21b352576a5707741f9151aa1481041"
 }
