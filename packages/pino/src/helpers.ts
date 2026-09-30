@@ -21,11 +21,12 @@ export interface IPinoConfig {
 }
 
 /**
- * Stack frames of Pino's own logging methods, so `context.runtime` points at the code that called the logger
+ * Stack frames of Pino's own logging methods, so `context.runtime` points at the code that called the logger.
+ * Every level method, custom levels included, is Pino's function named `LOG`.
  */
 export const pinoStackContextHint: StackContextHint = {
   fileName: "node_modules/pino",
-  methodNames: ["log", "fatal", "error", "warn", "info", "debug", "trace", "silent"],
+  methodNames: ["log", "fatal", "error", "warn", "info", "debug", "trace", "silent", "LOG"],
   required: true,
 };
 
@@ -112,8 +113,8 @@ export function toLogtailLog(
   // Logging meta data
   const meta: Context = {};
 
-  // Copy `time` if set
-  if (typeof obj.time === "string" || obj.time.length) {
+  // Copy `time` if set: an ISO string, or epoch milliseconds by Pino's default
+  if (obj.time !== undefined) {
     const time = new Date(obj.time);
     if (!isNaN(time.valueOf())) {
       meta.dt = time;
