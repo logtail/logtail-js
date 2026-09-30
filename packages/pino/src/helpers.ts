@@ -1,4 +1,4 @@
-import { ILogLevel, LogLevel } from "@logtail/types";
+import { Context, ILogLevel, LogLevel, StackContextHint } from "@logtail/types";
 
 /**
  * Names of Pino's default levels
@@ -10,6 +10,23 @@ const defaultLevelNames: Record<number, string> = {
   40: LogLevel.Warn,
   50: LogLevel.Error,
   60: LogLevel.Fatal,
+};
+
+/**
+ * Configuration Pino 8.21+ shares with its destinations right after the logger is created
+ */
+export interface IPinoConfig {
+  levels?: { labels: Record<number, string>; values: Record<string, number> };
+  messageKey?: string;
+}
+
+/**
+ * Stack frames of Pino's own logging methods, so `context.runtime` points at the code that called the logger
+ */
+export const pinoStackContextHint: StackContextHint = {
+  fileName: "node_modules/pino",
+  methodNames: ["log", "fatal", "error", "warn", "info", "debug", "trace", "silent"],
+  required: true,
 };
 
 /**
@@ -78,4 +95,45 @@ export function getLogLevel(level: number | string, levelNames: Record<number, s
   }
   // Everything above this level is considered fatal
   return LogLevel.Fatal;
+}
+
+/**
+ * Maps a Pino log object to the message, level and fields to log through the Logtail client
+ *
+ * @param obj - Parsed Pino log line
+ * @param levelNames - Level names by number, on top of Pino's defaults
+ * @param messageKey - Key Pino stores the message under
+ */
+export function toLogtailLog(
+  obj: { [key: string]: any },
+  levelNames: Record<number, string>,
+  messageKey: string,
+): { message: string; level: ILogLevel; meta: Context } {
+  // Logging meta data
+  const meta: Context = {};
+
+  // Copy `time` if set
+  if (typeof obj.time === "string" || obj.time.length) {
+    const time = new Date(obj.time);
+    if (!isNaN(time.valueOf())) {
+      meta.dt = time;
+    }
+  }
+
+  // Carry over any additional data fields
+  Object.keys(obj)
+    .filter((key) => ["time", messageKey, "message", "level", "v"].indexOf(key) < 0)
+    .forEach((key) => (meta[key] = obj[key]));
+
+  // Get message
+  // NOTE: Pino passes messages under its messageKey ('msg' by default) but if user passes object to Pino it will
+  //       pass it to us even without that field. Later we map it -> 'message' so let's also read 'message' field.
+  const message = obj[messageKey] || obj.message;
+
+  // Prevent overriding 'message' with the Pino message
+  if (messageKey !== "message" && obj[messageKey] !== undefined && obj.message !== undefined) {
+    meta["message_field"] = obj.message;
+  }
+
+  return { message, level: getLogLevel(obj.level, levelNames), meta };
 }
