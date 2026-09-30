@@ -184,6 +184,21 @@ describe("batch tests", () => {
     expect(called).toHaveBeenCalledTimes(1);
   });
 
+  it("should wait for a send already in flight when flushing", async () => {
+    const sent: ILogtailLog[][] = [];
+    const batcher = makeBatch(2, 10000);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      sent.push(batch);
+    });
+
+    // A full buffer starts a send right away
+    logNumberTimes(logger, 2);
+    await batcher.flush();
+
+    expect(sent).toHaveLength(1);
+  });
+
   it("should not call the send function when flushing an empty buffer", async () => {
     const called = jest.fn();
     const batcher = makeBatch(5, 10000);

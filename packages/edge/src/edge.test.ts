@@ -1,6 +1,7 @@
-import { ILogtailLog, LogLevel } from "@logtail/types";
+import { ILogtailEdgeOptions, ILogtailLog, LogLevel } from "@logtail/types";
 
 import { Edge } from "./edge";
+import type { ExecutionContext as WaitUntilContext } from "./executionContext";
 
 import { Mock } from "jest-mock";
 import type { ExecutionContext } from "@cloudflare/workers-types";
@@ -176,10 +177,11 @@ describe("edge tests", () => {
 });
 
 describe("withExecutionContext flushing", () => {
-  function getEdge() {
-    const edge = new Edge("valid source token", { throwExceptions: true });
+  function getEdge(options: Partial<ILogtailEdgeOptions> = {}, syncMilliseconds = 0) {
+    const edge = new Edge("valid source token", { throwExceptions: true, ...options });
     const batches: ILogtailLog[][] = [];
     edge.setSync(async (logs) => {
+      await new Promise((resolve) => setTimeout(resolve, syncMilliseconds));
       batches.push(logs);
       return logs;
     });
@@ -190,6 +192,21 @@ describe("withExecutionContext flushing", () => {
       },
     };
     return { edge, batches, waited, ctx };
+  }
+
+  // Starts `count` requests at once, each logging one line in a task of its own
+  function logInParallelRequests(edge: Edge, ctx: WaitUntilContext, count: number) {
+    return Promise.all(
+      [...Array(count).keys()].map(
+        (request) =>
+          new Promise<void>((resolve) =>
+            setTimeout(() => {
+              edge.withExecutionContext(ctx).info(`request ${request}`);
+              resolve();
+            }),
+          ),
+      ),
+    );
   }
 
   it("should send a request's logs right away instead of waiting for the batch interval", async () => {
@@ -215,5 +232,44 @@ describe("withExecutionContext flushing", () => {
     await Promise.all(waited);
 
     expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["first"], ["second"]]);
+  });
+
+  it("should send a log passing through an async middleware in its request's own flush", async () => {
+    const { edge, batches, waited, ctx } = getEdge();
+    edge.use(async (log) => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      return log;
+    });
+    const startedAt = Date.now();
+
+    edge.withExecutionContext(ctx).info("first");
+    await Promise.all(waited);
+
+    expect(Date.now() - startedAt).toBeLessThan(500);
+    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["first"]]);
+  });
+
+  it("should not hold a request's send back until other requests' sends complete", async () => {
+    const { edge, batches, waited, ctx } = getEdge({}, 50);
+    const startedAt = Date.now();
+
+    await logInParallelRequests(edge, ctx, 20);
+    await Promise.all(waited);
+
+    expect(batches).toHaveLength(20);
+    // 20 sends of 50 ms each, all at once; 5 at a time would take 200 ms
+    expect(Date.now() - startedAt).toBeLessThan(150);
+  });
+
+  it("should limit concurrent sends to an explicit syncMax option", async () => {
+    const { edge, batches, waited, ctx } = getEdge({ syncMax: 1 }, 50);
+    const startedAt = Date.now();
+
+    await logInParallelRequests(edge, ctx, 3);
+    await Promise.all(waited);
+
+    expect(batches).toHaveLength(3);
+    // 3 sends of 50 ms each, one after another
+    expect(Date.now() - startedAt).toBeGreaterThanOrEqual(140);
   });
 });

@@ -125,6 +125,37 @@ describe("base class tests", () => {
     expect(base.synced).toEqual(1);
   });
 
+  it("should send logs still passing through an async middleware when flushed", async () => {
+    const base = new Base("testing", { throwExceptions: true });
+    const logs: ILogtailLog[] = [];
+    base.setSync(async (batch) => {
+      logs.push(...batch);
+      return batch;
+    });
+    base.use(async (log) => {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      return log;
+    });
+
+    base.log("x");
+    await base.flush();
+
+    expect(logs.map((log) => log.message)).toEqual(["x"]);
+  });
+
+  it("should not wait on a log whose middleware throws when flushed", async () => {
+    const base = new Base("testing", { throwExceptions: true });
+    base.setSync(async (batch) => batch);
+    base.use(async () => {
+      throw new Error("middleware failed");
+    });
+
+    const logged = expect(base.log("x")).rejects.toThrow("middleware failed");
+    await base.flush();
+
+    await logged;
+  });
+
   it("should add a pipeline function", async () => {
     // Fixtures
     const firstMessage = "First message";
