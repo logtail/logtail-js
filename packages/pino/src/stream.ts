@@ -46,14 +46,34 @@ export class LogtailStream extends Writable {
       if (line === "") {
         continue;
       }
-      const { message, level, meta } = toLogtailLog(JSON.parse(line), this.levelNames, this.messageKey);
-      void this.logtail.log(message, level, meta, pinoStackContextHint);
+
+      let obj;
+      try {
+        obj = JSON.parse(line);
+      } catch (_) {
+        // Not a Pino log line, e.g. text other code wrote to the stream or a cut-off line: skipped, like the worker
+        // transport does
+        continue;
+      }
+
+      const { message, level, meta } = toLogtailLog(obj, this.levelNames, this.messageKey);
+      // A failed send is counted in `logtail.dropped` and printed by the client unless `throwExceptions` or
+      // `ignoreExceptions` is set. There is no caller to throw to, so the rejection `throwExceptions` causes is
+      // ignored: printing it with console.error would log it again when `replaceConsoleMethods()` forwards the console.
+      this.logtail.log(message, level, meta, pinoStackContextHint).catch(() => {});
     }
     next();
   }
 
-  public _final(callback: (error?: Error | null) => void): void {
+  /**
+   * Called by `logger.flush()`: flushes the Logtail client
+   */
+  public flush(callback: (error?: Error) => void): void {
     this.logtail.flush().then(() => callback(), callback);
+  }
+
+  public _final(callback: (error?: Error | null) => void): void {
+    this.flush(callback);
   }
 
   private applyConfig(config: IPinoConfig): void {

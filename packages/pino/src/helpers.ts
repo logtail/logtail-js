@@ -113,9 +113,10 @@ export function toLogtailLog(
   // Logging meta data
   const meta: Context = {};
 
-  // Copy `time` if set: an ISO string, or epoch milliseconds by Pino's default
+  // Copy `time` if set: an ISO string, epoch milliseconds by Pino's default, or epoch seconds written by
+  // `pino.stdTimeFunctions.unixTime`, told apart because as milliseconds they would be before March 1973
   if (obj.time !== undefined) {
-    const time = new Date(obj.time);
+    const time = new Date(typeof obj.time === "number" && obj.time < 1e11 ? obj.time * 1000 : obj.time);
     if (!isNaN(time.valueOf())) {
       meta.dt = time;
     }
