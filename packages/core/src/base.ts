@@ -205,7 +205,7 @@ class Logtail {
    * @param context: (Context) - Context (optional)
    * @returns Promise<ILogtailLog> after syncing
    */
-  public async log<TContext extends Context>(
+  public log<TContext extends Context>(
     message: Message,
     level: ILogLevel = LogLevel.Info,
     context: TContext = {} as TContext,
