@@ -9,8 +9,10 @@ interface IBuffer {
   log: ILogtailLog;
   resolve: (log: ILogtailLog | Promise<ILogtailLog>) => void;
   reject: (reason: any) => void;
-  // Failed sends of this log so far
+  // Failed sends of this log since a batch was last sent successfully
   failures: number;
+  // Batches sent successfully when `failures` was last counted
+  sentBatches: number;
 }
 
 /*
@@ -60,6 +62,8 @@ export default function makeBatch(
   let cb: Function;
   let buffer: IBuffer[] = [];
   let bufferSizeBytes = 0;
+  // Batches sent successfully so far
+  let sentBatches = 0;
   // Wait until the minimum retry backoff time has passed before retrying
   let minRetryBackoff: number = 0;
   /*
@@ -82,11 +86,17 @@ export default function makeBatch(
 
     try {
       await cb(currentBuffer.map((d) => d.log));
+      sentBatches++;
       currentBuffer.forEach((d) => d.resolve(d.log));
     } catch (e) {
-      // Retries are counted per log, so that sends failing at the same time don't use up each other's retries
+      // A log is dropped once it has failed more than `retryCount` times with no batch sent successfully in between,
+      // counted per log, so that sends failing at the same time don't use up each other's retries
       const retried: IBuffer[] = [];
       for (const d of currentBuffer) {
+        if (d.sentBatches !== sentBatches) {
+          d.failures = 0;
+          d.sentBatches = sentBatches;
+        }
         d.failures++;
         if (d.failures > retryCount) {
           d.reject(e);
@@ -138,7 +148,7 @@ export default function makeBatch(
        */
       return async function (log: ILogtailLog): Promise<ILogtailLog> {
         return new Promise<ILogtailLog>(async (resolve, reject) => {
-          buffer.push({ log, resolve, reject, failures: 0 });
+          buffer.push({ log, resolve, reject, failures: 0, sentBatches });
           // We can skip log size calculation if there is no max size set
           if (sizeBytes > 0) {
             bufferSizeBytes += calculateLogSizeBytes(log);
