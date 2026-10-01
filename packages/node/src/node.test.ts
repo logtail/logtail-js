@@ -62,25 +62,6 @@ describe("node tests", () => {
     nock.cleanAll();
   });
 
-  it("should resolve a flush waiting to retry a failed send when another flush sends its logs", async () => {
-    const scope = nock("https://in.logs.betterstack.com").post("/").reply(500).post("/").reply(202);
-
-    const node = new Node("valid source token");
-    node.info("first");
-    // The send fails, so this flush waits for the batch interval to retry
-    const firstFlush = node.flush();
-    await new Promise((resolve) => setTimeout(resolve, 100));
-
-    // Another flush runs during the wait, e.g. from a second shutdown handler
-    node.info("second");
-    const secondFlush = node.flush();
-
-    const flushed = Promise.all([firstFlush, secondFlush]).then(() => "flushed");
-    const timedOut = new Promise((resolve) => setTimeout(() => resolve("timed out"), 500));
-    expect(await Promise.race([flushed, timedOut])).toEqual("flushed");
-    expect(scope.isDone()).toBe(true);
-  });
-
   it("should warn and echo log even with circular reference as context", async () => {
     nock("https://in.logs.betterstack.com").post("/").reply(201);
 
@@ -267,6 +248,26 @@ describe("node tests", () => {
     // This should complete despite the delay
     const result = await node.log("Test message");
     expect(result).toHaveProperty("message", "Test message");
+  });
+
+  it("should resolve a flush waiting to retry a failed send when another flush sends its logs", async () => {
+    // An endpoint of its own, so that requests left over from other tests don't use up these replies
+    const scope = nock("https://flush-retry.example.com").post("/").reply(500).post("/").reply(202);
+
+    const node = new Node("valid source token", { endpoint: "https://flush-retry.example.com" });
+    node.info("first");
+    // The send fails, so this flush waits for the batch interval to retry
+    const firstFlush = node.flush();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Another flush runs during the wait, e.g. from a second shutdown handler
+    node.info("second");
+    const secondFlush = node.flush();
+
+    const flushed = Promise.all([firstFlush, secondFlush]).then(() => "flushed");
+    const timedOut = new Promise((resolve) => setTimeout(() => resolve("timed out"), 500));
+    expect(await Promise.race([flushed, timedOut])).toEqual("flushed");
+    expect(scope.isDone()).toBe(true);
   });
 
   it("should skip stack context capture when captureStackContext is false", async () => {

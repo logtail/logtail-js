@@ -211,29 +211,6 @@ describe("batch tests", () => {
     expect(called).toHaveBeenCalledTimes(1);
   });
 
-  it("should send large logs in multiple batches", async () => {
-    const called = jest.fn();
-    const size = 1000;
-    const sendTimeout = 1000;
-    const retryCount = 0;
-    const retryBackoff = 0;
-
-    // Every log is calculated to have 50B and there's 500B limit
-    const sizeBytes = 500;
-    const calculateSize = (_log: ILogtailLog) => 50;
-
-    const batcher = makeBatch(size, sendTimeout, retryCount, retryBackoff, sizeBytes, calculateSize);
-    const logger = batcher.initPusher(async (_batch: ILogtailLog[]) => {
-      called();
-    });
-
-    // 100 logs with 50B each is 5000B in total - expecting 10 batches of 500B
-    await Promise.all(logNumberTimes(logger, 100)).catch((e) => {
-      throw e;
-    });
-    expect(called).toHaveBeenCalledTimes(10);
-  });
-
   it("should resolve a flush waiting to retry a failed send when another flush sends its logs", async () => {
     const sent: ILogtailLog[][] = [];
     let failures = 1;
@@ -289,6 +266,29 @@ describe("batch tests", () => {
     expect(await Promise.race([Promise.all([firstFlush, secondFlush]), timedOut])).toEqual([1, 1]);
     expect(sent).toEqual([[first, second]]);
     await Promise.all(logged);
+  });
+
+  it("should send large logs in multiple batches", async () => {
+    const called = jest.fn();
+    const size = 1000;
+    const sendTimeout = 1000;
+    const retryCount = 0;
+    const retryBackoff = 0;
+
+    // Every log is calculated to have 50B and there's 500B limit
+    const sizeBytes = 500;
+    const calculateSize = (_log: ILogtailLog) => 50;
+
+    const batcher = makeBatch(size, sendTimeout, retryCount, retryBackoff, sizeBytes, calculateSize);
+    const logger = batcher.initPusher(async (_batch: ILogtailLog[]) => {
+      called();
+    });
+
+    // 100 logs with 50B each is 5000B in total - expecting 10 batches of 500B
+    await Promise.all(logNumberTimes(logger, 100)).catch((e) => {
+      throw e;
+    });
+    expect(called).toHaveBeenCalledTimes(10);
   });
 });
 
