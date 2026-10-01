@@ -105,6 +105,23 @@ describe("batch tests", () => {
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
   });
 
+  it("should retry each log of sends failing at the same time", async () => {
+    let calls = 0;
+    const batcher = makeBatch(1, 10, 1, 0);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      calls++;
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      // The two first sends, both in flight at once, fail
+      if (calls <= 2) {
+        throw new Error("send failed");
+      }
+    });
+
+    const logged = logNumberTimes(logger, 2);
+
+    await expect(Promise.all(logged)).resolves.toHaveLength(2);
+  });
+
   it("should play nicely with `throttle`", async () => {
     // Fixtures
     const maxThrottle = 2;
