@@ -54,6 +54,8 @@ export default function makeBatch(
   sizeBytes: number = 0,
   calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
 ) {
+  // Resolves the promise returned by `setupTimeout()`, which waits for the timeout's flush
+  let timeoutResolve: (() => void) | null = null;
   let timeout: NodeJS.Timeout | null;
   let cb: Function;
   let buffer: IBuffer[] = [];
@@ -62,14 +64,28 @@ export default function makeBatch(
   // Wait until the minimum retry backoff time has passed before retrying
   let minRetryBackoff: number = 0;
   /*
-   * Process then flush the list
+   * Flush the list instead of the pending timeout
    */
   async function flush() {
     if (timeout) {
       clearTimeout(timeout);
     }
     timeout = null;
+    // Whoever waits for the timeout's flush (e.g. a flush retrying a failed send) waits for this flush instead
+    const resolveTimeout = timeoutResolve;
+    timeoutResolve = null;
 
+    try {
+      await sendBuffer();
+    } finally {
+      resolveTimeout?.();
+    }
+  }
+
+  /*
+   * Process then send the list
+   */
+  async function sendBuffer() {
     // Nothing buffered, nothing to sync
     if (buffer.length === 0) {
       return;
@@ -107,6 +123,8 @@ export default function makeBatch(
     }
 
     return new Promise<void>((resolve) => {
+      // A flush replacing the timeout resolves this too, once it is done
+      timeoutResolve = resolve;
       timeout = setTimeout(async function () {
         await flush();
         resolve();
