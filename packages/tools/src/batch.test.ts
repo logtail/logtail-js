@@ -122,6 +122,27 @@ describe("batch tests", () => {
     await expect(Promise.all(logged)).resolves.toHaveLength(2);
   });
 
+  it("should count a log's failed sends only since another batch was sent", async () => {
+    const sends: ((sent: boolean) => void)[] = [];
+    const batcher = makeBatch(1, 10, 1, 0);
+    const logger = batcher.initPusher(
+      () => new Promise<void>((resolve, reject) => sends.push((sent) => (sent ? resolve() : reject(new Error())))),
+    );
+
+    const [first] = logNumberTimes(logger, 2);
+    sends[0](false);
+    await new Promise((resolve) => setTimeout(resolve));
+    sends[1](true);
+    // The retry of the first log fails too, after the second log was sent
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    sends[2](false);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    expect(sends).toHaveLength(4);
+    sends[3](true);
+    await expect(first).resolves.toBeDefined();
+  });
+
   it("should play nicely with `throttle`", async () => {
     // Fixtures
     const maxThrottle = 2;
