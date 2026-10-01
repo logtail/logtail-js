@@ -9,6 +9,8 @@ interface IBuffer {
   log: ILogtailLog;
   resolve: (log: ILogtailLog | Promise<ILogtailLog>) => void;
   reject: (reason: any) => void;
+  // Failed sends of this log so far
+  failures: number;
 }
 
 /*
@@ -58,7 +60,6 @@ export default function makeBatch(
   let cb: Function;
   let buffer: IBuffer[] = [];
   let bufferSizeBytes = 0;
-  let retry: number = 0;
   // Wait until the minimum retry backoff time has passed before retrying
   let minRetryBackoff: number = 0;
   /*
@@ -76,25 +77,34 @@ export default function makeBatch(
     }
 
     const currentBuffer = buffer;
-    const currentBufferSizeKB = bufferSizeBytes;
     buffer = [];
     bufferSizeBytes = 0;
 
     try {
       await cb(currentBuffer.map((d) => d.log));
       currentBuffer.forEach((d) => d.resolve(d.log));
-      retry = 0;
     } catch (e) {
-      if (retry < retryCount) {
-        retry++;
-        minRetryBackoff = Date.now() + retryBackoff;
-        buffer = buffer.concat(currentBuffer);
-        bufferSizeBytes += currentBufferSizeKB;
-        await setupTimeout();
+      // Retries are counted per log, so that sends failing at the same time don't use up each other's retries
+      const retried: IBuffer[] = [];
+      for (const d of currentBuffer) {
+        d.failures++;
+        if (d.failures > retryCount) {
+          d.reject(e);
+        } else {
+          retried.push(d);
+        }
+      }
+
+      if (retried.length === 0) {
         return;
       }
-      currentBuffer.map((d) => d.reject(e));
-      retry = 0;
+
+      minRetryBackoff = Date.now() + retryBackoff;
+      buffer = buffer.concat(retried);
+      if (sizeBytes > 0) {
+        bufferSizeBytes += retried.reduce((total, d) => total + calculateLogSizeBytes(d.log), 0);
+      }
+      await setupTimeout();
     }
   }
 
@@ -128,7 +138,7 @@ export default function makeBatch(
        */
       return async function (log: ILogtailLog): Promise<ILogtailLog> {
         return new Promise<ILogtailLog>(async (resolve, reject) => {
-          buffer.push({ log, resolve, reject });
+          buffer.push({ log, resolve, reject, failures: 0 });
           // We can skip log size calculation if there is no max size set
           if (sizeBytes > 0) {
             bufferSizeBytes += calculateLogSizeBytes(log);
