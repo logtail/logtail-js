@@ -118,8 +118,12 @@ export class Node extends Base {
     const pendingSyncs = Array.from(this._pendingSyncs);
     await super.flush();
 
-    // Failures are left to the batcher, which retries or drops the batch
-    await Promise.all(pendingSyncs.map((sync) => sync.catch(() => {})));
+    // A failed send returns its logs to the batcher, to be retried on the batch timer: flush them right away,
+    // which goes through the batcher's usual retries if this send fails too
+    const failed = await Promise.all(pendingSyncs.map((sync) => sync.then(() => false).catch(() => true)));
+    if (failed.includes(true)) {
+      await super.flush();
+    }
   }
 
   /**
