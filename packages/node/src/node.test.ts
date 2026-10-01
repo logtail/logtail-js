@@ -79,6 +79,29 @@ describe("node tests", () => {
     await logged;
   });
 
+  it("should send the logs of a failed send in flight again when flushing", async () => {
+    const node = new Node("test", { throwExceptions: true, batchSize: 1 });
+    const sent: string[] = [];
+    let sends = 0;
+    let failSend = () => {};
+    node.setSync((logs) => {
+      // The first send stays in flight until it fails, the retry goes through
+      if (++sends === 1) {
+        return new Promise((_resolve, reject) => (failSend = () => reject(new Error("sync failed"))));
+      }
+      sent.push(...logs.map((log) => log.message));
+      return Promise.resolve(logs);
+    });
+
+    const logged = node.log("retried");
+    const flushing = node.flush();
+    failSend();
+    await flushing;
+
+    expect(sent).toEqual(["retried"]);
+    await logged;
+  });
+
   it("should resolve a flush when a send in flight fails", async () => {
     const node = new Node("test", { throwExceptions: true, batchSize: 1, retryCount: 0 });
     node.setSync(async () => {
