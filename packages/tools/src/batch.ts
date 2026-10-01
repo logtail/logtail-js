@@ -55,6 +55,8 @@ export default function makeBatch(
   calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
 ) {
   let timeout: NodeJS.Timeout | null;
+  // When the timeout is due to fire
+  let timeoutDue: number = 0;
   let cb: Function;
   let buffer: IBuffer[] = [];
   let bufferSizeBytes = 0;
@@ -106,6 +108,7 @@ export default function makeBatch(
       return;
     }
 
+    timeoutDue = Date.now() + flushTimeout;
     return new Promise<void>((resolve) => {
       timeout = setTimeout(async function () {
         await flush();
@@ -140,6 +143,12 @@ export default function makeBatch(
           if (isBufferFullEnough && Date.now() > minRetryBackoff) {
             await flush();
           } else {
+            // An overdue timeout may have been dropped without firing (Cloudflare Workers drop the timers
+            // of a request once it has ended), so set up a new one instead of waiting for it.
+            // A timeout that is only late still fires, and its flush clears the new one.
+            if (timeout && Date.now() > timeoutDue) {
+              timeout = null;
+            }
             await setupTimeout();
           }
 
