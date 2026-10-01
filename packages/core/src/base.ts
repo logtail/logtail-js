@@ -93,6 +93,9 @@ class Logtail {
   // Sync function
   protected _sync?: Sync;
 
+  // Sends of batches that have been started and have not settled yet
+  protected _pendingSyncs = new Set<Promise<unknown>>();
+
   // Number of logs logged
   private _countLogged = 0;
 
@@ -155,7 +158,15 @@ class Logtail {
     );
 
     this._batch = batcher.initPusher((logs: any) => {
-      return throttler(logs);
+      const sync = throttler(logs);
+
+      // Remember the send until it settles; both outcomes are handled, so a failed send, which the batcher retries
+      // or drops, does not also become an unhandled rejection here
+      this._pendingSyncs.add(sync);
+      const forget = () => this._pendingSyncs.delete(sync);
+      sync.then(forget, forget);
+
+      return sync;
     });
 
     this._flush = batcher.flush;
