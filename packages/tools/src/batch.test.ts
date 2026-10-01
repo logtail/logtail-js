@@ -233,6 +233,63 @@ describe("batch tests", () => {
     });
     expect(called).toHaveBeenCalledTimes(10);
   });
+
+  it("should resolve a flush waiting to retry a failed send when another flush sends its logs", async () => {
+    const sent: ILogtailLog[][] = [];
+    let failures = 1;
+    const batcher = makeBatch(5, 1000, 3, 1);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      if (failures-- > 0) {
+        throw new Error("test");
+      }
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    // The send fails, so this flush waits for the flush timeout to retry
+    const firstFlush = batcher.flush();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    // Another flush runs during the wait and sends the first log too
+    const second = getRandomLog();
+    logged.push(logger(second));
+    const secondFlush = batcher.flush();
+
+    const flushed = Promise.all([firstFlush, secondFlush]).then(() => "flushed");
+    const timedOut = new Promise((resolve) => setTimeout(() => resolve("timed out"), 500));
+    expect(await Promise.race([flushed, timedOut])).toEqual("flushed");
+    expect(sent).toEqual([[first, second]]);
+    await Promise.all(logged);
+  });
+
+  it("should resolve a flush waiting to retry a failed send only after the flush that sends its logs is done", async () => {
+    const sent: ILogtailLog[][] = [];
+    let failures = 2;
+    const batcher = makeBatch(5, 100, 3, 1);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      if (failures-- > 0) {
+        throw new Error("test");
+      }
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    // The send fails, so this flush waits for the flush timeout to retry
+    const firstFlush = batcher.flush().then(() => sent.length);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    // Another flush runs during the wait, its send fails too, so it retries after the flush timeout
+    const second = getRandomLog();
+    logged.push(logger(second));
+    const secondFlush = batcher.flush().then(() => sent.length);
+
+    const timedOut = new Promise((resolve) => setTimeout(() => resolve("timed out"), 1000));
+    expect(await Promise.race([Promise.all([firstFlush, secondFlush]), timedOut])).toEqual([1, 1]);
+    expect(sent).toEqual([[first, second]]);
+    await Promise.all(logged);
+  });
 });
 
 describe("JSON log size calculator", () => {
