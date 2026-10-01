@@ -220,7 +220,7 @@ describe("edge tests", () => {
         timeout: 0,
         throwExceptions: true,
         warnAboutMissingExecutionContext: false,
-      } as any);
+      });
 
       let settled = false;
       edge.log("never answered").then(
