@@ -173,4 +173,79 @@ describe("edge tests", () => {
 
     expect((console.warn as Mock).mock.calls).toHaveLength(0);
   });
+
+  describe("request timeout", () => {
+    let fetchMock: jest.SpyInstance;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      // The edge-runtime test environment has no CompressionStream, and the request body doesn't matter here
+      (globalThis as any).CompressionStream = jest.fn(() => new TransformStream());
+      // An endpoint that never answers: the request only ends when it gets aborted, with the abort reason
+      fetchMock = jest.spyOn(globalThis, "fetch").mockImplementation(
+        (_input, init) =>
+          new Promise<Response>((_resolve, reject) => {
+            const signal = init?.signal;
+            signal?.addEventListener("abort", () => reject(signal.reason));
+          }),
+      );
+    });
+    afterEach(() => {
+      fetchMock.mockRestore();
+      delete (globalThis as any).CompressionStream;
+      jest.useRealTimers();
+    });
+
+    it("should abort a request after 30 seconds by default and retry it like any other failed request", async () => {
+      const edge = new Edge("valid source token", {
+        retryCount: 1,
+        // A single sync slot: the retry can only be sent once the aborted request has released it
+        syncMax: 1,
+        throwExceptions: true,
+        warnAboutMissingExecutionContext: false,
+      });
+
+      let error: unknown;
+      edge.log("never answered").catch((e) => (error = e));
+      // Two attempts, each sent after the 1 s batch interval and aborted after 30 s
+      await jest.advanceTimersByTimeAsync(62000);
+
+      expect(error).toEqual(new Error("Request timeout after 30000ms"));
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(edge.dropped).toBe(1);
+    });
+
+    it("should not abort requests when timeout is 0", async () => {
+      const edge = new Edge("valid source token", {
+        timeout: 0,
+        throwExceptions: true,
+        warnAboutMissingExecutionContext: false,
+      } as any);
+
+      let settled = false;
+      edge.log("never answered").then(
+        () => (settled = true),
+        () => (settled = true),
+      );
+      await jest.advanceTimersByTimeAsync(60 * 60 * 1000);
+
+      expect(settled).toBe(false);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not leave the timeout behind after a successful request", async () => {
+      fetchMock.mockResolvedValue(new Response(null, { status: 202 }));
+      const edge = new Edge("valid source token", {
+        throwExceptions: true,
+        warnAboutMissingExecutionContext: false,
+      });
+
+      const logged = edge.log("answered");
+      await jest.advanceTimersByTimeAsync(1000);
+      await logged;
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+  });
 });
