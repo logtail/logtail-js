@@ -272,4 +272,42 @@ describe("withExecutionContext flushing", () => {
     // 3 sends of 50 ms each, one after another
     expect(Date.now() - startedAt).toBeGreaterThanOrEqual(140);
   });
+
+  it("should not hold a request back on a send another request has in flight", async () => {
+    const { edge, batches, waited, ctx } = getEdge({ warnAboutMissingExecutionContext: false });
+    let sends = 0;
+    edge.setSync(async (logs) => {
+      // The first send never completes, like one left behind by a request that has ended
+      if (++sends === 1) {
+        await new Promise(() => {});
+      }
+      batches.push(logs);
+      return logs;
+    });
+
+    edge.info("without execution context");
+    edge.flush();
+    edge.withExecutionContext(ctx).info("with execution context");
+
+    expect(await settledWithin(Promise.all(waited), 100)).toEqual(true);
+    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["with execution context"]]);
+  });
+
+  it("should not hold a request back on another request's log stuck in middleware", async () => {
+    const { edge, batches, waited, ctx } = getEdge();
+    edge.use(async (log) => (log.message === "stuck" ? new Promise<ILogtailLog>(() => {}) : log));
+
+    edge.withExecutionContext({ waitUntil() {} }).info("stuck");
+    edge.withExecutionContext(ctx).info("other");
+
+    expect(await settledWithin(Promise.all(waited), 100)).toEqual(true);
+    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["other"]]);
+  });
 });
+
+function settledWithin(promise: Promise<unknown>, milliseconds: number): Promise<boolean> {
+  return Promise.race([
+    promise.then(() => true),
+    new Promise<boolean>((resolve) => setTimeout(() => resolve(false), milliseconds)),
+  ]);
+}
