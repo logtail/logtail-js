@@ -73,10 +73,15 @@ export class Edge extends Base {
     context = { ...stackContext, ...context };
 
     // Process/sync the log, per `Base` logic
-    const log = super.log(message, level, context);
+    let buffered!: () => void;
+    const reachedBuffer = new Promise<void>((resolve) => (buffered = resolve));
+    const log = this._log(message, level, context, buffered);
 
     if (ctx) {
       ctx.waitUntil(log);
+      // Send the log as soon as it is in the batch buffer, so the request is not kept alive for the batch interval
+      // and no batch timer outlives it; logs reaching the buffer in the same tick share one send
+      ctx.waitUntil(reachedBuffer.then(() => this.flush()));
     } else if (this.warnAboutMissingExecutionContext && !this._warnedAboutMissingCtx) {
       this._warnedAboutMissingCtx = true;
 

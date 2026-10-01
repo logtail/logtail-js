@@ -90,9 +90,6 @@ class Logtail {
   // Middleware
   protected _middleware: Middleware[] = [];
 
-  // Logs on their way to the batch buffer (e.g. still passing through middleware), for `flush()` to wait for
-  private _pendingLogs = new Set<Promise<void>>();
-
   // Sync function
   protected _sync?: Sync;
 
@@ -170,9 +167,6 @@ class Logtail {
    * Flush batched logs to Logtail
    */
   public async flush() {
-    // Wait for the logs made so far to reach the batch buffer, so they are sent with this flush
-    await Promise.all(this._pendingLogs);
-
     return this._flush();
   }
 
@@ -215,6 +209,19 @@ class Logtail {
     message: Message,
     level: ILogLevel = LogLevel.Info,
     context: TContext = {} as TContext,
+  ): Promise<ILogtailLog & TContext> {
+    return this._log(message, level, context, () => {});
+  }
+
+  /**
+   * Logs an entry like `log()`, calling `buffered` once the log has left middleware: right before it is pushed to the
+   * batch buffer (a promise callback scheduled from it runs after the push), or when it is not pushed at all
+   */
+  protected async _log<TContext extends Context>(
+    message: Message,
+    level: ILogLevel = LogLevel.Info,
+    context: TContext = {} as TContext,
+    buffered: () => void,
   ): Promise<ILogtailLog & TContext> {
     // Wrap context in an object, if it's not already
     if (typeof context !== "object") {
@@ -270,9 +277,6 @@ class Logtail {
     };
 
     let transformedLog = log as ILogtailLog | null;
-    let reachedBuffer!: () => void;
-    const pendingLog = new Promise<void>((resolve) => (reachedBuffer = resolve));
-    this._pendingLogs.add(pendingLog);
     try {
       for (const middleware of this._middleware) {
         let newTransformedLog = await middleware(transformedLog as ILogtailLog);
@@ -292,8 +296,7 @@ class Logtail {
       }
     } finally {
       // The log is pushed to the batch buffer right after this, or not at all
-      this._pendingLogs.delete(pendingLog);
-      reachedBuffer();
+      buffered();
     }
 
     try {

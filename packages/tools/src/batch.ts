@@ -61,19 +61,10 @@ export default function makeBatch(
   let retry: number = 0;
   // Wait until the minimum retry backoff time has passed before retrying
   let minRetryBackoff: number = 0;
-  // Sends in flight, which a flush waits for after its own send
-  const sending = new Set<Promise<unknown>>();
   /*
-   * Process then flush the list, then wait for the sends that were already in flight, so `await flush()` also
-   * covers logs an earlier flush is still sending; their failures are left to their own retries
+   * Process then flush the list
    */
   async function flush() {
-    const earlierSends = Array.from(sending, (send) => send.catch(() => {}));
-    await flushBuffer();
-    await Promise.all(earlierSends);
-  }
-
-  async function flushBuffer() {
     if (timeout) {
       clearTimeout(timeout);
     }
@@ -90,13 +81,7 @@ export default function makeBatch(
     bufferSizeBytes = 0;
 
     try {
-      const send: Promise<unknown> = cb(currentBuffer.map((d) => d.log));
-      sending.add(send);
-      try {
-        await send;
-      } finally {
-        sending.delete(send);
-      }
+      await cb(currentBuffer.map((d) => d.log));
       currentBuffer.forEach((d) => d.resolve(d.log));
       retry = 0;
     } catch (e) {
