@@ -237,7 +237,7 @@ describe("batch tests", () => {
   it("should send right away when sending immediately, one send at a time", async () => {
     const sent: number[] = [];
     let finishFirst!: () => void;
-    const batcher = makeBatch(1000, 10000, 3, 100, 0, calculateJsonLogSizeBytes, true);
+    const batcher = makeBatch(1000, 10000, 3, 100, 0, calculateJsonLogSizeBytes, { sendImmediately: true });
     const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
       sent.push(batch.length);
       if (sent.length === 1) {
@@ -262,7 +262,7 @@ describe("batch tests", () => {
   it("should flush the logs pushed during a send once that send is done, when sending immediately", async () => {
     const sent: number[] = [];
     let finishFirst!: () => void;
-    const batcher = makeBatch(1000, 10000, 3, 100, 0, calculateJsonLogSizeBytes, true);
+    const batcher = makeBatch(1000, 10000, 3, 100, 0, calculateJsonLogSizeBytes, { sendImmediately: true });
     const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
       sent.push(batch.length);
       if (sent.length === 1) {
@@ -283,7 +283,7 @@ describe("batch tests", () => {
   it("should retry a failed send after the flush timeout, when sending immediately", async () => {
     const start = Date.now();
     const sentAt: number[] = [];
-    const batcher = makeBatch(1000, 50, 1, 0, 0, calculateJsonLogSizeBytes, true);
+    const batcher = makeBatch(1000, 50, 1, 0, 0, calculateJsonLogSizeBytes, { sendImmediately: true });
     const logger = batcher.initPusher(async () => {
       sentAt.push(Date.now() - start);
       if (sentAt.length === 1) {
@@ -296,6 +296,30 @@ describe("batch tests", () => {
     expect(sentAt).toHaveLength(2);
     expect(sentAt[0]).toBeLessThan(40);
     expect(sentAt[1] - sentAt[0]).toBeGreaterThanOrEqual(45);
+  });
+
+  it("should send the logs taken along from another batch with its own, and retry them together", async () => {
+    const sent: string[][] = [];
+    const other = makeBatch(1000, 10000);
+    const pushOther = other.initPusher(async () => {});
+    const batcher = makeBatch(1000, 20, 3, 0, 0, calculateJsonLogSizeBytes, {
+      sendImmediately: true,
+      takeAlong: other.take,
+    });
+    const push = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch.map((log) => log.message));
+      if (sent.length === 1) {
+        throw new Error("outage");
+      }
+    });
+
+    const waiting = pushOther({ ...getRandomLog(), message: "waiting" });
+    await Promise.all([push({ ...getRandomLog(), message: "own" }), waiting]);
+
+    expect(sent).toEqual([
+      ["waiting", "own"],
+      ["waiting", "own"],
+    ]);
   });
 });
 

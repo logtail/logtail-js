@@ -301,13 +301,29 @@ describe("request batches", () => {
     expect(jest.getTimerCount()).toEqual(0);
   });
 
+  it("should send logs waiting without an execution context along with the next request's send", async () => {
+    jest.useFakeTimers();
+    const { edge, batches, waited, ctx } = getEdge({ warnAboutMissingExecutionContext: false });
+
+    edge.info("without execution context");
+    await jest.advanceTimersByTimeAsync(0);
+    // The batch timer is dropped, like the timers of a Cloudflare Workers request that has ended
+    jest.clearAllTimers();
+    edge.withExecutionContext(ctx).info("with execution context");
+    await jest.advanceTimersByTimeAsync(20);
+    await Promise.all(waited);
+
+    expect(messages(batches)).toEqual([["without execution context", "with execution context"]]);
+  });
+
   it("should wait for a request's send with its logger's flush(), and send logs without a request with flush()", async () => {
     const { edge, batches, ctx } = getEdge({ batchInterval: 10000, warnAboutMissingExecutionContext: false }, 50);
 
-    edge.info("without execution context");
     const logger = edge.withExecutionContext(ctx);
     logger.info("with execution context");
     await new Promise((resolve) => setTimeout(resolve, 10));
+    // Logged while the request's send is in progress, so not taken along by it
+    edge.info("without execution context");
     await logger.flush();
 
     expect(messages(batches)).toEqual([["with execution context"]]);
