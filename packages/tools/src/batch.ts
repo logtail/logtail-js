@@ -5,10 +5,23 @@ import { ILogtailLog } from "@logtail/types";
 /**
  * Buffer time for storing the log, and Promise resolve/reject
  */
-interface IBuffer {
+export interface IBuffer {
   log: ILogtailLog;
   resolve: (log: ILogtailLog | Promise<ILogtailLog>) => void;
   reject: (reason: any) => void;
+}
+
+export interface IBatchOptions {
+  /**
+   * Send logs right away instead of after `flushTimeout`, one send at a time: logs pushed while a send is in progress
+   * go in the next send, right after it. Failed sends are still retried after `flushTimeout`.
+   */
+  sendImmediately?: boolean;
+  /**
+   * Takes the logs waiting in another batch out of it (its `take()`), to send them along with this batch's own logs
+   * whenever this batch sends; they are then retried along with them.
+   */
+  takeAlong?: () => IBuffer[];
 }
 
 /*
@@ -45,9 +58,7 @@ export const calculateJsonLogSizeBytes = (log: ILogtailLog) => JSON.stringify(lo
  * @param retryBackoff - Number
  * @param sizeBytes - Size of the batch (in bytes) that triggers flushing. Set to 0 to disable.
  * @param calculateLogSizeBytes - Function to calculate size of a single ILogtailLog instance (in bytes).
- * @param sendImmediately - Send logs right away instead of after `flushTimeout`, one send at a time: logs pushed while
- *                          a send is in progress go in the next send, right after it. Failed sends are still retried
- *                          after `flushTimeout`.
+ * @param options - See `IBatchOptions`
  */
 export default function makeBatch(
   size: number = DEFAULT_BUFFER_SIZE,
@@ -56,7 +67,7 @@ export default function makeBatch(
   retryBackoff: number = DEFAULT_RETRY_BACKOFF,
   sizeBytes: number = 0,
   calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
-  sendImmediately: boolean = false,
+  { sendImmediately = false, takeAlong = () => [] }: IBatchOptions = {},
 ) {
   let timeout: NodeJS.Timeout | null;
   let cb: Function;
@@ -91,8 +102,11 @@ export default function makeBatch(
       return;
     }
 
-    const currentBuffer = buffer;
-    const currentBufferSizeKB = bufferSizeBytes;
+    // Logs taken along from another batch go first, as they were logged before this batch's own
+    const taken = takeAlong();
+    const currentBuffer = taken.concat(buffer);
+    const currentBufferSizeKB =
+      bufferSizeBytes + (sizeBytes > 0 ? taken.reduce((total, d) => total + calculateLogSizeBytes(d.log), 0) : 0);
     buffer = [];
     bufferSizeBytes = 0;
 
@@ -174,5 +188,14 @@ export default function makeBatch(
       };
     },
     flush,
+    /*
+     * Takes the logs waiting to be sent out of this batch, for another batch to send along with its own
+     */
+    take: function (): IBuffer[] {
+      const taken = buffer;
+      buffer = [];
+      bufferSizeBytes = 0;
+      return taken;
+    },
   };
 }
