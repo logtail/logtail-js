@@ -85,6 +85,30 @@ describe("batch tests", () => {
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
   });
 
+  it("await flush waits for all retries when a log pushed during the send set up the flush timeout", async () => {
+    const sent: ILogtailLog[][] = [];
+    let failures = 2;
+    const batcher = makeBatch(5, 100, 3, 1);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      if (failures-- > 0) {
+        throw new Error("test");
+      }
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    const flushed = batcher.flush().then(() => sent.length);
+    // Logged while the send is in flight, so the flush timeout is already set up when the send fails
+    const second = getRandomLog();
+    logged.push(logger(second));
+
+    expect(await flushed).toEqual(1);
+    expect(sent).toEqual([[second, first]]);
+    await Promise.all(logged);
+  });
+
   it("await flush waits for all retries", async () => {
     const called = jest.fn();
     const size = 5;

@@ -62,6 +62,20 @@ describe("node tests", () => {
     nock.cleanAll();
   });
 
+  it("should resolve a flush whose send fails only after the retry sent its logs, also when logging during the send", async () => {
+    // An endpoint of its own, so that requests left over from other tests don't use up these replies
+    const scope = nock("https://flush-early.example.com").post("/").delay(50).reply(500).post("/").reply(202);
+
+    const node = new Node("valid source token", { endpoint: "https://flush-early.example.com" });
+    node.info("first");
+    const flushed = node.flush().then(() => scope.isDone());
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    // Logged while the send is in flight, so the batch interval is already set up when the send fails
+    node.info("second");
+
+    expect(await flushed).toBe(true);
+  });
+
   it("should warn and echo log even with circular reference as context", async () => {
     nock("https://in.logs.betterstack.com").post("/").reply(201);
 
