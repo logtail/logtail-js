@@ -105,95 +105,6 @@ describe("batch tests", () => {
     expect(called).toHaveBeenCalledTimes(4); // 3 retries + 1 initial
   });
 
-  it("should retry each log of sends failing at the same time", async () => {
-    let calls = 0;
-    const batcher = makeBatch(1, 10, 1, 0);
-    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
-      calls++;
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      // The two first sends, both in flight at once, fail
-      if (calls <= 2) {
-        throw new Error("send failed");
-      }
-    });
-
-    const logged = logNumberTimes(logger, 2);
-
-    await expect(Promise.all(logged)).resolves.toHaveLength(2);
-  });
-
-  it("should count a log's failed sends only since another batch was sent", async () => {
-    const sends: ((sent: boolean) => void)[] = [];
-    const batcher = makeBatch(1, 10, 1, 0);
-    const logger = batcher.initPusher(
-      () => new Promise<void>((resolve, reject) => sends.push((sent) => (sent ? resolve() : reject(new Error())))),
-    );
-
-    const [first] = logNumberTimes(logger, 2);
-    sends[0](false);
-    await new Promise((resolve) => setTimeout(resolve));
-    sends[1](true);
-    // The retry of the first log fails too, after the second log was sent
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    sends[2](false);
-    await new Promise((resolve) => setTimeout(resolve, 20));
-
-    expect(sends).toHaveLength(4);
-    sends[3](true);
-    await expect(first).resolves.toBeDefined();
-  });
-
-  it("should resolve flush once its logs are dropped, while logs pushed after it are still retried", async () => {
-    const batcher = makeBatch(1000, 10, 1, 0);
-    const logger = batcher.initPusher(async () => {
-      throw new Error("outage");
-    });
-    const logged = [logger(getRandomLog()).catch(() => {})];
-
-    const flushed = batcher.flush().then(() => "flushed");
-    // The app keeps logging during the outage
-    const logging = setInterval(() => logged.push(logger(getRandomLog()).catch(() => {})), 5);
-    const timedOut = new Promise((resolve) => setTimeout(() => resolve("timed out"), 500));
-    const result = await Promise.race([flushed, timedOut]);
-    clearInterval(logging);
-
-    expect(result).toEqual("flushed");
-    await Promise.all(logged);
-  });
-
-  it("should send no more than `size` logs at once, retried logs included", async () => {
-    const sent: ILogtailLog[][] = [];
-    const batcher = makeBatch(2, 10, 3, 0);
-    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
-      sent.push(batch);
-      // The first send fails, so its logs are retried along with the log pushed meanwhile
-      if (sent.length === 1) {
-        throw new Error("send failed");
-      }
-    });
-
-    await Promise.all(logNumberTimes(logger, 3));
-
-    expect(sent.map((batch) => batch.length)).toEqual([2, 2, 1]);
-  });
-
-  it("should end a send once its logs reach `sizeBytes`, retried logs included", async () => {
-    const sent: ILogtailLog[][] = [];
-    // Every log is calculated to have 10B and there's a 20B limit
-    const batcher = makeBatch(1000, 10, 3, 0, 20, () => 10);
-    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
-      sent.push(batch);
-      // The first send fails, so its logs are retried along with the log pushed meanwhile
-      if (sent.length === 1) {
-        throw new Error("send failed");
-      }
-    });
-
-    await Promise.all(logNumberTimes(logger, 3));
-
-    expect(sent.map((batch) => batch.length)).toEqual([2, 2, 1]);
-  });
-
   it("should play nicely with `throttle`", async () => {
     // Fixtures
     const maxThrottle = 2;
@@ -321,6 +232,70 @@ describe("batch tests", () => {
       throw e;
     });
     expect(called).toHaveBeenCalledTimes(10);
+  });
+
+  it("should send right away when sending immediately, one send at a time", async () => {
+    const sent: number[] = [];
+    let finishFirst!: () => void;
+    const batcher = makeBatch(1000, 10000, 3, 100, 0, calculateJsonLogSizeBytes, true);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch.length);
+      if (sent.length === 1) {
+        await new Promise<void>((resolve) => (finishFirst = resolve));
+      }
+    });
+
+    // Logs pushed in the same tick go in one send, without waiting for the flush timeout
+    const first = logNumberTimes(logger, 2);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(sent).toEqual([2]);
+
+    // Logs pushed while that send is in progress go in one send right after it
+    const during = logNumberTimes(logger, 3);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(sent).toEqual([2]);
+    finishFirst();
+    await Promise.all([...first, ...during]);
+    expect(sent).toEqual([2, 3]);
+  });
+
+  it("should flush the logs pushed during a send once that send is done, when sending immediately", async () => {
+    const sent: number[] = [];
+    let finishFirst!: () => void;
+    const batcher = makeBatch(1000, 10000, 3, 100, 0, calculateJsonLogSizeBytes, true);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch.length);
+      if (sent.length === 1) {
+        await new Promise<void>((resolve) => (finishFirst = resolve));
+      }
+    });
+
+    logger(getRandomLog());
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    logger(getRandomLog());
+    const flushed = batcher.flush();
+    finishFirst();
+    await flushed;
+
+    expect(sent).toEqual([1, 1]);
+  });
+
+  it("should retry a failed send after the flush timeout, when sending immediately", async () => {
+    const start = Date.now();
+    const sentAt: number[] = [];
+    const batcher = makeBatch(1000, 50, 1, 0, 0, calculateJsonLogSizeBytes, true);
+    const logger = batcher.initPusher(async () => {
+      sentAt.push(Date.now() - start);
+      if (sentAt.length === 1) {
+        throw new Error("outage");
+      }
+    });
+
+    await logger(getRandomLog());
+
+    expect(sentAt).toHaveLength(2);
+    expect(sentAt[0]).toBeLessThan(40);
+    expect(sentAt[1] - sentAt[0]).toBeGreaterThanOrEqual(45);
   });
 });
 

@@ -218,18 +218,25 @@ describe("request batches", () => {
     );
   }
 
-  it("should send a request's logs from several ticks in one send, a batch interval after its first log", async () => {
-    const { edge, batches, waited, ctx } = getEdge({ batchInterval: 50 });
+  it("should send a request's logs right away, and the logs logged during that send in one send after it", async () => {
+    const { edge, batches, waited, ctx } = getEdge({ batchInterval: 10000 }, 50);
     const startedAt = Date.now();
 
     const logger = edge.withExecutionContext(ctx);
     logger.info("first");
+    logger.info("same tick");
     await new Promise((resolve) => setTimeout(resolve, 10));
-    logger.info("second");
+    logger.info("during the send");
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    logger.info("also during the send");
     await Promise.all(waited);
 
-    expect(Date.now() - startedAt).toBeGreaterThanOrEqual(45);
-    expect(messages(batches)).toEqual([["first", "second"]]);
+    // Not held back for the batch interval
+    expect(Date.now() - startedAt).toBeLessThan(1000);
+    expect(messages(batches)).toEqual([
+      ["first", "same tick"],
+      ["during the send", "also during the send"],
+    ]);
   });
 
   it("should send a log passing through an async middleware in its request's batch", async () => {
@@ -294,31 +301,18 @@ describe("request batches", () => {
     expect(jest.getTimerCount()).toEqual(0);
   });
 
-  it("should send logs waiting without an execution context along with the next request's send", async () => {
-    jest.useFakeTimers();
-    const { edge, batches, waited, ctx } = getEdge({ warnAboutMissingExecutionContext: false });
+  it("should wait for a request's send with its logger's flush(), and send logs without a request with flush()", async () => {
+    const { edge, batches, ctx } = getEdge({ batchInterval: 10000, warnAboutMissingExecutionContext: false }, 50);
 
     edge.info("without execution context");
-    // The batch timer is dropped, like the timers of a Cloudflare Workers request that has ended
-    jest.clearAllTimers();
-    edge.withExecutionContext(ctx).info("with execution context");
-    await jest.advanceTimersByTimeAsync(20);
-    await Promise.all(waited);
-
-    expect(messages(batches)).toEqual([["without execution context", "with execution context"]]);
-  });
-
-  it("should flush a request's batch with its logger's flush(), and logs without a request with flush()", async () => {
-    const { edge, batches, ctx } = getEdge({ batchInterval: 10000, warnAboutMissingExecutionContext: false });
-
     const logger = edge.withExecutionContext(ctx);
     logger.info("with execution context");
-    edge.info("without execution context");
-    await edge.flush();
-
-    expect(messages(batches)).toEqual([["without execution context"]]);
+    await new Promise((resolve) => setTimeout(resolve, 10));
     await logger.flush();
-    expect(messages(batches)).toEqual([["without execution context"], ["with execution context"]]);
+
+    expect(messages(batches)).toEqual([["with execution context"]]);
+    await edge.flush();
+    expect(messages(batches)).toEqual([["with execution context"], ["without execution context"]]);
   });
 
   it("should not hold a request's send back until other requests' sends complete", async () => {

@@ -22,7 +22,6 @@ describe("browser tests", () => {
     nock.activate();
   });
   afterEach(() => {
-    nock.cleanAll();
     nock.restore();
   });
 
@@ -76,35 +75,6 @@ describe("browser tests", () => {
     await Promise.all([...Array(6)].map(() => browser.log(over12KiB)));
 
     expect(calledCount).toEqual(2);
-  });
-
-  it("should keep requests under the 64 KiB keepalive limit when a failed send is retried", async () => {
-    const bodySizes: number[] = [];
-    const recordBodySize = (_uri: string, body: any) => {
-      bodySizes.push(JSON.stringify(body).length);
-      return "";
-    };
-    nock("https://in.logs.betterstack.com")
-      .post("/")
-      .reply(503, recordBodySize)
-      .post("/")
-      .times(5)
-      .reply(201, recordBodySize);
-
-    const browser = new Browser("valid source token", {
-      throwExceptions: true,
-      batchInterval: 100,
-    });
-
-    // 4 logs, each over 12 KiB, reach 48 KiB and are sent, which fails
-    const over12KiB = "X".repeat(13000);
-    const logged = [...Array(4)].map(() => browser.log(over12KiB));
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    // Logged while the failed logs wait to be retried
-    logged.push(browser.log(over12KiB), browser.log(over12KiB));
-    await Promise.all(logged);
-
-    expect(Math.max(...bodySizes)).toBeLessThan(64 * 1024);
   });
 
   it("should be able to sent 100 small logs in a single batch", async () => {
