@@ -196,7 +196,7 @@ describe("edge tests", () => {
       jest.useRealTimers();
     });
 
-    it("should abort a request after 30 seconds by default and retry it like any other failed request", async () => {
+    it("should abort a request after 10 seconds by default and retry it like any other failed request", async () => {
       const edge = new Edge("valid source token", {
         retryCount: 1,
         // A single sync slot: the retry can only be sent once the aborted request has released it
@@ -207,10 +207,10 @@ describe("edge tests", () => {
 
       let error: unknown;
       edge.log("never answered").catch((e) => (error = e));
-      // Two attempts, each sent after the 1 s batch interval and aborted after 30 s
-      await jest.advanceTimersByTimeAsync(62000);
+      // Two attempts, each sent after the 1 s batch interval and aborted after 10 s
+      await jest.advanceTimersByTimeAsync(22000);
 
-      expect(error).toEqual(new Error("Request timeout after 30000ms"));
+      expect(error).toEqual(new Error("Request timeout after 10000ms"));
       expect(fetchMock).toHaveBeenCalledTimes(2);
       expect(edge.dropped).toBe(1);
     });
