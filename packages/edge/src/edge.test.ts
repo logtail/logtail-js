@@ -176,9 +176,13 @@ describe("edge tests", () => {
   });
 });
 
-describe("withExecutionContext flushing", () => {
+describe("request batches", () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   function getEdge(options: Partial<ILogtailEdgeOptions> = {}, syncMilliseconds = 0) {
-    const edge = new Edge("valid source token", { throwExceptions: true, ...options });
+    const edge = new Edge("valid source token", { throwExceptions: true, batchInterval: 10, ...options });
     const batches: ILogtailLog[][] = [];
     edge.setSync(async (logs) => {
       await new Promise((resolve) => setTimeout(resolve, syncMilliseconds));
@@ -186,22 +190,27 @@ describe("withExecutionContext flushing", () => {
       return logs;
     });
     const waited: Promise<unknown>[] = [];
-    const ctx = {
+    const ctx = requestContext(waited);
+    return { edge, batches, waited, ctx };
+  }
+
+  // The execution context of a new request, recording what the request is kept alive for in `waited`
+  function requestContext(waited: Promise<unknown>[]): WaitUntilContext {
+    return {
       waitUntil(promise: Promise<unknown>) {
         waited.push(promise);
       },
     };
-    return { edge, batches, waited, ctx };
   }
 
   // Starts `count` requests at once, each logging one line in a task of its own
-  function logInParallelRequests(edge: Edge, ctx: WaitUntilContext, count: number) {
+  function logInParallelRequests(edge: Edge, waited: Promise<unknown>[], count: number) {
     return Promise.all(
       [...Array(count).keys()].map(
         (request) =>
           new Promise<void>((resolve) =>
             setTimeout(() => {
-              edge.withExecutionContext(ctx).info(`request ${request}`);
+              edge.withExecutionContext(requestContext(waited)).info(`request ${request}`);
               resolve();
             }),
           ),
@@ -209,21 +218,9 @@ describe("withExecutionContext flushing", () => {
     );
   }
 
-  it("should send a request's logs right away instead of waiting for the batch interval", async () => {
-    const { edge, batches, waited, ctx } = getEdge();
+  it("should send a request's logs from several ticks in one send, a batch interval after its first log", async () => {
+    const { edge, batches, waited, ctx } = getEdge({ batchInterval: 50 });
     const startedAt = Date.now();
-
-    const logger = edge.withExecutionContext(ctx);
-    logger.info("first");
-    logger.warn("second");
-    await Promise.all(waited);
-
-    expect(Date.now() - startedAt).toBeLessThan(500);
-    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["first", "second"]]);
-  });
-
-  it("should send logs made after an await in a flush of their own", async () => {
-    const { edge, batches, waited, ctx } = getEdge();
 
     const logger = edge.withExecutionContext(ctx);
     logger.info("first");
@@ -231,29 +228,104 @@ describe("withExecutionContext flushing", () => {
     logger.info("second");
     await Promise.all(waited);
 
-    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["first"], ["second"]]);
+    expect(Date.now() - startedAt).toBeGreaterThanOrEqual(45);
+    expect(messages(batches)).toEqual([["first", "second"]]);
   });
 
-  it("should send a log passing through an async middleware in its request's own flush", async () => {
+  it("should send a log passing through an async middleware in its request's batch", async () => {
     const { edge, batches, waited, ctx } = getEdge();
     edge.use(async (log) => {
       await new Promise((resolve) => setTimeout(resolve, 10));
       return log;
     });
-    const startedAt = Date.now();
 
     edge.withExecutionContext(ctx).info("first");
     await Promise.all(waited);
 
-    expect(Date.now() - startedAt).toBeLessThan(500);
-    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["first"]]);
+    expect(messages(batches)).toEqual([["first"]]);
+  });
+
+  it("should send and retry each request's logs in its own batch, on its own timer", async () => {
+    const { edge, waited, ctx } = getEdge({ retryCount: 1 });
+    const attempts: string[][] = [];
+    edge.setSync(async (logs) => {
+      attempts.push(logs.map((log) => log.message));
+      if (logs.some((log) => log.message === "failing")) {
+        throw new Error("outage");
+      }
+      return logs;
+    });
+
+    const otherWaited: Promise<unknown>[] = [];
+    const otherCtx = { waitUntil: (promise: Promise<unknown>) => otherWaited.push(promise.catch(() => {})) };
+    edge
+      .withExecutionContext(otherCtx)
+      .info("failing")
+      .catch(() => {});
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    edge.withExecutionContext(ctx).info("other");
+
+    // Each request is kept alive until its own log is sent, or dropped after its retry
+    expect(await settledWithin(Promise.all(waited), 100)).toEqual(true);
+    expect(await settledWithin(Promise.all(otherWaited), 100)).toEqual(true);
+    expect(attempts.sort()).toEqual([["failing"], ["failing"], ["other"]]);
+  });
+
+  it("should leave no timer of a request behind once its waitUntil settles", async () => {
+    jest.useFakeTimers();
+    const { edge, waited, ctx } = getEdge();
+    let failures = 1;
+    edge.setSync(async (logs) => {
+      if (failures-- > 0) {
+        throw new Error("outage");
+      }
+      return logs;
+    });
+
+    const logger = edge.withExecutionContext(ctx);
+    logger.info("first");
+    await jest.advanceTimersByTimeAsync(5);
+    logger.info("second");
+    let settled = false;
+    Promise.all(waited).then(() => (settled = true));
+    await jest.advanceTimersByTimeAsync(100);
+
+    expect(settled).toEqual(true);
+    expect(jest.getTimerCount()).toEqual(0);
+  });
+
+  it("should send logs waiting without an execution context along with the next request's send", async () => {
+    jest.useFakeTimers();
+    const { edge, batches, waited, ctx } = getEdge({ warnAboutMissingExecutionContext: false });
+
+    edge.info("without execution context");
+    // The batch timer is dropped, like the timers of a Cloudflare Workers request that has ended
+    jest.clearAllTimers();
+    edge.withExecutionContext(ctx).info("with execution context");
+    await jest.advanceTimersByTimeAsync(20);
+    await Promise.all(waited);
+
+    expect(messages(batches)).toEqual([["without execution context", "with execution context"]]);
+  });
+
+  it("should flush a request's batch with its logger's flush(), and logs without a request with flush()", async () => {
+    const { edge, batches, ctx } = getEdge({ batchInterval: 10000, warnAboutMissingExecutionContext: false });
+
+    const logger = edge.withExecutionContext(ctx);
+    logger.info("with execution context");
+    edge.info("without execution context");
+    await edge.flush();
+
+    expect(messages(batches)).toEqual([["without execution context"]]);
+    await logger.flush();
+    expect(messages(batches)).toEqual([["without execution context"], ["with execution context"]]);
   });
 
   it("should not hold a request's send back until other requests' sends complete", async () => {
-    const { edge, batches, waited, ctx } = getEdge({}, 50);
+    const { edge, batches, waited } = getEdge({}, 50);
     const startedAt = Date.now();
 
-    await logInParallelRequests(edge, ctx, 20);
+    await logInParallelRequests(edge, waited, 20);
     await Promise.all(waited);
 
     expect(batches).toHaveLength(20);
@@ -262,10 +334,10 @@ describe("withExecutionContext flushing", () => {
   });
 
   it("should limit concurrent sends to an explicit syncMax option", async () => {
-    const { edge, batches, waited, ctx } = getEdge({ syncMax: 1 }, 50);
+    const { edge, batches, waited } = getEdge({ syncMax: 1 }, 50);
     const startedAt = Date.now();
 
-    await logInParallelRequests(edge, ctx, 3);
+    await logInParallelRequests(edge, waited, 3);
     await Promise.all(waited);
 
     expect(batches).toHaveLength(3);
@@ -290,7 +362,7 @@ describe("withExecutionContext flushing", () => {
     edge.withExecutionContext(ctx).info("with execution context");
 
     expect(await settledWithin(Promise.all(waited), 100)).toEqual(true);
-    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["with execution context"]]);
+    expect(messages(batches)).toEqual([["with execution context"]]);
   });
 
   it("should not hold a request back on another request's log stuck in middleware", async () => {
@@ -301,31 +373,13 @@ describe("withExecutionContext flushing", () => {
     edge.withExecutionContext(ctx).info("other");
 
     expect(await settledWithin(Promise.all(waited), 100)).toEqual(true);
-    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["other"]]);
-  });
-
-  it("should not hold a request back on another request's log waiting to be retried", async () => {
-    const { edge, batches, waited, ctx } = getEdge({ batchSize: 1 });
-    let outage = true;
-    edge.setSync(async (logs) => {
-      if (outage && logs.some((log) => log.message === "failing")) {
-        throw new Error("outage");
-      }
-      batches.push(logs);
-      return logs;
-    });
-
-    edge.withExecutionContext({ waitUntil() {} }).info("failing");
-    // Its send fails, so the log waits in the buffer for the batch interval to be retried
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    edge.withExecutionContext(ctx).info("other");
-
-    expect(await settledWithin(Promise.all(waited), 100)).toEqual(true);
-    outage = false;
-    await edge.flush();
-    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["other"], ["failing"]]);
+    expect(messages(batches)).toEqual([["other"]]);
   });
 });
+
+function messages(batches: ILogtailLog[][]) {
+  return batches.map((batch) => batch.map((log) => log.message));
+}
 
 function settledWithin(promise: Promise<unknown>, milliseconds: number): Promise<boolean> {
   return Promise.race([
