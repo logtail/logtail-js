@@ -15,6 +15,9 @@ export class Edge extends Base {
 
   private readonly warnAboutMissingExecutionContext: Boolean;
 
+  // Batch of each request logging with an execution context, so that no request waits on another one's send or timer
+  private readonly _requestBatches = new WeakMap<ExecutionContext, ReturnType<Base["_makeBatch"]>>();
+
   public constructor(sourceToken: string, options?: Partial<ILogtailEdgeOptions>) {
     // Sends are not throttled by default: each request sends its own logs and must never wait on another
     // request's send, since a runtime like workerd cancels a request left waiting without I/O of its own
@@ -72,19 +75,17 @@ export class Edge extends Base {
     const stackContext = this._options.captureStackContext !== false ? getStackContext(this) : {};
     context = { ...stackContext, ...context };
 
-    // Process/sync the log, per `Base` logic
-    let buffered!: () => void;
-    const reachedBuffer = new Promise<void>((resolve) => (buffered = resolve));
-    const log = this._log(message, level, context, buffered);
-
     if (ctx) {
-      // The request is kept alive until its own log is sent or dropped, retries included
+      // Process/sync the log in the request's own batch, and keep the request alive until it is sent or dropped
+      const log = this._log(message, level, context, this.requestBatch(ctx).push);
       ctx.waitUntil(log);
-      // Send the log as soon as it is in the batch buffer, so the request is not kept alive for the batch interval
-      // and no batch timer outlives it; logs reaching the buffer in the same tick share one send. The request does
-      // not wait for the flush, which also waits for the other logs it sends, e.g. other requests' logs to retry
-      reachedBuffer.then(() => this.flush());
-    } else if (this.warnAboutMissingExecutionContext && !this._warnedAboutMissingCtx) {
+      return (await log) as ILogtailLog & TContext;
+    }
+
+    // Process/sync the log, per `Base` logic
+    const log = super.log(message, level, context);
+
+    if (this.warnAboutMissingExecutionContext && !this._warnedAboutMissingCtx) {
       this._warnedAboutMissingCtx = true;
 
       const warningMessage =
@@ -100,6 +101,31 @@ export class Edge extends Base {
 
     // Return the transformed log
     return (await log) as ILogtailLog & TContext;
+  }
+
+  /**
+   * Flush the logs of the request of `ctx`, or without it the logs logged without an execution context
+   */
+  public async flush(ctx?: ExecutionContext) {
+    if (ctx) {
+      return this._requestBatches.get(ctx)?.flush();
+    }
+
+    return super.flush();
+  }
+
+  /**
+   * The batch of the request of `ctx`, made on its first log, so that its timers belong to the request.
+   * Each of its sends also takes along the logs waiting in the batch of logs without an execution context.
+   */
+  private requestBatch(ctx: ExecutionContext) {
+    let batch = this._requestBatches.get(ctx);
+    if (!batch) {
+      batch = this._makeBatch(this._takeBatched);
+      this._requestBatches.set(ctx, batch);
+    }
+
+    return batch;
   }
 
   public async debug<TContext extends Context>(

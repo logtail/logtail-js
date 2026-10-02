@@ -5,7 +5,7 @@ import { ILogtailLog } from "@logtail/types";
 /**
  * Buffer time for storing the log, and Promise resolve/reject
  */
-interface IBuffer {
+export interface IBuffer {
   log: ILogtailLog;
   // Size of the log (in bytes), counted only when there is a max size set
   bytes: number;
@@ -53,6 +53,8 @@ export const calculateJsonLogSizeBytes = (log: ILogtailLog) => JSON.stringify(lo
  * @param retryBackoff - Number
  * @param sizeBytes - Size of the batch (in bytes) that triggers flushing. Set to 0 to disable.
  * @param calculateLogSizeBytes - Function to calculate size of a single ILogtailLog instance (in bytes).
+ * @param takeAlong - Takes the logs waiting in another batch out of it (its `take()`), to send them along with this
+ *                    batch's own logs whenever this batch sends; they are then retried like its own logs.
  */
 export default function makeBatch(
   size: number = DEFAULT_BUFFER_SIZE,
@@ -61,6 +63,7 @@ export default function makeBatch(
   retryBackoff: number = DEFAULT_RETRY_BACKOFF,
   sizeBytes: number = 0,
   calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
+  takeAlong: () => IBuffer[] = () => [],
 ) {
   let timeout: NodeJS.Timeout | null;
   let cb: Function;
@@ -90,7 +93,8 @@ export default function makeBatch(
     }
     timeout = null;
 
-    const currentBuffer = buffer;
+    // Logs taken along from another batch go first, so that they are in a batch sent now
+    const currentBuffer = takeAlong().concat(buffer);
     buffer = [];
     bufferSizeBytes = 0;
 
@@ -155,6 +159,16 @@ export default function makeBatch(
   }
 
   /*
+   * Take the logs waiting to be sent out of this batch, for another batch to send and retry along with its own
+   */
+  function take() {
+    const taken = buffer;
+    buffer = [];
+    bufferSizeBytes = 0;
+    return taken;
+  }
+
+  /*
    * Start timeout to flush
    */
   function setupTimeout() {
@@ -202,5 +216,6 @@ export default function makeBatch(
       };
     },
     flush,
+    take,
   };
 }

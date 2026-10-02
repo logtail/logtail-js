@@ -84,6 +84,12 @@ class Logtail {
   // Flush function
   protected _flush: any;
 
+  // Takes the logs waiting in the batch out of it, for another batch to send along with its own
+  protected _takeBatched: any;
+
+  // Throttled sync function
+  private _throttledSync: any;
+
   // Log burst protection function
   protected _logBurstProtection: any;
 
@@ -132,7 +138,7 @@ class Logtail {
     const throttle = makeThrottle(this._options.syncMax, this._options.syncQueuedMax);
 
     // Sync after throttling
-    const throttler = throttle((logs: any) => {
+    this._throttledSync = throttle((logs: any) => {
       return this._sync!(logs);
     });
 
@@ -145,6 +151,17 @@ class Logtail {
     this.log = this._logBurstProtection(this.log.bind(this));
 
     // Create a batcher, for aggregating logs by buffer size/interval
+    const batcher = this._makeBatch();
+    this._batch = batcher.push;
+    this._flush = batcher.flush;
+    this._takeBatched = batcher.take;
+  }
+
+  /**
+   * Make a batch with this logger's batch settings, sending through its throttled sync. `takeAlong` hands it the logs
+   * waiting in another batch, to send along with its own (see `take`).
+   */
+  protected _makeBatch(takeAlong?: Parameters<typeof makeBatch>[6]) {
     const batcher = makeBatch(
       this._options.batchSize,
       this._options.batchInterval,
@@ -152,13 +169,16 @@ class Logtail {
       this._options.retryBackoff,
       this._options.batchSizeKiB * 1024,
       this._options.calculateLogSizeBytes,
+      takeAlong,
     );
 
-    this._batch = batcher.initPusher((logs: any) => {
-      return throttler(logs);
-    });
-
-    this._flush = batcher.flush;
+    return {
+      push: batcher.initPusher((logs: any) => {
+        return this._throttledSync(logs);
+      }),
+      flush: batcher.flush,
+      take: batcher.take,
+    };
   }
 
   /* PUBLIC METHODS */
@@ -210,18 +230,17 @@ class Logtail {
     level: ILogLevel = LogLevel.Info,
     context: TContext = {} as TContext,
   ): Promise<ILogtailLog & TContext> {
-    return this._log(message, level, context, () => {});
+    return this._log(message, level, context, this._batch);
   }
 
   /**
-   * Logs an entry like `log()`, calling `buffered` once the log has left middleware: right before it is pushed to the
-   * batch buffer (a promise callback scheduled from it runs after the push), or when it is not pushed at all
+   * Logs an entry like `log()`, pushing it with `batch`, the push function of a batch (see `_makeBatch()`)
    */
   protected async _log<TContext extends Context>(
     message: Message,
     level: ILogLevel = LogLevel.Info,
     context: TContext = {} as TContext,
-    buffered: () => void,
+    batch: (log: ILogtailLog) => Promise<ILogtailLog>,
   ): Promise<ILogtailLog & TContext> {
     // Wrap context in an object, if it's not already
     if (typeof context !== "object") {
@@ -277,31 +296,26 @@ class Logtail {
     };
 
     let transformedLog = log as ILogtailLog | null;
-    try {
-      for (const middleware of this._middleware) {
-        let newTransformedLog = await middleware(transformedLog as ILogtailLog);
-        if (newTransformedLog == null) {
-          // Don't push the log if it was filtered out in a middleware
-          return transformedLog as ILogtailLog & TContext;
-        }
-        transformedLog = newTransformedLog;
-      }
-
-      // Manually serialize the log data
-      transformedLog = this.serialize(transformedLog, this._options.contextObjectMaxDepth);
-
-      if (!this._options.sendLogsToBetterStack) {
-        // Return the resulting log before sending it
+    for (const middleware of this._middleware) {
+      let newTransformedLog = await middleware(transformedLog as ILogtailLog);
+      if (newTransformedLog == null) {
+        // Don't push the log if it was filtered out in a middleware
         return transformedLog as ILogtailLog & TContext;
       }
-    } finally {
-      // The log is pushed to the batch buffer right after this, or not at all
-      buffered();
+      transformedLog = newTransformedLog;
+    }
+
+    // Manually serialize the log data
+    transformedLog = this.serialize(transformedLog, this._options.contextObjectMaxDepth);
+
+    if (!this._options.sendLogsToBetterStack) {
+      // Return the resulting log before sending it
+      return transformedLog as ILogtailLog & TContext;
     }
 
     try {
       // Push the log through the batcher, and sync
-      await this._batch(transformedLog);
+      await batch(transformedLog as ILogtailLog);
 
       // Increment sync count
       this._countSynced++;
