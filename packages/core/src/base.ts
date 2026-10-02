@@ -84,9 +84,6 @@ class Logtail {
   // Flush function
   protected _flush: any;
 
-  // Takes the logs waiting in the batch out of it, for another batch to send along with its own
-  protected _takeBatched: any;
-
   // Throttled sync function
   private _throttledSync: any;
 
@@ -154,14 +151,14 @@ class Logtail {
     const batcher = this._makeBatch();
     this._batch = batcher.push;
     this._flush = batcher.flush;
-    this._takeBatched = batcher.take;
   }
 
   /**
-   * Make a batch with this logger's batch settings, sending through its throttled sync. `takeAlong` hands it the logs
-   * waiting in another batch, to send along with its own (see `take`).
+   * Make a batch with this logger's batch settings, sending through its throttled sync
+   *
+   * @param sendImmediately - Send logs right away, one send at a time, instead of after `batchInterval` (see `makeBatch`)
    */
-  protected _makeBatch(takeAlong?: Parameters<typeof makeBatch>[6]) {
+  protected _makeBatch(sendImmediately: boolean = false) {
     const batcher = makeBatch(
       this._options.batchSize,
       this._options.batchInterval,
@@ -169,7 +166,7 @@ class Logtail {
       this._options.retryBackoff,
       this._options.batchSizeKiB * 1024,
       this._options.calculateLogSizeBytes,
-      takeAlong,
+      sendImmediately,
     );
 
     return {
@@ -177,7 +174,6 @@ class Logtail {
         return this._throttledSync(logs);
       }),
       flush: batcher.flush,
-      take: batcher.take,
     };
   }
 

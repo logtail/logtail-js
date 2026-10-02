@@ -115,13 +115,13 @@ export class Edge extends Base {
   }
 
   /**
-   * The batch of the request of `ctx`, made on its first log, so that its timers belong to the request.
-   * Each of its sends also takes along the logs waiting in the batch of logs without an execution context.
+   * The batch of the request of `ctx`, made on its first log, so that its timers belong to the request. It sends the
+   * request's logs right away, one send at a time, so that the request ends soon after its last log.
    */
   private requestBatch(ctx: ExecutionContext) {
     let batch = this._requestBatches.get(ctx);
     if (!batch) {
-      batch = this._makeBatch(this._takeBatched);
+      batch = this._makeBatch(true);
       this._requestBatches.set(ctx, batch);
     }
 
