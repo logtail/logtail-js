@@ -55,6 +55,8 @@ export default function makeBatch(
   calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
 ) {
   let timeout: NodeJS.Timeout | null;
+  // Resolves once the timeout's flush is done
+  let timeoutFlushed: Promise<void>;
   let cb: Function;
   let buffer: IBuffer[] = [];
   let bufferSizeBytes = 0;
@@ -99,19 +101,20 @@ export default function makeBatch(
   }
 
   /*
-   * Start timeout to flush
+   * Start timeout to flush, or wait for the flush of the timeout already set up
    */
   async function setupTimeout() {
     if (timeout) {
-      return;
+      return timeoutFlushed;
     }
 
-    return new Promise<void>((resolve) => {
+    timeoutFlushed = new Promise<void>((resolve) => {
       timeout = setTimeout(async function () {
         await flush();
         resolve();
       }, flushTimeout);
     });
+    return timeoutFlushed;
   }
 
   /*
