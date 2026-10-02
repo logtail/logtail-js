@@ -143,6 +143,57 @@ describe("batch tests", () => {
     await expect(first).resolves.toBeDefined();
   });
 
+  it("should resolve flush once its logs are dropped, while logs pushed after it are still retried", async () => {
+    const batcher = makeBatch(1000, 10, 1, 0);
+    const logger = batcher.initPusher(async () => {
+      throw new Error("outage");
+    });
+    const logged = [logger(getRandomLog()).catch(() => {})];
+
+    const flushed = batcher.flush().then(() => "flushed");
+    // The app keeps logging during the outage
+    const logging = setInterval(() => logged.push(logger(getRandomLog()).catch(() => {})), 5);
+    const timedOut = new Promise((resolve) => setTimeout(() => resolve("timed out"), 500));
+    const result = await Promise.race([flushed, timedOut]);
+    clearInterval(logging);
+
+    expect(result).toEqual("flushed");
+    await Promise.all(logged);
+  });
+
+  it("should send no more than `size` logs at once, retried logs included", async () => {
+    const sent: ILogtailLog[][] = [];
+    const batcher = makeBatch(2, 10, 3, 0);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch);
+      // The first send fails, so its logs are retried along with the log pushed meanwhile
+      if (sent.length === 1) {
+        throw new Error("send failed");
+      }
+    });
+
+    await Promise.all(logNumberTimes(logger, 3));
+
+    expect(sent.map((batch) => batch.length)).toEqual([2, 2, 1]);
+  });
+
+  it("should end a send once its logs reach `sizeBytes`, retried logs included", async () => {
+    const sent: ILogtailLog[][] = [];
+    // Every log is calculated to have 10B and there's a 20B limit
+    const batcher = makeBatch(1000, 10, 3, 0, 20, () => 10);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch);
+      // The first send fails, so its logs are retried along with the log pushed meanwhile
+      if (sent.length === 1) {
+        throw new Error("send failed");
+      }
+    });
+
+    await Promise.all(logNumberTimes(logger, 3));
+
+    expect(sent.map((batch) => batch.length)).toEqual([2, 2, 1]);
+  });
+
   it("should play nicely with `throttle`", async () => {
     // Fixtures
     const maxThrottle = 2;

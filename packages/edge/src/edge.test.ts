@@ -303,6 +303,28 @@ describe("withExecutionContext flushing", () => {
     expect(await settledWithin(Promise.all(waited), 100)).toEqual(true);
     expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["other"]]);
   });
+
+  it("should not hold a request back on another request's log waiting to be retried", async () => {
+    const { edge, batches, waited, ctx } = getEdge({ batchSize: 1 });
+    let outage = true;
+    edge.setSync(async (logs) => {
+      if (outage && logs.some((log) => log.message === "failing")) {
+        throw new Error("outage");
+      }
+      batches.push(logs);
+      return logs;
+    });
+
+    edge.withExecutionContext({ waitUntil() {} }).info("failing");
+    // Its send fails, so the log waits in the buffer for the batch interval to be retried
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    edge.withExecutionContext(ctx).info("other");
+
+    expect(await settledWithin(Promise.all(waited), 100)).toEqual(true);
+    outage = false;
+    await edge.flush();
+    expect(batches.map((batch) => batch.map((log) => log.message))).toEqual([["other"], ["failing"]]);
+  });
 });
 
 function settledWithin(promise: Promise<unknown>, milliseconds: number): Promise<boolean> {
