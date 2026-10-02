@@ -17,7 +17,7 @@ export class Edge extends Base {
 
   public constructor(sourceToken: string, options?: Partial<ILogtailEdgeOptions>) {
     options = {
-      timeout: 30000, // 30 seconds default timeout
+      timeout: 10000, // 10 seconds default timeout
       ...options,
     };
     super(sourceToken, options);
