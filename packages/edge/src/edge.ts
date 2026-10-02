@@ -78,10 +78,12 @@ export class Edge extends Base {
     const log = this._log(message, level, context, buffered);
 
     if (ctx) {
+      // The request is kept alive until its own log is sent or dropped, retries included
       ctx.waitUntil(log);
       // Send the log as soon as it is in the batch buffer, so the request is not kept alive for the batch interval
-      // and no batch timer outlives it; logs reaching the buffer in the same tick share one send
-      ctx.waitUntil(reachedBuffer.then(() => this.flush()));
+      // and no batch timer outlives it; logs reaching the buffer in the same tick share one send. The request does
+      // not wait for the flush, which also waits for the other logs it sends, e.g. other requests' logs to retry
+      reachedBuffer.then(() => this.flush());
     } else if (this.warnAboutMissingExecutionContext && !this._warnedAboutMissingCtx) {
       this._warnedAboutMissingCtx = true;
 

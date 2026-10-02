@@ -7,6 +7,10 @@ import { ILogtailLog } from "@logtail/types";
  */
 interface IBuffer {
   log: ILogtailLog;
+  // Size of the log (in bytes), counted only when there is a max size set
+  bytes: number;
+  // Settles once the log is sent or dropped
+  sent: Promise<ILogtailLog>;
   resolve: (log: ILogtailLog | Promise<ILogtailLog>) => void;
   reject: (reason: any) => void;
   // Failed sends of this log since a batch was last sent successfully
@@ -67,32 +71,66 @@ export default function makeBatch(
   // Wait until the minimum retry backoff time has passed before retrying
   let minRetryBackoff: number = 0;
   /*
-   * Process then flush the list
+   * Send the buffered logs, and wait until each of them is sent or dropped (not for logs pushed after the call)
    */
   async function flush() {
+    const currentBuffer = buffer;
+    sendBatches(true);
+    await Promise.all(currentBuffer.map((d) => d.sent.catch(() => {})));
+  }
+
+  /*
+   * Send the buffered logs in batches of at most `size` logs, each ending once it reaches `sizeBytes` like a batch
+   * filled by new logs, so that logs of failed sends retried along with newer logs never make a bigger request.
+   * A last batch that is not full is sent too when `all` is set, otherwise it stays buffered for the flush timeout.
+   */
+  function sendBatches(all: boolean) {
     if (timeout) {
       clearTimeout(timeout);
     }
     timeout = null;
 
-    // Nothing buffered, nothing to sync
-    if (buffer.length === 0) {
-      return;
-    }
-
     const currentBuffer = buffer;
     buffer = [];
     bufferSizeBytes = 0;
 
+    let batch: IBuffer[] = [];
+    let batchSizeBytes = 0;
+    for (const d of currentBuffer) {
+      batch.push(d);
+      batchSizeBytes += d.bytes;
+      if (batch.length >= size || (sizeBytes > 0 && batchSizeBytes >= sizeBytes)) {
+        send(batch);
+        batch = [];
+        batchSizeBytes = 0;
+      }
+    }
+
+    if (batch.length === 0) {
+      return;
+    }
+    if (all) {
+      send(batch);
+    } else {
+      buffer = batch.concat(buffer);
+      bufferSizeBytes += batchSizeBytes;
+      setupTimeout();
+    }
+  }
+
+  /*
+   * Send a batch of logs; logs of a failed send go back to the buffer, to be retried with it on the flush timeout
+   */
+  async function send(batch: IBuffer[]) {
     try {
-      await cb(currentBuffer.map((d) => d.log));
+      await cb(batch.map((d) => d.log));
       sentBatches++;
-      currentBuffer.forEach((d) => d.resolve(d.log));
+      batch.forEach((d) => d.resolve(d.log));
     } catch (e) {
       // A log is dropped once it has failed more than `retryCount` times with no batch sent successfully in between,
       // counted per log, so that sends failing at the same time don't use up each other's retries
       const retried: IBuffer[] = [];
-      for (const d of currentBuffer) {
+      for (const d of batch) {
         if (d.sentBatches !== sentBatches) {
           d.failures = 0;
           d.sentBatches = sentBatches;
@@ -111,27 +149,20 @@ export default function makeBatch(
 
       minRetryBackoff = Date.now() + retryBackoff;
       buffer = buffer.concat(retried);
-      if (sizeBytes > 0) {
-        bufferSizeBytes += retried.reduce((total, d) => total + calculateLogSizeBytes(d.log), 0);
-      }
-      await setupTimeout();
+      bufferSizeBytes += retried.reduce((total, d) => total + d.bytes, 0);
+      setupTimeout();
     }
   }
 
   /*
    * Start timeout to flush
    */
-  async function setupTimeout() {
+  function setupTimeout() {
     if (timeout) {
       return;
     }
 
-    return new Promise<void>((resolve) => {
-      timeout = setTimeout(async function () {
-        await flush();
-        resolve();
-      }, flushTimeout);
-    });
+    timeout = setTimeout(flush, flushTimeout);
   }
 
   /*
@@ -147,24 +178,27 @@ export default function makeBatch(
        * @param log: ILogtailLog - Any object to push into list
        */
       return async function (log: ILogtailLog): Promise<ILogtailLog> {
-        return new Promise<ILogtailLog>(async (resolve, reject) => {
-          buffer.push({ log, resolve, reject, failures: 0, sentBatches });
-          // We can skip log size calculation if there is no max size set
-          if (sizeBytes > 0) {
-            bufferSizeBytes += calculateLogSizeBytes(log);
-          }
-
-          // If the buffer is full enough, flush it
-          // Unless we're still waiting for the minimum retry backoff time
-          const isBufferFullEnough = buffer.length >= size || (sizeBytes > 0 && bufferSizeBytes >= sizeBytes);
-          if (isBufferFullEnough && Date.now() > minRetryBackoff) {
-            await flush();
-          } else {
-            await setupTimeout();
-          }
-
-          return resolve;
+        let resolve!: IBuffer["resolve"];
+        let reject!: IBuffer["reject"];
+        const sent = new Promise<ILogtailLog>((res, rej) => {
+          resolve = res;
+          reject = rej;
         });
+        // We can skip log size calculation if there is no max size set
+        const bytes = sizeBytes > 0 ? calculateLogSizeBytes(log) : 0;
+        buffer.push({ log, bytes, sent, resolve, reject, failures: 0, sentBatches });
+        bufferSizeBytes += bytes;
+
+        // If the buffer is full enough, send its full batches
+        // Unless we're still waiting for the minimum retry backoff time
+        const isBufferFullEnough = buffer.length >= size || (sizeBytes > 0 && bufferSizeBytes >= sizeBytes);
+        if (isBufferFullEnough && Date.now() > minRetryBackoff) {
+          sendBatches(false);
+        } else {
+          setupTimeout();
+        }
+
+        return sent;
       };
     },
     flush,
