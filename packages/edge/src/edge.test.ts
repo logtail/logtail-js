@@ -185,17 +185,15 @@ describe("edge tests", () => {
     });
 
     // A request logs without ExecutionContext and ends, so Cloudflare Workers drop the flush timeout it set up
-    edge.info("without ExecutionContext");
+    edge.info("first request");
     await jest.advanceTimersByTimeAsync(0);
     jest.clearAllTimers();
     await jest.advanceTimersByTimeAsync(5000);
 
-    // A later request logs with ExecutionContext
-    const waitUntil: Promise<any>[] = [];
-    edge.withExecutionContext({ waitUntil: (promise) => waitUntil.push(promise) }).info("with ExecutionContext");
+    // A later request logs without ExecutionContext too
+    edge.info("later request");
     await jest.advanceTimersByTimeAsync(1000);
 
-    expect(synced).toEqual(["without ExecutionContext", "with ExecutionContext"]);
-    await Promise.all(waitUntil);
+    expect(synced).toEqual(["first request", "later request"]);
   });
 });
