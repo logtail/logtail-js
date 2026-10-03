@@ -122,6 +122,11 @@ export interface ILogtailEdgeOptions extends ILogtailOptions {
    * Boolean to produce a warning when ExecutionContext hasn't been passed to the `log` method
    **/
   warnAboutMissingExecutionContext: boolean;
+
+  /**
+   * Request timeout in milliseconds for HTTP requests to Better Stack (0 to disable).
+   */
+  timeout: number;
 }
 
 export type ILogLevel = LogLevel | string;

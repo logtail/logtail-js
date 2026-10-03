@@ -16,6 +16,10 @@ export class Edge extends Base {
   private readonly warnAboutMissingExecutionContext: Boolean;
 
   public constructor(sourceToken: string, options?: Partial<ILogtailEdgeOptions>) {
+    options = {
+      timeout: 10000, // 10 seconds default timeout
+      ...options,
+    };
     super(sourceToken, options);
 
     this.warnAboutMissingExecutionContext = options?.warnAboutMissingExecutionContext ?? true;
@@ -27,22 +31,40 @@ export class Edge extends Base {
         new Blob([this.encodeAsMsgpack(logs)]).stream().pipeThrough(new CompressionStream("gzip")),
       ).arrayBuffer();
 
-      const res = await fetch(this._options.endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/msgpack",
-          "Content-Encoding": "gzip",
-          Authorization: `Bearer ${this._sourceToken}`,
-          "User-Agent": "logtail-js(edge)",
-        },
-        body: compressedData,
-      });
+      // Abort the request when it isn't answered in time, so it fails and gets retried like any other failed request
+      const edgeOptions = this._options as ILogtailEdgeOptions;
+      const controller = new AbortController();
+      const timeoutId =
+        edgeOptions.timeout > 0
+          ? setTimeout(
+              () => controller.abort(new Error(`Request timeout after ${edgeOptions.timeout}ms`)),
+              edgeOptions.timeout,
+            )
+          : undefined;
 
-      if (res.ok) {
-        return logs;
+      try {
+        const res = await fetch(this._options.endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/msgpack",
+            "Content-Encoding": "gzip",
+            Authorization: `Bearer ${this._sourceToken}`,
+            "User-Agent": "logtail-js(edge)",
+          },
+          body: compressedData,
+          signal: controller.signal,
+        });
+
+        if (res.ok) {
+          return logs;
+        }
+
+        throw new Error(res.statusText);
+      } finally {
+        if (timeoutId !== undefined) {
+          clearTimeout(timeoutId);
+        }
       }
-
-      throw new Error(res.statusText);
     };
 
     // Set the throttled sync function
