@@ -5,10 +5,23 @@ import { ILogtailLog } from "@logtail/types";
 /**
  * Buffer time for storing the log, and Promise resolve/reject
  */
-interface IBuffer {
+export interface IBuffer {
   log: ILogtailLog;
   resolve: (log: ILogtailLog | Promise<ILogtailLog>) => void;
   reject: (reason: any) => void;
+}
+
+export interface IBatchOptions {
+  /**
+   * Send logs right away instead of after `flushTimeout`, one send at a time: logs pushed while a send is in progress
+   * go in the next send, right after it. Failed sends are still retried after `flushTimeout`.
+   */
+  sendImmediately?: boolean;
+  /**
+   * Takes the logs waiting in another batch out of it (its `take()`), to send them along with this batch's own logs
+   * whenever this batch sends; they are then retried along with them.
+   */
+  takeAlong?: () => IBuffer[];
 }
 
 /*
@@ -45,6 +58,7 @@ export const calculateJsonLogSizeBytes = (log: ILogtailLog) => JSON.stringify(lo
  * @param retryBackoff - Number
  * @param sizeBytes - Size of the batch (in bytes) that triggers flushing. Set to 0 to disable.
  * @param calculateLogSizeBytes - Function to calculate size of a single ILogtailLog instance (in bytes).
+ * @param options - See `IBatchOptions`
  */
 export default function makeBatch(
   size: number = DEFAULT_BUFFER_SIZE,
@@ -53,6 +67,7 @@ export default function makeBatch(
   retryBackoff: number = DEFAULT_RETRY_BACKOFF,
   sizeBytes: number = 0,
   calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
+  { sendImmediately = false, takeAlong = () => [] }: IBatchOptions = {},
 ) {
   // Resolves the promise returned by `setupTimeout()`, which waits for the timeout's flush
   let timeoutResolve: (() => void) | null = null;
@@ -65,6 +80,8 @@ export default function makeBatch(
   let retry: number = 0;
   // Wait until the minimum retry backoff time has passed before retrying
   let minRetryBackoff: number = 0;
+  // The send in progress when sending immediately, which sends one batch at a time
+  let sending: Promise<void> | null = null;
   /*
    * Flush the list instead of the pending timeout
    */
@@ -88,18 +105,40 @@ export default function makeBatch(
    * Process then send the list
    */
   async function sendBuffer() {
+    // One send at a time when sending immediately: the logs pushed meanwhile go once it is done, right away,
+    // or with the retry of its logs if it failed (set up before this resumes)
+    if (sending) {
+      await sending;
+      if (timeout) {
+        return;
+      }
+      return sendBuffer();
+    }
+
     // Nothing buffered, nothing to sync
     if (buffer.length === 0) {
       return;
     }
 
-    const currentBuffer = buffer;
-    const currentBufferSizeKB = bufferSizeBytes;
+    // Logs taken along from another batch go first, as they were logged before this batch's own
+    const taken = takeAlong();
+    const currentBuffer = taken.concat(buffer);
+    const currentBufferSizeKB =
+      bufferSizeBytes + (sizeBytes > 0 ? taken.reduce((total, d) => total + calculateLogSizeBytes(d.log), 0) : 0);
     buffer = [];
     bufferSizeBytes = 0;
 
+    // A send function throwing right away fails the send like a rejection
+    const send = new Promise((resolve) => resolve(cb(currentBuffer.map((d) => d.log))));
+    if (sendImmediately) {
+      const done = () => {
+        sending = null;
+      };
+      sending = send.then(done, done);
+    }
+
     try {
-      await cb(currentBuffer.map((d) => d.log));
+      await send;
       currentBuffer.forEach((d) => d.resolve(d.log));
       retry = 0;
     } catch (e) {
@@ -119,19 +158,19 @@ export default function makeBatch(
   /*
    * Start timeout to flush
    */
-  async function setupTimeout() {
+  async function setupTimeout(delay: number = flushTimeout) {
     if (timeout) {
       return;
     }
 
-    timeoutDue = Date.now() + flushTimeout;
+    timeoutDue = Date.now() + delay;
     return new Promise<void>((resolve) => {
       // A flush replacing the timeout resolves this too, once it is done
       timeoutResolve = resolve;
       timeout = setTimeout(async function () {
         await flush();
         resolve();
-      }, flushTimeout);
+      }, delay);
     });
   }
 
@@ -167,7 +206,8 @@ export default function makeBatch(
             if (timeout && Date.now() > timeoutDue) {
               timeout = null;
             }
-            await setupTimeout();
+            // Sending immediately sends on the next tick, so that logs pushed in the same tick go in one send
+            await setupTimeout(sendImmediately ? 0 : flushTimeout);
           }
 
           return resolve;
@@ -175,5 +215,14 @@ export default function makeBatch(
       };
     },
     flush,
+    /*
+     * Takes the logs waiting to be sent out of this batch, for another batch to send along with its own
+     */
+    take: function (): IBuffer[] {
+      const taken = buffer;
+      buffer = [];
+      bufferSizeBytes = 0;
+      return taken;
+    },
   };
 }

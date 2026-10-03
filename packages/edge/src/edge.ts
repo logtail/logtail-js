@@ -15,12 +15,17 @@ export class Edge extends Base {
 
   private readonly warnAboutMissingExecutionContext: Boolean;
 
+  // Batch of each request logging with an execution context, so that no request waits on another one's send or timer
+  private readonly _requestBatches = new WeakMap<ExecutionContext, ReturnType<Base["_makeBatch"]>>();
+
   public constructor(sourceToken: string, options?: Partial<ILogtailEdgeOptions>) {
     options = {
       timeout: 10000, // 10 seconds default timeout
       ...options,
     };
-    super(sourceToken, options);
+    // Sends are not throttled by default: each request sends its own logs and must never wait on another
+    // request's send, since a runtime like workerd cancels a request left waiting without I/O of its own
+    super(sourceToken, { syncMax: Infinity, ...options });
 
     this.warnAboutMissingExecutionContext = options?.warnAboutMissingExecutionContext ?? true;
 
@@ -92,12 +97,17 @@ export class Edge extends Base {
     const stackContext = this._options.captureStackContext !== false ? getStackContext(this) : {};
     context = { ...stackContext, ...context };
 
+    if (ctx) {
+      // Process/sync the log in the request's own batch, and keep the request alive until it is sent or dropped
+      const log = this._log(message, level, context, this.requestBatch(ctx).push);
+      ctx.waitUntil(log);
+      return (await log) as ILogtailLog & TContext;
+    }
+
     // Process/sync the log, per `Base` logic
     const log = super.log(message, level, context);
 
-    if (ctx) {
-      ctx.waitUntil(log);
-    } else if (this.warnAboutMissingExecutionContext && !this._warnedAboutMissingCtx) {
+    if (this.warnAboutMissingExecutionContext && !this._warnedAboutMissingCtx) {
       this._warnedAboutMissingCtx = true;
 
       const warningMessage =
@@ -113,6 +123,32 @@ export class Edge extends Base {
 
     // Return the transformed log
     return (await log) as ILogtailLog & TContext;
+  }
+
+  /**
+   * Flush the logs of the request of `ctx`, or without it the logs logged without an execution context
+   */
+  public async flush(ctx?: ExecutionContext) {
+    if (ctx) {
+      return this._requestBatches.get(ctx)?.flush();
+    }
+
+    return super.flush();
+  }
+
+  /**
+   * The batch of the request of `ctx`, made on its first log, so that its timers belong to the request. It sends the
+   * request's logs right away, one send at a time, so that the request ends soon after its last log. Each of its sends
+   * takes along the logs waiting in the batch of logs without an execution context, which the request keeps alive.
+   */
+  private requestBatch(ctx: ExecutionContext) {
+    let batch = this._requestBatches.get(ctx);
+    if (!batch) {
+      batch = this._makeBatch({ sendImmediately: true, takeAlong: this._takeBatched });
+      this._requestBatches.set(ctx, batch);
+    }
+
+    return batch;
   }
 
   public async debug<TContext extends Context>(

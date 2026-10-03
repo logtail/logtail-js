@@ -125,6 +125,27 @@ describe("base class tests", () => {
     expect(base.synced).toEqual(1);
   });
 
+  it("should send buffered logs when flushed while another log never leaves its middleware", async () => {
+    const base = new Base("testing", { throwExceptions: true });
+    const logs: ILogtailLog[] = [];
+    base.setSync(async (batch) => {
+      logs.push(...batch);
+      return batch;
+    });
+    base.use(async (log) => (log.message === "stuck" ? new Promise<ILogtailLog>(() => {}) : log));
+
+    base.log("buffered");
+    await new Promise((resolve) => setTimeout(resolve));
+    base.log("stuck");
+    const flushed = await Promise.race([
+      base.flush().then(() => true),
+      new Promise((resolve) => setTimeout(() => resolve(false), 100)),
+    ]);
+
+    expect(flushed).toEqual(true);
+    expect(logs.map((log) => log.message)).toEqual(["buffered"]);
+  });
+
   it("should add a pipeline function", async () => {
     // Fixtures
     const firstMessage = "First message";

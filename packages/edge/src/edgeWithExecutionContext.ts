@@ -16,6 +16,13 @@ export class EdgeWithExecutionContext {
     this.ctx = ctx;
   }
 
+  /**
+   * Flush the logs of this request
+   */
+  public async flush(): Promise<void> {
+    return this.logger.flush(this.ctx);
+  }
+
   public async log<TContext extends Context>(
     message: string | Error,
     level?: ILogLevel,
