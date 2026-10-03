@@ -111,6 +111,22 @@ export class Node extends Base {
   }
 
   /**
+   * Flush batched logs to Better Stack, and wait for batches already being sent (started by `batchInterval` or
+   * `batchSize`), so that everything logged before the call has been sent when it resolves
+   */
+  public async flush() {
+    const pendingSyncs = Array.from(this._pendingSyncs);
+    await super.flush();
+
+    // A failed send returns its logs to the batcher, to be retried on the batch timer: flush them right away,
+    // which goes through the batcher's usual retries if this send fails too
+    const failed = await Promise.all(pendingSyncs.map((sync) => sync.then(() => false).catch(() => true)));
+    if (failed.includes(true)) {
+      await super.flush();
+    }
+  }
+
+  /**
    * Override `Base` to attribute forwarded console calls to their caller instead of the console replacement
    */
   protected _logFromConsole(message: string, level: LogLevel, context: Context) {

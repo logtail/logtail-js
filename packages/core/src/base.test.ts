@@ -146,6 +146,24 @@ describe("base class tests", () => {
     expect(logs.map((log) => log.message)).toEqual(["buffered"]);
   });
 
+  it("should keep track of sends until they settle", async () => {
+    const base = new Base("testing", { throwExceptions: true, batchSize: 1, retryCount: 0 });
+    base.setSync(async (logs) => {
+      if (logs[0].message === "fails") {
+        throw new Error("sync failed");
+      }
+      return logs;
+    });
+
+    const sent = base.log("sent");
+    const failed = expect(base.log("fails")).rejects.toThrow("sync failed");
+    expect((base as any)._pendingSyncs?.size).toBe(2);
+
+    await sent;
+    await failed;
+    expect((base as any)._pendingSyncs.size).toBe(0);
+  });
+
   it("should add a pipeline function", async () => {
     // Fixtures
     const firstMessage = "First message";

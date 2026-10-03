@@ -62,6 +62,58 @@ describe("node tests", () => {
     nock.cleanAll();
   });
 
+  it("should wait for a send already in flight when flushing", async () => {
+    const node = new Node("test", { throwExceptions: true, batchSize: 1 });
+    let finishSend = () => {};
+    node.setSync((logs) => new Promise((resolve) => (finishSend = () => resolve(logs))));
+
+    // The batch is full with one log, so it is sent right away
+    const logged = node.log("in flight");
+    let flushed = false;
+    const flushing = node.flush().then(() => (flushed = true));
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(flushed).toBe(false);
+    finishSend();
+    await flushing;
+    await logged;
+  });
+
+  it("should send the logs of a failed send in flight again when flushing", async () => {
+    const node = new Node("test", { throwExceptions: true, batchSize: 1 });
+    const sent: string[] = [];
+    let sends = 0;
+    let failSend = () => {};
+    node.setSync((logs) => {
+      // The first send stays in flight until it fails, the retry goes through
+      if (++sends === 1) {
+        return new Promise((_resolve, reject) => (failSend = () => reject(new Error("sync failed"))));
+      }
+      sent.push(...logs.map((log) => log.message));
+      return Promise.resolve(logs);
+    });
+
+    const logged = node.log("retried");
+    const flushing = node.flush();
+    failSend();
+    await flushing;
+
+    expect(sent).toEqual(["retried"]);
+    await logged;
+  });
+
+  it("should resolve a flush when a send in flight fails", async () => {
+    const node = new Node("test", { throwExceptions: true, batchSize: 1, retryCount: 0 });
+    node.setSync(async () => {
+      throw new Error("sync failed");
+    });
+
+    const logged = node.log("fails");
+
+    await expect(node.flush()).resolves.toBeUndefined();
+    await expect(logged).rejects.toThrow("sync failed");
+  });
+
   it("should warn and echo log even with circular reference as context", async () => {
     nock("https://in.logs.betterstack.com").post("/").reply(201);
 

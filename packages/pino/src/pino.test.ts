@@ -4,7 +4,11 @@ import { AddressInfo } from "net";
 import zlib from "zlib";
 
 import { decode } from "@msgpack/msgpack";
+import pino from "pino";
+import { Logtail } from "@logtail/node";
 import { ILogtailLog, LogLevel } from "@logtail/types";
+
+import { LogtailStream } from "./stream";
 
 interface IPinoRun {
   logs: ILogtailLog[];
@@ -95,6 +99,27 @@ describe("Pino transport", () => {
     expect(stdout).toMatch(/INFO.*: one\n/);
     expect(stdout).toMatch(/ERROR.*: three\n/);
   });
+
+  it("should deliver logs from a Pino logger without timestamps", async () => {
+    const { logs, stderr, code } = await runPino(`
+      const logger = pino({ timestamp: false }, pino.transport(logtail));
+      logger.info("one");
+    `);
+
+    expect(stderr).toBe("");
+    expect(code).toBe(0);
+    expect(logs.map((log) => log.message)).toEqual(["one"]);
+  });
+
+  it("should read epoch seconds of pino.stdTimeFunctions.unixTime as dt", async () => {
+    const { logs, stderr } = await runPino(`
+      const logger = pino({ timestamp: () => ',"time":1704240000' }, pino.transport(logtail));
+      logger.info("one");
+    `);
+
+    expect(stderr).toBe("");
+    expect(logs.map((log) => log.dt)).toEqual(["2024-01-03T00:00:00.000Z"]);
+  });
 });
 
 describe("Pino transport levels", () => {
@@ -158,5 +183,152 @@ describe("Pino transport levels", () => {
 
     expect(stderr).toBe("");
     expect(logs.map((log) => log.level)).toEqual([LogLevel.Info, LogLevel.Warn]);
+  });
+});
+
+describe("Pino in-process stream", () => {
+  function getLogtail() {
+    const logtail = new Logtail("test", { throwExceptions: true });
+    const logs: ILogtailLog[] = [];
+    logtail.setSync(async (batch) => {
+      logs.push(...batch);
+      return batch;
+    });
+    return { logtail, logs };
+  }
+
+  it("should deliver logs through a shared Logtail client once it is flushed", async () => {
+    const { logtail, logs } = getLogtail();
+    const logger = pino(new LogtailStream(logtail));
+
+    logger.info({ item: "Orange Soda" }, "one");
+    logger.warn("two");
+    await logtail.flush();
+
+    expect(logs.map((log) => [log.level, log.message])).toEqual([
+      [LogLevel.Info, "one"],
+      [LogLevel.Warn, "two"],
+    ]);
+    expect(logs[0].item).toBe("Orange Soda");
+    expect(typeof logs[0].pid).toBe("number");
+    expect(logs[0].dt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    expect(logs[0].context.runtime.file).toMatch(/pino\.test\.ts$/);
+  });
+
+  it("should use the logger's custom levels and message key", async () => {
+    const { logtail, logs } = getLogtail();
+    const logger = pino({ customLevels: { notice: 35 }, messageKey: "text" }, new LogtailStream(logtail));
+
+    logger.notice("one");
+    await logtail.flush();
+
+    expect(logs.map((log) => [log.level, log.message, log.text])).toEqual([["notice", "one", undefined]]);
+  });
+
+  it("should prefer the customLevels option over the logger's names", async () => {
+    const { logtail, logs } = getLogtail();
+    const logger = pino(
+      { customLevels: { notice: 35 } },
+      new LogtailStream(logtail, { customLevels: { important: 35 } }),
+    );
+
+    logger.notice("one");
+    await logtail.flush();
+
+    expect(logs.map((log) => log.level)).toEqual(["important"]);
+  });
+
+  it("should point context.runtime at the caller of a custom level method", async () => {
+    const { logtail, logs } = getLogtail();
+    const logger = pino({ customLevels: { notice: 35 } }, new LogtailStream(logtail));
+
+    logger.notice("x");
+    await logtail.flush();
+
+    expect(logs[0].context?.runtime?.file).toMatch(/pino\.test\.ts$/);
+  });
+
+  it("should deliver logs from a logger without timestamps", async () => {
+    const { logtail, logs } = getLogtail();
+    const logger = pino({ timestamp: false }, new LogtailStream(logtail));
+
+    logger.info("x");
+    await logtail.flush();
+
+    expect(logs.map((log) => log.message)).toEqual(["x"]);
+    expect(logs[0].dt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("should use the time Pino wrote as dt", async () => {
+    const { logtail, logs } = getLogtail();
+
+    // Pino's default timestamp is epoch milliseconds; pino.stdTimeFunctions.isoTime writes an ISO string
+    // and pino.stdTimeFunctions.unixTime epoch seconds
+    pino({ timestamp: () => ',"time":1704067200000' }, new LogtailStream(logtail)).info("epoch");
+    pino({ timestamp: () => ',"time":"2024-01-02T00:00:00.000Z"' }, new LogtailStream(logtail)).info("iso");
+    pino({ timestamp: () => ',"time":1704240000' }, new LogtailStream(logtail)).info("unix");
+    await logtail.flush();
+
+    expect(logs.map((log) => [log.message, log.dt])).toEqual([
+      ["epoch", "2024-01-01T00:00:00.000Z"],
+      ["iso", "2024-01-02T00:00:00.000Z"],
+      ["unix", "2024-01-03T00:00:00.000Z"],
+    ]);
+  });
+
+  it("should flush the client when the logger is flushed", async () => {
+    const { logtail, logs } = getLogtail();
+    const logger = pino(new LogtailStream(logtail));
+
+    logger.info("one");
+    await new Promise<void>((resolve, reject) => logger.flush((error) => (error ? reject(error) : resolve())));
+
+    expect(logs.map((log) => log.message)).toEqual(["one"]);
+  });
+
+  it("should skip lines that are not JSON and keep logging", async () => {
+    const { logtail, logs } = getLogtail();
+    const stream = new LogtailStream(logtail);
+    const logger = pino(stream);
+
+    stream.write('not a log line\n{"level":30,"msg":"cut\n');
+    logger.info("after");
+    await logtail.flush();
+
+    expect(logs.map((log) => log.message)).toEqual(["after"]);
+  });
+
+  it("should not leave failed sends as unhandled rejections", async () => {
+    const logtail = new Logtail("test", { throwExceptions: true, retryCount: 0 });
+    logtail.setSync(async () => {
+      throw new Error("sync failed");
+    });
+    const unhandled: unknown[] = [];
+    const onUnhandled = (reason: unknown) => unhandled.push(reason);
+    process.on("unhandledRejection", onUnhandled);
+
+    try {
+      pino(new LogtailStream(logtail)).info("lost");
+      await logtail.flush();
+      await new Promise((resolve) => setImmediate(resolve));
+    } finally {
+      process.off("unhandledRejection", onUnhandled);
+    }
+
+    expect(unhandled).toEqual([]);
+    expect(logtail.dropped).toBe(1);
+  });
+
+  it("should flush the client when the stream ends", async () => {
+    const { logtail, logs } = getLogtail();
+    const stream = new LogtailStream(logtail);
+    const logger = pino(stream);
+
+    logger.info("one");
+    await new Promise<void>((resolve, reject) =>
+      stream.end((error?: Error | null) => (error ? reject(error) : resolve())),
+    );
+
+    expect(logs.map((log) => log.message)).toEqual(["one"]);
   });
 });

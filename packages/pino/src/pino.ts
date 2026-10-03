@@ -2,14 +2,9 @@ import { parentPort, workerData } from "worker_threads";
 import build from "pino-abstract-transport";
 
 import { Logtail } from "@logtail/node";
-import { Context, ILogLevel, ILogtailOptions, StackContextHint } from "@logtail/types";
+import { ILogtailOptions } from "@logtail/types";
 
-import { getLogLevel, parseCustomLevels } from "./helpers";
-
-// import { PinoLog, PinoLokiOptionsContract } from './Contracts'
-// import { LogPusher } from './LogPusher'
-
-// TODO: stackContextHint =
+import { IPinoConfig, parseCustomLevels, pinoStackContextHint, toLogtailLog } from "./helpers";
 
 export interface PinoLog {
   level: number | string;
@@ -28,22 +23,8 @@ export interface IPinoLogtailOptions {
   customLevels?: Record<string, number> | string;
 }
 
-/**
- * Configuration Pino 8.21+ posts to the transport worker right after the logger is created
- */
-interface IPinoConfig {
-  levels?: { labels: Record<number, string>; values: Record<string, number> };
-  messageKey?: string;
-}
-
 // How long the transport waits for Pino's configuration when it starts
 const PINO_CONFIG_WAIT_MS = 100;
-
-const stackContextHint = {
-  fileName: "node_modules/pino",
-  methodNames: ["log", "fatal", "error", "warn", "info", "debug", "trace", "silent"],
-  required: true,
-};
 
 /**
  * Resolves with the configuration Pino posts to the worker, or with null when this Pino does not post one
@@ -83,45 +64,9 @@ export async function logtailTransport(options: IPinoLogtailOptions) {
   await Promise.race([configReceived, new Promise((resolve) => setTimeout(resolve, PINO_CONFIG_WAIT_MS))]);
 
   const buildFunc = async (source: any) => {
-    for await (let obj of source) {
-      // Logging meta data
-      const meta: Context = {};
-
-      // Copy `time` if set
-      if (typeof obj.time === "string" || obj.time.length) {
-        const time = new Date(obj.time);
-        if (!isNaN(time.valueOf())) {
-          meta.dt = time;
-        }
-      }
-
-      // Carry over any additional data fields
-      Object.keys(obj)
-        .filter((key) => ["time", messageKey, "message", "level", "v"].indexOf(key) < 0)
-        .forEach((key) => (meta[key] = obj[key]));
-
-      // Get message
-      // NOTE: Pino passes messages under its messageKey ('msg' by default) but if user passes object to Pino it will
-      //       pass it to us even without that field. Later we map it -> 'message' so let's also read 'message' field.
-      const msg = obj[messageKey] || obj.message;
-
-      // Prevent overriding 'message' with the Pino message
-      if (messageKey !== "message" && obj[messageKey] !== undefined && obj.message !== undefined) {
-        meta["message_field"] = obj.message;
-      }
-
-      // Determine the log level
-      let level: ILogLevel;
-
-      try {
-        level = getLogLevel(obj.level, levelNames);
-      } catch (_) {
-        console.error("Error while mapping log level.");
-        continue;
-      }
-
-      // Log to Logtail
-      logtail.log(msg, level, meta, stackContextHint as StackContextHint);
+    for await (const obj of source) {
+      const { message, level, meta } = toLogtailLog(obj, levelNames, messageKey);
+      logtail.log(message, level, meta, pinoStackContextHint);
     }
   };
   const closeFunc = async () => {
