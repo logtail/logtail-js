@@ -57,6 +57,8 @@ export default function makeBatch(
   // Resolves the promise returned by `setupTimeout()`, which waits for the timeout's flush
   let timeoutResolve: (() => void) | null = null;
   let timeout: NodeJS.Timeout | null;
+  // When the timeout is due to fire
+  let timeoutDue: number = 0;
   let cb: Function;
   let buffer: IBuffer[] = [];
   let bufferSizeBytes = 0;
@@ -122,6 +124,7 @@ export default function makeBatch(
       return;
     }
 
+    timeoutDue = Date.now() + flushTimeout;
     return new Promise<void>((resolve) => {
       // A flush replacing the timeout resolves this too, once it is done
       timeoutResolve = resolve;
@@ -158,6 +161,12 @@ export default function makeBatch(
           if (isBufferFullEnough && Date.now() > minRetryBackoff) {
             await flush();
           } else {
+            // An overdue timeout may have been dropped without firing (Cloudflare Workers drop the timers
+            // of a request once it has ended), so set up a new one instead of waiting for it.
+            // A timeout that is only late still fires, and its flush clears the new one.
+            if (timeout && Date.now() > timeoutDue) {
+              timeout = null;
+            }
             await setupTimeout();
           }
 

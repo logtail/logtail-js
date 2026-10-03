@@ -40,6 +40,7 @@ describe("batch tests", () => {
   });
   afterEach(() => {
     nock.restore();
+    jest.useRealTimers();
   });
 
   it("should not fire timeout while a send was happening.", async () => {
@@ -289,6 +290,49 @@ describe("batch tests", () => {
       throw e;
     });
     expect(called).toHaveBeenCalledTimes(10);
+  });
+
+  it("should send later logs when the flush timeout was dropped without firing", async () => {
+    jest.useFakeTimers();
+    const sent: ILogtailLog[][] = [];
+    const batcher = makeBatch(5, 1000);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    // Cloudflare Workers drop the timers of a request once it has ended
+    jest.clearAllTimers();
+    await jest.advanceTimersByTimeAsync(5000);
+
+    const second = getRandomLog();
+    logged.push(logger(second));
+    await jest.advanceTimersByTimeAsync(1000);
+
+    expect(sent).toEqual([[first, second]]);
+    await Promise.all(logged);
+  });
+
+  it("should send one batch when the flush timeout fires late", async () => {
+    const sent: ILogtailLog[][] = [];
+    const batcher = makeBatch(5, 10);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    // Keep the event loop busy past the flush timeout, so it is due but has not fired yet
+    const busyUntil = Date.now() + 50;
+    while (Date.now() < busyUntil) {}
+
+    const second = getRandomLog();
+    logged.push(logger(second));
+    await Promise.all(logged);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(sent).toEqual([[first, second]]);
   });
 });
 
