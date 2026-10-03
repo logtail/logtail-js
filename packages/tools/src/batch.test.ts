@@ -40,6 +40,7 @@ describe("batch tests", () => {
   });
   afterEach(() => {
     nock.restore();
+    jest.useRealTimers();
   });
 
   it("should not fire timeout while a send was happening.", async () => {
@@ -211,6 +212,63 @@ describe("batch tests", () => {
     expect(called).toHaveBeenCalledTimes(1);
   });
 
+  it("should resolve a flush waiting to retry a failed send when another flush sends its logs", async () => {
+    const sent: ILogtailLog[][] = [];
+    let failures = 1;
+    const batcher = makeBatch(5, 1000, 3, 1);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      if (failures-- > 0) {
+        throw new Error("test");
+      }
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    // The send fails, so this flush waits for the flush timeout to retry
+    const firstFlush = batcher.flush();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    // Another flush runs during the wait and sends the first log too
+    const second = getRandomLog();
+    logged.push(logger(second));
+    const secondFlush = batcher.flush();
+
+    const flushed = Promise.all([firstFlush, secondFlush]).then(() => "flushed");
+    const timedOut = new Promise((resolve) => setTimeout(() => resolve("timed out"), 500));
+    expect(await Promise.race([flushed, timedOut])).toEqual("flushed");
+    expect(sent).toEqual([[first, second]]);
+    await Promise.all(logged);
+  });
+
+  it("should resolve a flush waiting to retry a failed send only after the flush that sends its logs is done", async () => {
+    const sent: ILogtailLog[][] = [];
+    let failures = 2;
+    const batcher = makeBatch(5, 100, 3, 1);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      if (failures-- > 0) {
+        throw new Error("test");
+      }
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    // The send fails, so this flush waits for the flush timeout to retry
+    const firstFlush = batcher.flush().then(() => sent.length);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    // Another flush runs during the wait, its send fails too, so it retries after the flush timeout
+    const second = getRandomLog();
+    logged.push(logger(second));
+    const secondFlush = batcher.flush().then(() => sent.length);
+
+    const timedOut = new Promise((resolve) => setTimeout(() => resolve("timed out"), 1000));
+    expect(await Promise.race([Promise.all([firstFlush, secondFlush]), timedOut])).toEqual([1, 1]);
+    expect(sent).toEqual([[first, second]]);
+    await Promise.all(logged);
+  });
+
   it("should send large logs in multiple batches", async () => {
     const called = jest.fn();
     const size = 1000;
@@ -232,6 +290,49 @@ describe("batch tests", () => {
       throw e;
     });
     expect(called).toHaveBeenCalledTimes(10);
+  });
+
+  it("should send later logs when the flush timeout was dropped without firing", async () => {
+    jest.useFakeTimers();
+    const sent: ILogtailLog[][] = [];
+    const batcher = makeBatch(5, 1000);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    // Cloudflare Workers drop the timers of a request once it has ended
+    jest.clearAllTimers();
+    await jest.advanceTimersByTimeAsync(5000);
+
+    const second = getRandomLog();
+    logged.push(logger(second));
+    await jest.advanceTimersByTimeAsync(1000);
+
+    expect(sent).toEqual([[first, second]]);
+    await Promise.all(logged);
+  });
+
+  it("should send one batch when the flush timeout fires late", async () => {
+    const sent: ILogtailLog[][] = [];
+    const batcher = makeBatch(5, 10);
+    const logger = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch);
+    });
+
+    const first = getRandomLog();
+    const logged = [logger(first)];
+    // Keep the event loop busy past the flush timeout, so it is due but has not fired yet
+    const busyUntil = Date.now() + 50;
+    while (Date.now() < busyUntil) {}
+
+    const second = getRandomLog();
+    logged.push(logger(second));
+    await Promise.all(logged);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(sent).toEqual([[first, second]]);
   });
 });
 

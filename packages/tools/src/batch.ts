@@ -54,7 +54,11 @@ export default function makeBatch(
   sizeBytes: number = 0,
   calculateLogSizeBytes: (log: ILogtailLog) => number = calculateJsonLogSizeBytes,
 ) {
+  // Resolves the promise returned by `setupTimeout()`, which waits for the timeout's flush
+  let timeoutResolve: (() => void) | null = null;
   let timeout: NodeJS.Timeout | null;
+  // When the timeout is due to fire
+  let timeoutDue: number = 0;
   let cb: Function;
   let buffer: IBuffer[] = [];
   let bufferSizeBytes = 0;
@@ -62,14 +66,28 @@ export default function makeBatch(
   // Wait until the minimum retry backoff time has passed before retrying
   let minRetryBackoff: number = 0;
   /*
-   * Process then flush the list
+   * Flush the list instead of the pending timeout
    */
   async function flush() {
     if (timeout) {
       clearTimeout(timeout);
     }
     timeout = null;
+    // Whoever waits for the timeout's flush (e.g. a flush retrying a failed send) waits for this flush instead
+    const resolveTimeout = timeoutResolve;
+    timeoutResolve = null;
 
+    try {
+      await sendBuffer();
+    } finally {
+      resolveTimeout?.();
+    }
+  }
+
+  /*
+   * Process then send the list
+   */
+  async function sendBuffer() {
     // Nothing buffered, nothing to sync
     if (buffer.length === 0) {
       return;
@@ -106,7 +124,10 @@ export default function makeBatch(
       return;
     }
 
+    timeoutDue = Date.now() + flushTimeout;
     return new Promise<void>((resolve) => {
+      // A flush replacing the timeout resolves this too, once it is done
+      timeoutResolve = resolve;
       timeout = setTimeout(async function () {
         await flush();
         resolve();
@@ -140,6 +161,12 @@ export default function makeBatch(
           if (isBufferFullEnough && Date.now() > minRetryBackoff) {
             await flush();
           } else {
+            // An overdue timeout may have been dropped without firing (Cloudflare Workers drop the timers
+            // of a request once it has ended), so set up a new one instead of waiting for it.
+            // A timeout that is only late still fires, and its flush clears the new one.
+            if (timeout && Date.now() > timeoutDue) {
+              timeout = null;
+            }
             await setupTimeout();
           }
 

@@ -29,6 +29,7 @@ describe("edge tests", () => {
   });
   afterEach(() => {
     console.warn = originalConsoleWarn;
+    jest.useRealTimers();
   });
 
   it("should echo log if logtail sends 20x status code", async () => {
@@ -172,6 +173,28 @@ describe("edge tests", () => {
     edgeWithCtx.error(message);
 
     expect((console.warn as Mock).mock.calls).toHaveLength(0);
+  });
+
+  it("should send logs after the flush timeout of an ended request was dropped", async () => {
+    jest.useFakeTimers();
+    const edge = new Edge("valid source token", { warnAboutMissingExecutionContext: false });
+    const synced: string[] = [];
+    edge.setSync(async (logs) => {
+      synced.push(...logs.map((log) => log.message));
+      return logs;
+    });
+
+    // A request logs without ExecutionContext and ends, so Cloudflare Workers drop the flush timeout it set up
+    edge.info("first request");
+    await jest.advanceTimersByTimeAsync(0);
+    jest.clearAllTimers();
+    await jest.advanceTimersByTimeAsync(5000);
+
+    // A later request logs without ExecutionContext too
+    edge.info("later request");
+    await jest.advanceTimersByTimeAsync(1000);
+
+    expect(synced).toEqual(["first request", "later request"]);
   });
 
   describe("request timeout", () => {
