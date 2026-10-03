@@ -42,4 +42,9 @@ export class LogtailTransport extends Transport {
     // Winston callback...
     cb();
   }
+
+  // Delay 'finish' (which winston's `logger.end()` waits for) until the logs are sent
+  public _final(callback: (error?: Error | null) => void) {
+    this._logtail.flush().then(() => callback(), callback);
+  }
 }
