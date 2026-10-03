@@ -1,5 +1,5 @@
 import { ILogLevel, ILogtailLog, ILogtailOptions, Context, LogLevel, Middleware, Sync } from "@logtail/types";
-import { makeBatch, makeBurstProtection, makeThrottle, calculateJsonLogSizeBytes } from "@logtail/tools";
+import { makeBatch, makeBurstProtection, makeThrottle, calculateJsonLogSizeBytes, IBatchOptions } from "@logtail/tools";
 import { serializeError } from "serialize-error";
 
 import { ConsoleMethod, consoleMethodLevels, consoleMethods, formatConsoleArgs } from "./console";
@@ -84,6 +84,12 @@ class Logtail {
   // Flush function
   protected _flush: any;
 
+  // Takes the logs waiting in the batch out of it, for another batch to send along with its own
+  protected _takeBatched: any;
+
+  // Throttled sync function
+  private _throttledSync: any;
+
   // Log burst protection function
   protected _logBurstProtection: any;
 
@@ -135,7 +141,7 @@ class Logtail {
     const throttle = makeThrottle(this._options.syncMax, this._options.syncQueuedMax);
 
     // Sync after throttling
-    const throttler = throttle((logs: any) => {
+    this._throttledSync = throttle((logs: any) => {
       return this._sync!(logs);
     });
 
@@ -148,6 +154,18 @@ class Logtail {
     this.log = this._logBurstProtection(this.log.bind(this));
 
     // Create a batcher, for aggregating logs by buffer size/interval
+    const batcher = this._makeBatch();
+    this._batch = batcher.push;
+    this._flush = batcher.flush;
+    this._takeBatched = batcher.take;
+  }
+
+  /**
+   * Make a batch with this logger's batch settings, sending through its throttled sync
+   *
+   * @param options - Batch options, see `makeBatch`
+   */
+  protected _makeBatch(options: IBatchOptions = {}) {
     const batcher = makeBatch(
       this._options.batchSize,
       this._options.batchInterval,
@@ -155,21 +173,24 @@ class Logtail {
       this._options.retryBackoff,
       this._options.batchSizeKiB * 1024,
       this._options.calculateLogSizeBytes,
+      options,
     );
 
-    this._batch = batcher.initPusher((logs: any) => {
-      const sync = throttler(logs);
+    return {
+      push: batcher.initPusher((logs: any) => {
+        const sync = this._throttledSync(logs);
 
-      // Remember the send until it settles; both outcomes are handled, so a failed send, which the batcher retries
-      // or drops, does not also become an unhandled rejection here
-      this._pendingSyncs.add(sync);
-      const forget = () => this._pendingSyncs.delete(sync);
-      sync.then(forget, forget);
+        // Remember the send until it settles; both outcomes are handled, so a failed send, which the batcher retries
+        // or drops, does not also become an unhandled rejection here
+        this._pendingSyncs.add(sync);
+        const forget = () => this._pendingSyncs.delete(sync);
+        sync.then(forget, forget);
 
-      return sync;
-    });
-
-    this._flush = batcher.flush;
+        return sync;
+      }),
+      flush: batcher.flush,
+      take: batcher.take,
+    };
   }
 
   /* PUBLIC METHODS */
@@ -216,10 +237,22 @@ class Logtail {
    * @param context: (Context) - Context (optional)
    * @returns Promise<ILogtailLog> after syncing
    */
-  public async log<TContext extends Context>(
+  public log<TContext extends Context>(
     message: Message,
     level: ILogLevel = LogLevel.Info,
     context: TContext = {} as TContext,
+  ): Promise<ILogtailLog & TContext> {
+    return this._log(message, level, context, this._batch);
+  }
+
+  /**
+   * Logs an entry like `log()`, pushing it with `batch`, the push function of a batch (see `_makeBatch()`)
+   */
+  protected async _log<TContext extends Context>(
+    message: Message,
+    level: ILogLevel = LogLevel.Info,
+    context: TContext = {} as TContext,
+    batch: (log: ILogtailLog) => Promise<ILogtailLog>,
   ): Promise<ILogtailLog & TContext> {
     // Wrap context in an object, if it's not already
     if (typeof context !== "object") {
@@ -294,7 +327,7 @@ class Logtail {
 
     try {
       // Push the log through the batcher, and sync
-      await this._batch(transformedLog);
+      await batch(transformedLog as ILogtailLog);
 
       // Increment sync count
       this._countSynced++;

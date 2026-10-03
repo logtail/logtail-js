@@ -244,4 +244,95 @@ describe("Winston logging tests", () => {
     // Message should match
     expect(logs[0].message).toBe("a test message");
   });
+
+  it("should emit finish only after the logs were sent", async () => {
+    const sent: ILogtailLog[] = [];
+
+    const logtail = new Logtail("test", { throwExceptions: true });
+
+    // Sending takes a while, like a request to Better Stack
+    logtail.setSync(async (logs: ILogtailLog[]) => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      sent.push(...logs);
+      return logs;
+    });
+
+    const logger = winston.createLogger({
+      level: LogLevel.Info,
+      transports: [new LogtailTransport(logtail)],
+    });
+
+    const sentOnFinish = new Promise<number>((resolve) => {
+      logger.on("finish", () => resolve(sent.length));
+    });
+
+    logger.info("a test message");
+    logger.info("another test message");
+    logger.end();
+
+    expect(await sentOnFinish).toBe(2);
+  });
+
+  it("should call the close option once after the logs were sent", async () => {
+    const sent: ILogtailLog[] = [];
+    let syncCalls = 0;
+
+    const logtail = new Logtail("test", { throwExceptions: true });
+
+    logtail.setSync(async (logs: ILogtailLog[]) => {
+      syncCalls++;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      sent.push(...logs);
+      return logs;
+    });
+
+    let closeCalls = 0;
+    const sentOnClose = new Promise<number>((resolve) => {
+      const logger = winston.createLogger({
+        level: LogLevel.Info,
+        transports: [
+          new LogtailTransport(logtail, {
+            close: () => {
+              closeCalls++;
+              resolve(sent.length);
+            },
+          }),
+        ],
+      });
+
+      logger.info("a test message");
+      logger.end();
+    });
+
+    expect(await sentOnClose).toBe(1);
+
+    // Give a second close call or sync the chance to happen
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(closeCalls).toBe(1);
+    expect(syncCalls).toBe(1);
+  });
+
+  it("should flush logtail and call the close option when the logger is closed", async () => {
+    const sent: ILogtailLog[] = [];
+
+    const logtail = new Logtail("test", { throwExceptions: true });
+
+    logtail.setSync(async (logs: ILogtailLog[]) => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      sent.push(...logs);
+      return logs;
+    });
+
+    const sentOnClose = new Promise<number>((resolve) => {
+      const logger = winston.createLogger({
+        level: LogLevel.Info,
+        transports: [new LogtailTransport(logtail, { close: () => resolve(sent.length) })],
+      });
+
+      logger.info("a test message");
+      logger.close();
+    });
+
+    expect(await sentOnClose).toBe(1);
+  });
 });
