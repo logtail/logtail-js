@@ -7,11 +7,8 @@ import { ConsoleMethod, consoleMethodLevels, consoleMethods, formatConsoleArgs }
 // Types
 type Message = string | Error;
 
-// Set default options for Logtail
-const defaultOptions: ILogtailOptions = {
-  // Default sync endpoint (protocol + domain)
-  endpoint: "https://in.logs.betterstack.com",
-
+// Set default options for Logtail. There is no default endpoint: every source has an ingesting host of its own
+const defaultOptions: Omit<ILogtailOptions, "endpoint"> = {
   // Maximum number of logs to sync in a single request to Better Stack
   batchSize: 1000,
 
@@ -135,13 +132,21 @@ class Logtail {
     this._sourceToken = sourceToken;
 
     // Merge default and user options
-    this._options = { ...defaultOptions, ...options };
+    this._options = { ...defaultOptions, ...options } as ILogtailOptions;
 
-    if (options?.endpoint === undefined && this._options.sendLogsToBetterStack) {
-      this._consoleOutput(
-        "warn",
-        `[Logtail] No endpoint set, so logs are sent to the default ${defaultOptions.endpoint}. Please set the endpoint option to your source's ingesting host, e.g. { endpoint: "https://<ingesting-host>" }, which you'll find on the source's Configure page in Better Stack. The endpoint option will be required in a future version.`,
-      );
+    // Check we know where to send the logs, unless they're not sent at all
+    if (this._options.sendLogsToBetterStack) {
+      const endpoint = this._options.endpoint;
+      if (typeof endpoint !== "string" || endpoint === "") {
+        throw new Error(
+          `Logtail endpoint missing. Set the endpoint option to your source's ingesting host, e.g. { endpoint: "<ingesting-host>" }, which you'll find on the source's Configure page in Better Stack.`,
+        );
+      }
+
+      // Better Stack copies the ingesting host without a scheme
+      if (!/^[a-z][a-z\d+.-]*:\/\//i.test(endpoint)) {
+        this._options.endpoint = `https://${endpoint}`;
+      }
     }
 
     // Create a throttler, for sync operations
