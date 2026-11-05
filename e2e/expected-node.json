@@ -21,6 +21,9 @@
   {
     "level": "error",
     "message": "Oops! An runtime ERROR occurred!",
-    "contains": { "context": { "runtime": { "file": "index.js" } } }
+    "contains": {
+      "context": { "runtime": { "file": "index.js" } },
+      "error": { "name": "Error", "message": "Testing error", "stack": "Error: Testing error\n    at " }
+    }
   }
 ]

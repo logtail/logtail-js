@@ -47,6 +47,11 @@
         "runtime": {
           "file": "index.js"
         }
+      },
+      "error": {
+        "name": "Error",
+        "message": "Testing error",
+        "stack": "Error: Testing error\n    at "
       }
     }
   },
