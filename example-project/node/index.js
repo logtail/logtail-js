@@ -4,7 +4,7 @@
  *
  * This code uses the @logtail/js package which can be used for both frontend and backend
  *
- * For more infromation visit https://github.com/logtail/logtail-js
+ * For more information visit https://github.com/logtail/logtail-js
  */
 
 // Require Logtail Class for backend code (Node.js)
@@ -13,16 +13,26 @@ const { Node: Logtail } = require("@logtail/js");
 // In frontend code use the following:
 // import { Browser as Logtail } from "@logtail/js";
 
+// Read the source token and ingesting host from the environment
+const sourceToken = process.env.BETTER_STACK_SOURCE_TOKEN;
+const ingestingHost = process.env.BETTER_STACK_INGESTING_HOST;
+if (!sourceToken || !ingestingHost) {
+  console.error(
+    "Usage: BETTER_STACK_SOURCE_TOKEN=<source_token> BETTER_STACK_INGESTING_HOST=<ingesting_host> node index.js",
+  );
+  process.exit(1);
+}
+
 // Create a logger from a Logtail class
-const logger = new Logtail(process.argv[2], {
+const logger = new Logtail(sourceToken, {
   sendLogsToConsoleOutput: true,
-  endpoint: `https://${process.argv[3]}`,
+  endpoint: `https://${ingestingHost}`,
 });
 
 // Usage
 
 // Send debug level log using the debug() method
-const debugLog = logger.debug(`I am using Better Stack! (${process.title} v${process.versions?.[process.title]})`);
+const debugLog = logger.debug("I am using Better Stack!");
 
 // Send info level log using the info() method
 const infoLog = logger.info("An interesting event occurred!");
@@ -52,28 +62,14 @@ try {
   errorLog = logger.error("Oops! An runtime ERROR occurred!", err);
 }
 
-// Example of logging in a custom helper method, ensuring context.runtime still contains helpful info
-function logWithNodeVersion(message) {
-  // The stackContextHint defines where in the call stack logger should look for the runtime context
-  // Now, context.runtime should contain information about where logWithNodeVersion() was called from
-  const stackContextHint = {
-    fileName: "index.js",
-    methodNames: ["logWithNodeVersion"],
-  };
-  const context = { nodeVersion: process.version };
-
-  return logger.log(message, "info", context, stackContextHint);
-}
-const customLog = logWithNodeVersion("Logging using custom helper function.");
-
-// Logging methods are async function returning Promises
-const logPromises = [debugLog, infoLog, warningLog, errorLog, customLog];
-Promise.all(logPromises).then(function () {
+// Logging methods are async functions returning Promises, which resolve once the log was sent
+Promise.all([debugLog, infoLog, warningLog, errorLog]).then(function () {
   console.info("All done! You can check your logs now.");
 
   console.log("Logs created: ", logger.logged);
   console.log("Successfully synced logs: ", logger.synced);
 
+  // A log Better Stack did not accept, e.g. because of a wrong source token, counts as logged but not synced
   if (logger.logged !== logger.synced) {
     console.error("Not all logs have been synced!");
     process.exit(1);

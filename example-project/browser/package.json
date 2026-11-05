@@ -1,0 +1,7 @@
+{
+  "name": "better-stack-browser-example",
+  "private": true,
+  "dependencies": {
+    "@logtail/browser": "^0.5.13"
+  }
+}

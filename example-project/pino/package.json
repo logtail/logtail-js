@@ -1,0 +1,8 @@
+{
+  "name": "better-stack-pino-example",
+  "private": true,
+  "dependencies": {
+    "@logtail/pino": "^0.5.13",
+    "pino": "^10.4.0"
+  }
+}

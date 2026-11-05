@@ -1,24 +1,32 @@
-# Better Stack JavaScript example project
+# Better Stack JavaScript example projects
 
-To help you get started with using Better Stack Logs in your projects, we have prepared a simple program that showcases the usage of Logtail logger. Before proceeding make sure you have `npm` and [Node.js](https://nodejs.org/en/download/) installed.
+To help you get started with using Better Stack Logs in your projects, we have prepared small programs that showcase logging to Better Stack from Node.js, Bun, the browser, an edge runtime and the popular Node.js logging libraries. Each one sends the same four logs: a debug and an info message, a warning with structured data and an error.
 
-## Download and install the example project
+| Example              | Runs on            | Uses                            |
+| -------------------- | ------------------ | ------------------------------- |
+| [`node`](node)       | Node.js or Bun     | `@logtail/js`                   |
+| [`winston`](winston) | Node.js            | `@logtail/winston` with Winston |
+| [`pino`](pino)       | Node.js            | `@logtail/pino` with Pino       |
+| [`bunyan`](bunyan)   | Node.js            | `@logtail/bunyan` with Bunyan   |
+| [`koa`](koa)         | Node.js            | `@logtail/koa` in a Koa app     |
+| [`browser`](browser) | a browser          | `@logtail/browser` from a CDN   |
+| [`edge`](edge)       | Cloudflare Workers | `@logtail/edge` in a Worker     |
 
-You can download the example project from GitHub directly or you can clone it to a select directory. Then run the following command to install all dependencies (`@logtail/js`):
+You need your source token and ingesting host, which you can find by going to **[Sources](https://telemetry.betterstack.com/team/0/sources) -> Configure** in Better Stack.
+
+## Run an example
+
+Download the example projects from GitHub directly or clone the repository, then install the dependencies of the example you want to run and run it with your source token and ingesting host in the environment. Make sure you have `npm` and [Node.js](https://nodejs.org/en/download/) installed.
 
 ```bash
+cd example-project/node   # or winston, pino, bunyan
 npm install
+export BETTER_STACK_SOURCE_TOKEN=<source_token>
+export BETTER_STACK_INGESTING_HOST=<ingesting_host>
+node index.js             # or: bun index.js
 ```
 
-## Run the example project
-
-To run the example application, simply run the following command:
-
-```bash
-node index.js <source-token> <ingesting-host>
-```
-
-_Don't forget to replace `<source-token>` and `<ingesting-host>` with your actual source token and ingesting host which you can find by going to **[Sources](https://telemetry.betterstack.com/team/0/sources) -> Configure** in Better Stack._
+_Don't forget to replace `<source_token>` and `<ingesting_host>` with your actual source token and ingesting host._
 
 You should see the following output:
 
@@ -27,7 +35,15 @@ Output:
 All done! You can check your logs now.
 ```
 
-This will generate a total of 4 logs, which will be displayed in your Better Stack Logs live tail view. Detail explanation follows below.
+This will generate a total of 4 logs, which will be displayed in your Better Stack Logs live tail view. The example exits with code 1 when Better Stack did not accept them, e.g. because of a wrong source token. The Pino transport sends from a worker thread, so the pino example cannot tell. Detail explanation follows below.
+
+The other examples run a little differently:
+
+- **koa** starts a server: run `node index.js` as above, open [http://localhost:3000](http://localhost:3000) to log the four logs and the request, and stop the server with Ctrl+C, which sends what is left.
+- **browser** is a single page: replace `<source_token>` and `<ingesting_host>` in `index.html`, open it in a browser and check the browser console.
+- **edge** is a Cloudflare Worker: run `npm install`, put `BETTER_STACK_SOURCE_TOKEN=<source_token>` and `BETTER_STACK_INGESTING_HOST=<ingesting_host>` on two lines of a `.dev.vars` file, run `npx wrangler dev` and open the URL it prints. Deploy it with `npx wrangler deploy` after setting both values with `npx wrangler secret put`.
+
+These examples are also what the [E2E workflow](../.github/workflows/e2e.yml) runs every day against Better Stack.
 
 # Logging
 

@@ -1,0 +1,14 @@
+{
+  "name": "better-stack-edge-example",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@logtail/edge": "^0.5.13"
+  },
+  "devDependencies": {
+    "wrangler": "^4.158.0"
+  }
+}

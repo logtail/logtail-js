@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+  This page showcases logging to Better Stack from the browser with @logtail/browser, loaded from a CDN.
+  Replace <source_token> and <ingesting_host> below, open the page and check the browser console.
+
+  For more information visit https://github.com/logtail/logtail-js
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Better Stack browser example</title>
+    <!-- Defines window.Logtail. With a bundler, use `import { Logtail } from "@logtail/browser"` instead -->
+    <script src="https://cdn.jsdelivr.net/npm/@logtail/browser@0.5/dist/umd/logtail.js"></script>
+  </head>
+  <body>
+    <p>Logging to Better Stack, see the browser console.</p>
+    <script>
+      // Create a Better Stack client with your source token and ingesting host
+      const logger = new Logtail("<source_token>", {
+        endpoint: "https://<ingesting_host>",
+      });
+
+      // Send debug and info level logs. Each log also carries the page URL, the screen size and the user agent
+      logger.debug("I am using Better Stack!");
+      logger.info("An interesting event occurred!");
+
+      // Structured data is passed as the second argument
+      logger.warn("Something is not quite right, better check on it.", {
+        user: {
+          username: "someuser",
+          email: "someuser@example.com",
+        },
+        additional_info: {
+          tried_accessing: "/url/of/error",
+        },
+      });
+
+      try {
+        throw new Error("Testing error");
+      } catch (err) {
+        logger.error("Oops! An runtime ERROR occurred!", err);
+      }
+
+      // Logs are sent in batches, and when the page is hidden or closed. flush() sends them right away
+      logger.flush().then(() => {
+        // A log Better Stack did not accept, e.g. because of a wrong source token, counts as logged but not synced
+        if (logger.logged !== logger.synced) {
+          console.error(`Not all logs have been synced! Logged ${logger.logged}, synced ${logger.synced}.`);
+        } else {
+          console.info("All done! You can check your logs now.");
+        }
+      });
+    </script>
+  </body>
+</html>

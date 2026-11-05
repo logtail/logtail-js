@@ -1,0 +1,47 @@
+# Reads a source's logs back through the team's SQL API connection and checks them exactly against an expected file.
+# The logic is in run.sh, which reads only environment variables, so it runs the same way outside of Actions.
+name: "Verify stored logs"
+description: "Polls a source's stored logs until the expected rows arrive, then checks each one is stored exactly once"
+
+inputs:
+  connection-username:
+    description: "Username of the team's SQL API connection"
+    required: true
+  connection-password:
+    description: "Password of the team's SQL API connection"
+    required: true
+  connect-host:
+    description: "SQL API host, the connect-host output of create-source"
+    required: true
+  collection:
+    description: "Collection to read, the collection output of create-source"
+    required: true
+  expected:
+    description: >-
+      Path to a JSON array of the rows that must be stored, each {"level": ..., "message": ...} or
+      {"level": ..., "message_prefix": ...}, optionally with "contains": an object the stored row must contain
+    required: true
+  out:
+    description: "Directory for rows.json and summary.md"
+    default: out
+  deadline-seconds:
+    description: "How long to wait for the expected number of rows"
+    default: "300"
+  ignore-message-prefix:
+    description: "Rows whose message starts with this are not counted (the warm-up lines of create-source)"
+    default: "e2e warm-up"
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        INPUT_CONNECTION_USERNAME: ${{ inputs.connection-username }}
+        INPUT_CONNECTION_PASSWORD: ${{ inputs.connection-password }}
+        INPUT_CONNECT_HOST: ${{ inputs.connect-host }}
+        INPUT_COLLECTION: ${{ inputs.collection }}
+        INPUT_EXPECTED: ${{ inputs.expected }}
+        INPUT_OUT: ${{ inputs.out }}
+        INPUT_DEADLINE_SECONDS: ${{ inputs.deadline-seconds }}
+        INPUT_IGNORE_MESSAGE_PREFIX: ${{ inputs.ignore-message-prefix }}
+      run: bash "${{ github.action_path }}/run.sh"
