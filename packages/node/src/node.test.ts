@@ -53,6 +53,14 @@ describe("node tests", () => {
     expect(scope.isDone()).toBe(true);
   });
 
+  it("should log without an endpoint when logs are not sent to Better Stack", async () => {
+    const node = new Node("valid source token", { sendLogsToBetterStack: false });
+
+    const log = await node.log("not sent");
+
+    expect(log.message).toEqual("not sent");
+  });
+
   it("should not send a request when flushing with nothing logged", async () => {
     const scope = nock(endpoint).post("/").reply(201);
 
