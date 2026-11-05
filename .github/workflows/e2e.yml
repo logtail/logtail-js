@@ -183,7 +183,7 @@ jobs:
           NODE=$(node -p process.versions.node)
           case "$FLAVOUR" in
             bun) RUNTIME="Bun $(bun --revision)" ;;
-            browser) RUNTIME="$("$CHROME" --version), npm on Node.js $NODE" ;;
+            browser) RUNTIME="$("$CHROME" --version | xargs), npm on Node.js $NODE" ;;
             edge) RUNTIME="wrangler dev with compatibility date $COMPATIBILITY_DATE, on Node.js $NODE" ;;
             *) RUNTIME="Node.js $NODE" ;;
           esac
