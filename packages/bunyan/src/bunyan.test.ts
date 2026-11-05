@@ -4,6 +4,8 @@ import { LogLevel } from "@logtail/types";
 
 import { LogtailStream } from "./bunyan";
 
+const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
+
 // Numeric log level test type
 type LevelTest = [number, LogLevel, LogLevelString];
 
@@ -36,6 +38,7 @@ function createLogger(logtail: Logtail): bunyan {
 async function testLevel(level: LogLevelString, logLevel: LogLevel) {
   // Logtail fixtures
   const logtail = new Logtail("test", {
+    endpoint,
     throwExceptions: true,
     batchInterval: 1,
   });
@@ -91,6 +94,7 @@ describe("Bunyan tests", () => {
     ];
 
     const logtail = new Logtail("test", {
+      endpoint,
       throwExceptions: true,
       batchInterval: 1000,
       batchSize: levels.length,
@@ -110,7 +114,7 @@ describe("Bunyan tests", () => {
   });
 
   it("should include arbitrary extra data fields", async () => {
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
     logtail.setSync(async (logs) => {
       expect(logs).toHaveLength(1);
       expect(logs[0].message).toEqual("i am the message");
@@ -124,7 +128,7 @@ describe("Bunyan tests", () => {
   });
 
   it("should include correct context fields", async () => {
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
     logtail.setSync(async (logs) => {
       const context = logs[0].context;
       expect(context.runtime.file).toMatch("bunyan.test.ts");

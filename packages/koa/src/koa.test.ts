@@ -5,10 +5,13 @@ import { LogLevel } from "@logtail/types";
 
 import KoaLogtail from "./koa";
 
+const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
+
 // Mock out a KoaLogtail + Koa instance
 function getServer(): [KoaLogtail, Koa] {
   // Init new Koa Logtail instance
   const logtail = new KoaLogtail("test", {
+    endpoint,
     throwExceptions: true,
     // Override `batchInterval` to test logs faster
     batchInterval: 1,

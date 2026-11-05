@@ -158,6 +158,7 @@ export class Node extends Base {
   }
 
   private getHttpModule(): typeof http | typeof https {
-    return this._options.endpoint.startsWith("https") ? https : http;
+    // A logger that doesn't send logs to Better Stack may have no endpoint
+    return this._options.endpoint?.startsWith("https") ? https : http;
   }
 }

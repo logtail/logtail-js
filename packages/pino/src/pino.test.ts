@@ -10,6 +10,8 @@ import { ILogtailLog, LogLevel } from "@logtail/types";
 
 import { LogtailStream } from "./stream";
 
+const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
+
 interface IPinoRun {
   logs: ILogtailLog[];
   stdout: string;
@@ -188,7 +190,7 @@ describe("Pino transport levels", () => {
 
 describe("Pino in-process stream", () => {
   function getLogtail() {
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
     const logs: ILogtailLog[] = [];
     logtail.setSync(async (batch) => {
       logs.push(...batch);
@@ -299,7 +301,7 @@ describe("Pino in-process stream", () => {
   });
 
   it("should not leave failed sends as unhandled rejections", async () => {
-    const logtail = new Logtail("test", { throwExceptions: true, retryCount: 0 });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true, retryCount: 0 });
     logtail.setSync(async () => {
       throw new Error("sync failed");
     });

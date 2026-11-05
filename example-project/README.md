@@ -207,7 +207,7 @@ const koa = new Koa();
 
 // Create a new Better Stack Logs client
 const logtail = new Logtail("<source-token>", {
-  endpoint: "<ingesting-host>", // optional
+  endpoint: "<ingesting-host>",
 });
 
 // Attach Koa to enable HTTP request logging
@@ -250,7 +250,7 @@ const { LogtailTransport } = require("@logtail/winston");
 
 // Create a Better Stack Logs client
 const logtail = new Logtail("<source-token>", {
-  endpoint: "<ingesting-host>", // optional
+  endpoint: "<ingesting-host>",
 });
 
 // Create a Winston logger - passing in the Logtail transport
@@ -283,7 +283,7 @@ const { LogtailStream } = require("@logtail/bunyan");
 
 // Create a Better Stack Logs client
 const logtail = new Logtail("logtail-source-token", {
-  endpoint: "<ingesting-host>", // optional
+  endpoint: "<ingesting-host>",
 });
 
 // Create a Bunyan logger - passing in the Logtail stream
