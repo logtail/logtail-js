@@ -4,6 +4,8 @@ import { ILogtailLog } from "@logtail/types";
 
 import { Browser } from "./browser";
 
+const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
+
 /**
  * Create a log with a random string / current date
  */
@@ -34,11 +36,12 @@ describe("browser tests", () => {
   // });
 
   it("should echo log if logtail sends 20x status code", async () => {
-    nock("https://in.logs.betterstack.com").post("/").reply(201);
+    nock(endpoint).post("/").reply(201);
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
     const browser = new Browser("valid source token", {
+      endpoint,
       throwExceptions: true,
     });
     const echoedLog = await browser.log(message);
@@ -46,9 +49,10 @@ describe("browser tests", () => {
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    nock("https://in.logs.betterstack.com").post("/").reply(401);
+    nock(endpoint).post("/").reply(401);
 
     const browser = new Browser("invalid source token", {
+      endpoint,
       throwExceptions: true,
     });
     const message: string = String(Math.random);
@@ -58,7 +62,7 @@ describe("browser tests", () => {
   it("should split large logs into multiple batches to avoid 64 KiB limit on keepalive requests", async () => {
     let calledCount = 0;
 
-    nock("https://in.logs.betterstack.com")
+    nock(endpoint)
       .post("/")
       .twice()
       .reply(201, () => {
@@ -66,6 +70,7 @@ describe("browser tests", () => {
       });
 
     const browser = new Browser("valid source token", {
+      endpoint,
       throwExceptions: true,
       batchInterval: 100,
     });
@@ -80,13 +85,14 @@ describe("browser tests", () => {
   it("should be able to sent 100 small logs in a single batch", async () => {
     let calledCount = 0;
 
-    nock("https://in.logs.betterstack.com")
+    nock(endpoint)
       .post("/")
       .reply(201, () => {
         calledCount++;
       });
 
     const browser = new Browser("valid source token", {
+      endpoint,
       throwExceptions: true,
       batchInterval: 100,
     });

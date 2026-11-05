@@ -9,6 +9,8 @@ import { ILogtailLog, LogLevel } from "@logtail/types";
 import { Node } from "./node";
 import { Mock } from "jest-mock";
 
+const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
+
 /**
  * Create a log with a random string / current date
  */
@@ -22,27 +24,39 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
 
 describe("node tests", () => {
   it("should echo log if logtail sends 20x status code", async () => {
-    nock("https://in.logs.betterstack.com").post("/").reply(201);
+    nock(endpoint).post("/").reply(201);
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const node = new Node("valid source token", { throwExceptions: true });
+    const node = new Node("valid source token", { endpoint, throwExceptions: true });
     const echoedLog = await node.log(message);
     expect(echoedLog.message).toEqual(expectedLog.message);
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    nock("https://in.logs.betterstack.com").post("/").reply(401);
+    nock(endpoint).post("/").reply(401);
 
-    const node = new Node("invalid source token", { throwExceptions: true });
+    const node = new Node("invalid source token", { endpoint, throwExceptions: true });
     const message: string = String(Math.random);
     await expect(node.log(message)).rejects.toThrow();
   });
 
-  it("should not send a request when flushing with nothing logged", async () => {
-    const scope = nock("https://in.logs.betterstack.com").post("/").reply(201);
+  it("should send to an ingesting host without a scheme over HTTPS", async () => {
+    const scope = nock(endpoint).post("/").reply(201);
 
-    const node = new Node("valid source token", { throwExceptions: true });
+    const node = new Node("valid source token", {
+      endpoint: "s123456.eu-central-1a.betterstackdata.com",
+      throwExceptions: true,
+    });
+    await node.log("sent to a bare ingesting host");
+
+    expect(scope.isDone()).toBe(true);
+  });
+
+  it("should not send a request when flushing with nothing logged", async () => {
+    const scope = nock(endpoint).post("/").reply(201);
+
+    const node = new Node("valid source token", { endpoint, throwExceptions: true });
     await node.flush();
 
     expect(scope.isDone()).toBe(false);
@@ -50,9 +64,9 @@ describe("node tests", () => {
   });
 
   it("should send one request when logs are flushed twice", async () => {
-    const scope = nock("https://in.logs.betterstack.com").post("/").times(2).reply(201);
+    const scope = nock(endpoint).post("/").times(2).reply(201);
 
-    const node = new Node("valid source token", { throwExceptions: true });
+    const node = new Node("valid source token", { endpoint, throwExceptions: true });
     const logged = node.log("flushed once");
     await node.flush();
     await logged;
@@ -63,7 +77,7 @@ describe("node tests", () => {
   });
 
   it("should wait for a send already in flight when flushing", async () => {
-    const node = new Node("test", { throwExceptions: true, batchSize: 1 });
+    const node = new Node("test", { endpoint, throwExceptions: true, batchSize: 1 });
     let finishSend = () => {};
     node.setSync((logs) => new Promise((resolve) => (finishSend = () => resolve(logs))));
 
@@ -80,7 +94,7 @@ describe("node tests", () => {
   });
 
   it("should send the logs of a failed send in flight again when flushing", async () => {
-    const node = new Node("test", { throwExceptions: true, batchSize: 1 });
+    const node = new Node("test", { endpoint, throwExceptions: true, batchSize: 1 });
     const sent: string[] = [];
     let sends = 0;
     let failSend = () => {};
@@ -103,7 +117,7 @@ describe("node tests", () => {
   });
 
   it("should resolve a flush when a send in flight fails", async () => {
-    const node = new Node("test", { throwExceptions: true, batchSize: 1, retryCount: 0 });
+    const node = new Node("test", { endpoint, throwExceptions: true, batchSize: 1, retryCount: 0 });
     node.setSync(async () => {
       throw new Error("sync failed");
     });
@@ -115,7 +129,6 @@ describe("node tests", () => {
   });
 
   it("should warn and echo log even with circular reference as context", async () => {
-    const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
     nock(endpoint).post("/").reply(201);
 
     let circularContext: any = { foo: { value: 42 } };
@@ -153,7 +166,7 @@ describe("node tests", () => {
     });
 
     // Fixtures
-    const logtail = new Node("test", { throwExceptions: true });
+    const logtail = new Node("test", { endpoint, throwExceptions: true });
     logtail.pipe(writeStream);
 
     const message = "This should be streamed";
@@ -176,7 +189,7 @@ describe("node tests", () => {
     const passThrough = new PassThrough();
 
     // Pass write stream to Better Stack
-    const logtail = new Node("test", { throwExceptions: true });
+    const logtail = new Node("test", { endpoint, throwExceptions: true });
     logtail.pipe(passThrough).pipe(writeStream);
 
     // Mock the sync method by simply returning the same logs
@@ -208,7 +221,7 @@ describe("node tests", () => {
 
   it("should drop logs when queue limit is exceeded", async () => {
     let requestCount = 0;
-    nock("https://in.logs.betterstack.com")
+    nock(endpoint)
       .post("/")
       .times(10)
       .delay(500) // 500ms delay
@@ -217,6 +230,7 @@ describe("node tests", () => {
       });
 
     const node = new Node("test-token", {
+      endpoint,
       syncMax: 2, // Only 2 concurrent batches
       syncQueuedMax: 3, // Only 3 batches can be queued
       batchSize: 2, // Two logs per batch
@@ -252,12 +266,13 @@ describe("node tests", () => {
 
   it("should timeout when request takes longer than configured timeout", async () => {
     // Mock a slow endpoint
-    nock("https://in.logs.betterstack.com")
+    nock(endpoint)
       .post("/")
       .delay(300) // 300ms delay
       .reply(201);
 
     const node = new Node("test-token", {
+      endpoint,
       timeout: 200, // 200ms timeout
       throwExceptions: true,
       retryCount: 0,
@@ -269,12 +284,13 @@ describe("node tests", () => {
 
   it("should complete successfully when request is within timeout", async () => {
     // Mock a normal endpoint
-    nock("https://in.logs.betterstack.com")
+    nock(endpoint)
       .post("/")
       .delay(100) // 100ms delay
       .reply(201);
 
     const node = new Node("test-token", {
+      endpoint,
       timeout: 1000, // 1s timeout
       throwExceptions: true,
       retryCount: 0,
@@ -287,12 +303,13 @@ describe("node tests", () => {
 
   it("should work without timeout when timeout is 0", async () => {
     // Mock a slow endpoint
-    nock("https://in.logs.betterstack.com")
+    nock(endpoint)
       .post("/")
       .delay(100) // 100ms delay
       .reply(200);
 
     const node = new Node("test-token", {
+      endpoint,
       timeout: 0, // No timeout
       throwExceptions: true,
       retryCount: 0,
@@ -324,9 +341,10 @@ describe("node tests", () => {
   });
 
   it("should skip stack context capture when captureStackContext is false", async () => {
-    nock("https://in.logs.betterstack.com").post("/").reply(201);
+    nock(endpoint).post("/").reply(201);
 
     const node = new Node("test-token", {
+      endpoint,
       captureStackContext: false,
       throwExceptions: true,
     });
@@ -338,9 +356,10 @@ describe("node tests", () => {
   });
 
   it("should include stack context by default", async () => {
-    nock("https://in.logs.betterstack.com").post("/").reply(201);
+    nock(endpoint).post("/").reply(201);
 
     const node = new Node("test-token", {
+      endpoint,
       throwExceptions: true,
     });
 
@@ -352,9 +371,10 @@ describe("node tests", () => {
   });
 
   it("should include stack context when captureStackContext is explicitly true", async () => {
-    nock("https://in.logs.betterstack.com").post("/").reply(201);
+    nock(endpoint).post("/").reply(201);
 
     const node = new Node("test-token", {
+      endpoint,
       captureStackContext: true,
       throwExceptions: true,
     });
@@ -369,7 +389,7 @@ describe("node tests", () => {
 
 describe("replaceConsoleMethods", () => {
   it("should point the runtime context of forwarded console calls at the caller", async () => {
-    const node = new Node("test", { throwExceptions: true });
+    const node = new Node("test", { endpoint, throwExceptions: true });
     const logs: ILogtailLog[] = [];
     node.setSync(async (batch) => {
       logs.push(...batch);

@@ -1,16 +1,18 @@
 import Base from "./base";
 import { ILogtailLog, LogLevel } from "@logtail/types";
 
+const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
+
 describe("base class tests", () => {
   it("should initialize with source token", () => {
     const sourceToken = "testing";
-    const base = new Base(sourceToken, { throwExceptions: true });
+    const base = new Base(sourceToken, { endpoint, throwExceptions: true });
 
     expect((base as any)._sourceToken).toEqual(sourceToken);
   });
 
   it("should throw if a `sync` method is missing", async () => {
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Expect logging to throw an error, since we're missing a `sync` func
     await expect(base.log("Test")).rejects.toThrow(/sync/);
@@ -19,7 +21,7 @@ describe("base class tests", () => {
   it("should add an implicit `dt` timestamp", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (logs) => logs);
@@ -35,25 +37,25 @@ describe("base class tests", () => {
   });
 
   it("should default log count to zero", () => {
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     expect(base.logged).toEqual(0);
   });
 
   it("should default synced count to zero", () => {
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     expect(base.synced).toEqual(0);
   });
 
   it("should default dropped count to zero", () => {
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     expect(base.dropped).toEqual(0);
   });
 
   it("should increment log count on `.log()`", async () => {
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (log) => log);
@@ -65,7 +67,7 @@ describe("base class tests", () => {
   });
 
   it("should sync after 500 ms", async () => {
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Create a sync function that resolves after 500ms
     base.setSync(async (log) => {
@@ -95,6 +97,7 @@ describe("base class tests", () => {
   it("should sync after calling flush", async () => {
     // New Base with very long batch interval and size
     const base = new Base("testing", {
+      endpoint,
       throwExceptions: true,
       batchInterval: 10000,
       batchSize: 5,
@@ -126,7 +129,7 @@ describe("base class tests", () => {
   });
 
   it("should send buffered logs when flushed while another log never leaves its middleware", async () => {
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
     const logs: ILogtailLog[] = [];
     base.setSync(async (batch) => {
       logs.push(...batch);
@@ -147,7 +150,7 @@ describe("base class tests", () => {
   });
 
   it("should keep track of sends until they settle", async () => {
-    const base = new Base("testing", { throwExceptions: true, batchSize: 1, retryCount: 0 });
+    const base = new Base("testing", { endpoint, throwExceptions: true, batchSize: 1, retryCount: 0 });
     base.setSync(async (logs) => {
       if (logs[0].message === "fails") {
         throw new Error("sync failed");
@@ -167,7 +170,7 @@ describe("base class tests", () => {
   it("should add a pipeline function", async () => {
     // Fixtures
     const firstMessage = "First message";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (log) => log);
@@ -191,7 +194,7 @@ describe("base class tests", () => {
   });
 
   it("should remove a pipeline function", async () => {
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Create a pipeline function
     const customPipeline = async (log: ILogtailLog) => log;
@@ -212,7 +215,7 @@ describe("base class tests", () => {
   it("should default to 'info' level logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (log) => log);
@@ -227,7 +230,7 @@ describe("base class tests", () => {
   it("should handle 'debug' logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (log) => log);
@@ -242,7 +245,7 @@ describe("base class tests", () => {
   it("should handle 'info' logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (log) => log);
@@ -257,7 +260,7 @@ describe("base class tests", () => {
   it("should handle 'warn' logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (log) => log);
@@ -272,7 +275,7 @@ describe("base class tests", () => {
   it("should handle 'error' logging", async () => {
     // Fixtures
     const message = "Test";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (log) => log);
@@ -288,7 +291,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "This is the error";
     const e = new Error(message);
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method
     base.setSync(async (log) => log);
@@ -307,7 +310,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing exceptions";
     const e = new Error("Should NOT be ignored!");
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method which throws an error
     base.setSync(async () => {
@@ -320,7 +323,7 @@ describe("base class tests", () => {
   it("should ignore exceptions by default", async () => {
     // Fixtures
     const message = "Testing exceptions";
-    const base = new Base("testing", { ignoreExceptions: true });
+    const base = new Base("testing", { endpoint, ignoreExceptions: true });
 
     // Add a mock sync method which throws an error
     base.setSync(async () => {
@@ -337,7 +340,7 @@ describe("base class tests", () => {
   it("should sync all logs in single call", async () => {
     // Fixtures
     const message = "Testing logging";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method which counts sync calls and sent logs
     let syncCount = 0;
@@ -361,6 +364,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      endpoint,
       throwExceptions: true,
       sendLogsToBetterStack: false,
     });
@@ -392,6 +396,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      endpoint,
       throwExceptions: true,
       sendLogsToConsoleOutput: true,
       batchInterval: 10,
@@ -443,7 +448,7 @@ describe("base class tests", () => {
   it("should limit sent requests", async () => {
     // Fixtures
     const message = "Testing logging";
-    const base = new Base("testing", { throwExceptions: true });
+    const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Add a mock sync method which resolves after a timeout
     base.setSync(async (logs) => {
@@ -480,6 +485,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      endpoint,
       throwExceptions: true,
       burstProtectionMilliseconds: 100,
       burstProtectionMax: 100,
@@ -515,6 +521,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      endpoint,
       throwExceptions: true,
       burstProtectionMilliseconds: 100,
       burstProtectionMax: 50,
@@ -558,6 +565,7 @@ describe("base class tests", () => {
     // Fixtures
     const message = "Testing logging";
     const base = new Base("testing", {
+      endpoint,
       throwExceptions: true,
       burstProtectionMax: 0,
     });
@@ -588,42 +596,37 @@ describe("base class tests", () => {
 });
 
 describe("endpoint", () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
+  const missingEndpoint =
+    "Logtail endpoint missing. Set the endpoint option to your source's ingesting host, e.g. { endpoint: \"<ingesting-host>\" }, which you'll find on the source's Configure page in Better Stack.";
+
+  it("should throw when no endpoint is set", () => {
+    expect(() => new Base("testing")).toThrow(missingEndpoint);
   });
 
-  it("should warn when no endpoint is set and the default is used", () => {
-    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
-
-    const base = new Base("testing");
-
-    expect((base as any)._options.endpoint).toEqual("https://in.logs.betterstack.com");
-    expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn).toHaveBeenCalledWith(
-      "[Logtail] No endpoint set, so logs are sent to the default https://in.logs.betterstack.com. Please set the endpoint option to your source's ingesting host, e.g. { endpoint: \"https://<ingesting-host>\" }, which you'll find on the source's Configure page in Better Stack. The endpoint option will be required in a future version.",
-    );
+  it("should throw when the endpoint is empty", () => {
+    expect(() => new Base("testing", { endpoint: "" })).toThrow(missingEndpoint);
   });
 
-  it("should not warn when an endpoint is set", () => {
-    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
-
-    new Base("testing", { endpoint: "https://s123456.eu-central-1a.betterstackdata.com" });
-
-    expect(warn).not.toHaveBeenCalled();
+  it("should not require an endpoint when logs are not sent to Better Stack", () => {
+    expect(() => new Base("testing", { sendLogsToBetterStack: false })).not.toThrow();
   });
 
-  it("should not warn when logs are not sent to Better Stack", () => {
-    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+  it("should send to an ingesting host without a scheme over HTTPS", () => {
+    const base = new Base("testing", { endpoint: "s123456.eu-central-1a.betterstackdata.com" });
 
-    new Base("testing", { sendLogsToBetterStack: false });
+    expect((base as any)._options.endpoint).toEqual("https://s123456.eu-central-1a.betterstackdata.com");
+  });
 
-    expect(warn).not.toHaveBeenCalled();
+  it("should keep the scheme of an endpoint that has one", () => {
+    const base = new Base("testing", { endpoint: "http://127.0.0.1:8080" });
+
+    expect((base as any)._options.endpoint).toEqual("http://127.0.0.1:8080");
   });
 });
 
 describe("replaceConsoleMethods", () => {
   function getBase(options = {}) {
-    const base = new Base("testing", { throwExceptions: true, ...options });
+    const base = new Base("testing", { endpoint, throwExceptions: true, ...options });
     const logs: ILogtailLog[] = [];
     base.setSync(async (batch) => {
       logs.push(...batch);
@@ -724,7 +727,7 @@ describe("replaceConsoleMethods", () => {
   });
 
   it("should report sync failures through the console instead of an unhandled rejection", async () => {
-    const base = new Base("testing", { throwExceptions: true, retryCount: 0 });
+    const base = new Base("testing", { endpoint, throwExceptions: true, retryCount: 0 });
     base.setSync(async () => {
       throw new Error("sync failed");
     });

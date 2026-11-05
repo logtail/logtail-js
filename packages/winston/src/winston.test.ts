@@ -4,6 +4,8 @@ import { LogLevel, ILogtailLog, Context } from "@logtail/types";
 
 import { LogtailTransport } from "./winston";
 
+const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
+
 // Sample log message
 const message = "Something to do with something";
 
@@ -21,7 +23,7 @@ async function testLevel(level: string, logLevel: LogLevel, levels?: { [key: str
   };
 
   // Logtail fixtures
-  const logtail = new Logtail("test", { throwExceptions: true });
+  const logtail = new Logtail("test", { endpoint, throwExceptions: true });
   const logged = new Promise<ILogtailLog[]>((resolve) => {
     logtail.setSync(async (logs) => {
       resolve(logs);
@@ -90,6 +92,7 @@ describe("Winston logging tests", () => {
 
     // Fixtures
     const logtail = new Logtail("test", {
+      endpoint,
       throwExceptions: true,
       batchInterval: 1000, // <-- shouldn't be exceeded
       batchSize: entries.length,
@@ -120,7 +123,7 @@ describe("Winston logging tests", () => {
   });
 
   it("should log metadata with the message and level", async () => {
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
     const logged = new Promise<ILogtailLog[]>((resolve) => {
       logtail.setSync(async (logs) => {
         resolve(logs);
@@ -152,7 +155,7 @@ describe("Winston logging tests", () => {
   });
 
   it("should log defaultMetadata with the message and level", async () => {
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
     const logged = new Promise<ILogtailLog[]>((resolve) => {
       logtail.setSync(async (logs) => {
         resolve(logs);
@@ -188,7 +191,7 @@ describe("Winston logging tests", () => {
   });
 
   it("should include correct context fields", async () => {
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
     const logged = new Promise<ILogtailLog[]>((resolve) => {
       logtail.setSync(async (logs) => {
         resolve(logs);
@@ -216,7 +219,7 @@ describe("Winston logging tests", () => {
   it("should flush logtail when the logger is closed", async () => {
     let logs: ILogtailLog[] = [];
 
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
 
     logtail.setSync(async (_logs: ILogtailLog[]) => {
       logs.push(..._logs);
@@ -248,7 +251,7 @@ describe("Winston logging tests", () => {
   it("should emit finish only after the logs were sent", async () => {
     const sent: ILogtailLog[] = [];
 
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
 
     // Sending takes a while, like a request to Better Stack
     logtail.setSync(async (logs: ILogtailLog[]) => {
@@ -277,7 +280,7 @@ describe("Winston logging tests", () => {
     const sent: ILogtailLog[] = [];
     let syncCalls = 0;
 
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
 
     logtail.setSync(async (logs: ILogtailLog[]) => {
       syncCalls++;
@@ -315,7 +318,7 @@ describe("Winston logging tests", () => {
   it("should flush logtail and call the close option when the logger is closed", async () => {
     const sent: ILogtailLog[] = [];
 
-    const logtail = new Logtail("test", { throwExceptions: true });
+    const logtail = new Logtail("test", { endpoint, throwExceptions: true });
 
     logtail.setSync(async (logs: ILogtailLog[]) => {
       await new Promise((resolve) => setTimeout(resolve, 100));
