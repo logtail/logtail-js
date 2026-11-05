@@ -6,11 +6,6 @@ on:
       - master
   pull_request:
   workflow_dispatch:
-    inputs:
-      clearLockFiles:
-        description: "Clear yarn.lock files?"
-        required: false
-        type: boolean
 
 jobs:
   tests:
@@ -42,10 +37,6 @@ jobs:
 
       - name: Setup yarn
         run: npm install -g yarn
-
-      - name: Clear lock files
-        if: ${{ inputs.clearLockFiles }}
-        run: rm yarn.lock packages/*/yarn.lock
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
