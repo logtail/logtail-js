@@ -11,6 +11,10 @@ describe("base class tests", () => {
     expect((base as any)._sourceToken).toEqual(sourceToken);
   });
 
+  it("should throw when the source token is empty", () => {
+    expect(() => new Base("", { endpoint })).toThrow("Better Stack source token missing");
+  });
+
   it("should throw if a `sync` method is missing", async () => {
     const base = new Base("testing", { endpoint, throwExceptions: true });
 

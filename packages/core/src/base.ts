@@ -125,7 +125,7 @@ class Logtail {
   public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
     // First, check we have a valid source token
     if (typeof sourceToken !== "string" || sourceToken === "") {
-      throw new Error("Logtail source token missing");
+      throw new Error("Better Stack source token missing");
     }
 
     // Store the source token, to use for syncing with Better Stack
