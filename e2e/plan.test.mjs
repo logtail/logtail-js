@@ -5,7 +5,7 @@ import { test } from "node:test";
 import {
   canaryRelease,
   compareVersions,
-  newestNightly,
+  canaryNode,
   newestNode,
   newestOfMinor,
   plan,
@@ -20,9 +20,15 @@ const NODE_INDEX = [
   { version: "v18.20.8", files: ["linux-x64"] },
   { version: "v18.9.1", files: ["linux-x64"] },
 ];
-const NIGHTLY_INDEX = [
-  { version: "v28.0.0-nightly202611059365fff7b5", files: ["headers", "src"] },
-  { version: "v28.0.0-nightly20261104d36e9ba1f8", files: ["linux-x64", "win-x64-zip"] },
+const RC_INDEX = [
+  { version: "v26.4.0-rc.0", files: ["headers", "src"] },
+  { version: "v26.1.0-rc.0", files: ["linux-x64"] },
+];
+const RC_INDEX_AHEAD = [
+  { version: "v28.0.0-rc.1", files: ["headers", "src"] },
+  { version: "v27.0.0-rc.2", files: ["linux-x64"] },
+  { version: "v27.0.0-rc.10", files: ["linux-x64"] },
+  ...RC_INDEX,
 ];
 const PACKUMENTS = {
   bun: {
@@ -43,16 +49,17 @@ const PACKUMENTS = {
 const CHROME = { channels: { Stable: { version: "157.0.8103.38" }, Canary: { version: "159.0.8144.0" } } };
 const sources = {
   nodeIndex: async () => NODE_INDEX,
-  nightlyIndex: async () => NIGHTLY_INDEX,
+  rcIndex: async () => RC_INDEX,
   packument: async (name) => PACKUMENTS[name],
   chrome: async () => CHROME,
 };
 
 test("compareVersions sorts numerically, a release after its pre-releases", () => {
-  assert.deepEqual(["1.10.0", "1.9.0", "1.10.0-rc.1", "1.2.3"].sort(compareVersions), [
+  assert.deepEqual(["1.10.0", "1.9.0", "1.10.0-rc.10", "1.10.0-rc.2", "1.2.3"].sort(compareVersions), [
     "1.2.3",
     "1.9.0",
-    "1.10.0-rc.1",
+    "1.10.0-rc.2",
+    "1.10.0-rc.10",
     "1.10.0",
   ]);
 });
@@ -71,8 +78,13 @@ test("newestNode skips pre-releases and picks the newest of a major line", () =>
   assert.throws(() => newestNode(NODE_INDEX, "16"), /lists no Node.js 16 release/);
 });
 
-test("newestNightly is the newest build with a Linux x64 download", () => {
-  assert.equal(newestNightly(NIGHTLY_INDEX), "28.0.0-nightly20261104d36e9ba1f8");
+test("canaryNode is the newest release candidate with a Linux x64 download when it is ahead of the newest release", () => {
+  assert.equal(canaryNode(RC_INDEX_AHEAD, NODE_INDEX), "27.0.0-rc.10");
+});
+
+test("canaryNode is the newest release when no release candidate is ahead of it", () => {
+  assert.equal(canaryNode(RC_INDEX, NODE_INDEX), "26.13.0");
+  assert.equal(canaryNode([], NODE_INDEX), "26.13.0");
 });
 
 test("newestOfMinor picks the newest release of a minor line", () => {
@@ -108,12 +120,12 @@ test("every leg and flavour, with the reject job", async () => {
       "latest koa (Node 26.13.0, koa 3.3.0)",
       "latest browser (Chrome 157.0.8103.38)",
       "latest edge (wrangler 4.158.0, workerd 1.20261104.1, compatibility date 2026-11-01)",
-      "canary node (Node 28.0.0-nightly20261104d36e9ba1f8)",
+      "canary node (Node 26.13.0)",
       "canary bun (Bun canary)",
-      "canary winston (Node 28.0.0-nightly20261104d36e9ba1f8, winston 3.19.0)",
-      "canary pino (Node 28.0.0-nightly20261104d36e9ba1f8, pino 11.0.0-rc.1)",
-      "canary bunyan (Node 28.0.0-nightly20261104d36e9ba1f8, bunyan 1.8.15)",
-      "canary koa (Node 28.0.0-nightly20261104d36e9ba1f8, koa 3.3.0)",
+      "canary winston (Node 26.13.0, winston 3.19.0)",
+      "canary pino (Node 26.13.0, pino 11.0.0-rc.1)",
+      "canary bunyan (Node 26.13.0, bunyan 1.8.15)",
+      "canary koa (Node 26.13.0, koa 3.3.0)",
       "canary browser (Chrome 159.0.8144.0)",
       "canary edge (wrangler 4.158.0, workerd 1.20261104.1, compatibility date 2026-11-04)",
     ],

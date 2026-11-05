@@ -11,8 +11,9 @@ name: E2E
 #   floor     Node.js 18 and Bun 1.0 with the oldest winston, pino, bunyan and koa the peerDependencies allow
 #   latest    the newest Node.js and Bun releases, each library's newest release, Chrome Stable and the newest
 #             wrangler with its workerd; installing anything else than exactly these fails the job
-#   canary    the newest Node.js nightly, Bun canary, each library's next release when one is ahead, Chrome Canary,
-#             and the Worker on the newest compatibility date its workerd supports
+#   canary    the newest Node.js release candidate when one is ahead of the newest release (otherwise that release,
+#             never a nightly), Bun canary, each library's next release when one is ahead, Chrome Canary, and the
+#             Worker on the newest compatibility date its workerd supports
 # browser and edge have no floor. The floor runs on the oldest Ubuntu image GitHub offers, latest and canary on
 # ubuntu-latest, so a new runner image is covered as well. One more job runs the node example with an invalid source
 # token, which must make it exit non-zero.
@@ -28,9 +29,8 @@ name: E2E
 # testing team), LINEAR_* (see notify_linear_failure.yml).
 #
 # One job, or exact versions: Actions → E2E → Run workflow, pick the leg and the flavour and optionally set
-# node-version (e.g. 22.11.0 or 28.0.0-nightly20261104d36e9ba1f8), bun-version or library-version (with one flavour,
-# e.g. pino 9.5.0), which replace the planned versions of every job that runs. That is how a failure is bisected to
-# one release.
+# node-version (e.g. 22.11.0 or 27.0.0-rc.1), bun-version or library-version (with one flavour, e.g. pino 9.5.0),
+# which replace the planned versions of every job that runs. That is how a failure is bisected to one release.
 
 on:
   push:

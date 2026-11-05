@@ -15,8 +15,10 @@
 //   latest  the newest Node.js release (setup-node's "latest" would pick a pre-release such as 27.0.0-alpha, so the
 //           exact version comes from nodejs.org), Bun's newest release, each library's npm latest, Chrome's Stable
 //           channel, and wrangler's npm latest with the workerd it pins. The job fails unless exactly these run.
-//   canary  the newest Node.js nightly, Bun canary, each library's npm next when it is newer than latest, Chrome
-//           Canary, and wrangler's latest running the Worker with the newest compatibility date its workerd supports.
+//   canary  the newest Node.js release candidate when one is ahead of the newest release, otherwise that release
+//           (never a nightly, whose upstream breakage would file a Linear issue every day), Bun canary, each
+//           library's npm next when it is newer than latest, Chrome Canary, and wrangler's latest running the Worker
+//           with the newest compatibility date its workerd supports.
 // --node, --bun and --library replace the planned version of every job they apply to, which is how a run bisects a
 // failure to one release. --source is copied into every entry: checkout installs the packages built from this
 // checkout, npm their newest releases. "reject" is the one extra job that runs the node example with an invalid
@@ -53,7 +55,14 @@ export function compareVersions(a, b) {
   if (x[3] === y[3]) return 0;
   if (x[3] === null) return 1;
   if (y[3] === null) return -1;
-  return x[3] < y[3] ? -1 : 1;
+  // Pre-release identifiers one by one, numbers as numbers: rc.10 is after rc.2.
+  const [p, q] = [x[3].split("."), y[3].split(".")];
+  for (let i = 0; i < Math.min(p.length, q.length); i++) {
+    if (p[i] === q[i]) continue;
+    const numeric = /^\d+$/.test(p[i]) && /^\d+$/.test(q[i]);
+    return numeric ? Number(p[i]) - Number(q[i]) : p[i] < q[i] ? -1 : 1;
+  }
+  return p.length - q.length;
 }
 
 // The lowest version a peer dependency range allows: ">=3.2.1" is 3.2.1, "^7.0.0 || ^8.0.0" is 7.0.0.
@@ -74,11 +83,15 @@ export function newestNode(index, major) {
   return line.sort(compareVersions).at(-1);
 }
 
-// The newest nightly build that has a Linux x64 download, which is what setup-node installs.
-export function newestNightly(index) {
-  const entry = index.find((build) => build.files.includes("linux-x64"));
-  if (!entry) throw new Error("nodejs.org lists no Linux x64 nightly build");
-  return entry.version.slice(1);
+// The newest release candidate with a Linux x64 download (what setup-node installs) when it is ahead of the newest
+// release, otherwise the newest release: an RC of a line that already shipped is behind it.
+export function canaryNode(rcIndex, nodeIndex) {
+  const release = newestNode(nodeIndex);
+  const candidates = rcIndex
+    .filter((build) => build.files.includes("linux-x64"))
+    .map((build) => build.version.slice(1));
+  const newest = candidates.sort(compareVersions).at(-1);
+  return newest && compareVersions(newest, release) > 0 ? newest : release;
 }
 
 // The newest release of a minor line in an npm packument, e.g. Bun 1.0.36 for "1.0".
@@ -127,7 +140,7 @@ export function makeSources(fetchJson) {
   };
   return {
     nodeIndex: () => get("https://nodejs.org/dist/index.json"),
-    nightlyIndex: () => get("https://nodejs.org/download/nightly/index.json"),
+    rcIndex: () => get("https://nodejs.org/download/rc/index.json"),
     packument: (name) => get(`${NPM_REGISTRY}/${name.replace("/", "%2F")}`),
     chrome: () => get("https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json"),
   };
@@ -157,7 +170,7 @@ export async function planJob(leg, flavour, sources, { source = "checkout", node
   const runsOnNode = !["bun", "browser", "edge"].includes(flavour);
   if (runsOnNode) {
     if (leg === "floor") job.node = newestNode(await sources.nodeIndex(), FLOOR_NODE_MAJOR);
-    if (leg === "canary") job.node = newestNightly(await sources.nightlyIndex());
+    if (leg === "canary") job.node = canaryNode(await sources.rcIndex(), await sources.nodeIndex());
     job.node = node || job.node;
   }
   if (flavour === "bun") {
