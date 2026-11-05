@@ -95,6 +95,8 @@ export class Node extends Base {
     context: TContext = {} as TContext,
     stackContextHint?: StackContextHint,
   ) {
+    context = this._wrapContext(context);
+
     // Only capture stack context if enabled (default: true)
     if (this._options.captureStackContext !== false) {
       context = { ...getStackContext(this, stackContextHint), ...context } as TContext;
