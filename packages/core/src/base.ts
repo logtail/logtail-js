@@ -139,7 +139,7 @@ class Logtail {
       const endpoint = this._options.endpoint;
       if (typeof endpoint !== "string" || endpoint === "") {
         throw new Error(
-          `Logtail endpoint missing. Set the endpoint option to your source's ingesting host, e.g. { endpoint: "<ingesting-host>" }, which you'll find on the source's Configure page in Better Stack.`,
+          `Better Stack endpoint missing. Set the endpoint option to your source's ingesting host, e.g. { endpoint: "https://s123456.eu-central-1a.betterstackdata.com" }, which you'll find on the source's Configure page in Better Stack.`,
         );
       }
 

@@ -597,7 +597,7 @@ describe("base class tests", () => {
 
 describe("endpoint", () => {
   const missingEndpoint =
-    "Logtail endpoint missing. Set the endpoint option to your source's ingesting host, e.g. { endpoint: \"<ingesting-host>\" }, which you'll find on the source's Configure page in Better Stack.";
+    "Better Stack endpoint missing. Set the endpoint option to your source's ingesting host, e.g. { endpoint: \"https://s123456.eu-central-1a.betterstackdata.com\" }, which you'll find on the source's Configure page in Better Stack.";
 
   it("should throw when no endpoint is set", () => {
     expect(() => new Base("testing")).toThrow(missingEndpoint);
