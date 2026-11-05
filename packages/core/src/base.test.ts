@@ -587,6 +587,40 @@ describe("base class tests", () => {
   });
 });
 
+describe("endpoint", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("should warn when no endpoint is set and the default is used", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    const base = new Base("testing");
+
+    expect((base as any)._options.endpoint).toEqual("https://in.logs.betterstack.com");
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith(
+      "[Logtail] No endpoint set, so logs are sent to the default https://in.logs.betterstack.com. Please set the endpoint option to your source's ingesting host, e.g. { endpoint: \"https://<ingesting-host>\" }, which you'll find on the source's Configure page in Better Stack. The endpoint option will be required in a future version.",
+    );
+  });
+
+  it("should not warn when an endpoint is set", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    new Base("testing", { endpoint: "https://s123456.eu-central-1a.betterstackdata.com" });
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("should not warn when logs are not sent to Better Stack", () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    new Base("testing", { sendLogsToBetterStack: false });
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+});
+
 describe("replaceConsoleMethods", () => {
   function getBase(options = {}) {
     const base = new Base("testing", { throwExceptions: true, ...options });

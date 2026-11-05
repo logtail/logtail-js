@@ -115,7 +115,8 @@ describe("node tests", () => {
   });
 
   it("should warn and echo log even with circular reference as context", async () => {
-    nock("https://in.logs.betterstack.com").post("/").reply(201);
+    const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
+    nock(endpoint).post("/").reply(201);
 
     let circularContext: any = { foo: { value: 42 } };
     circularContext.foo.bar = circularContext;
@@ -126,7 +127,7 @@ describe("node tests", () => {
 
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const node = new Node("valid source token", { throwExceptions: true });
+    const node = new Node("valid source token", { endpoint, throwExceptions: true });
     const echoedLog = await node.log(message, LogLevel.Info, circularContext);
     expect(echoedLog.message).toEqual(expectedLog.message);
 

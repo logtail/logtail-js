@@ -137,6 +137,13 @@ class Logtail {
     // Merge default and user options
     this._options = { ...defaultOptions, ...options };
 
+    if (options?.endpoint === undefined && this._options.sendLogsToBetterStack) {
+      this._consoleOutput(
+        "warn",
+        `[Logtail] No endpoint set, so logs are sent to the default ${defaultOptions.endpoint}. Please set the endpoint option to your source's ingesting host, e.g. { endpoint: "https://<ingesting-host>" }, which you'll find on the source's Configure page in Better Stack. The endpoint option will be required in a future version.`,
+      );
+    }
+
     // Create a throttler, for sync operations
     const throttle = makeThrottle(this._options.syncMax, this._options.syncQueuedMax);
 
