@@ -21,6 +21,7 @@ function getRandomLog(message: string): Partial<ILogtailLog> {
   };
 }
 
+const endpoint = "https://s123456.eu-central-1a.betterstackdata.com";
 const originalConsoleWarn = console.warn;
 
 describe("edge tests", () => {
@@ -36,7 +37,7 @@ describe("edge tests", () => {
   it("should echo log if logtail sends 20x status code", async () => {
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
-    const edge = new Edge("valid source token", { throwExceptions: true });
+    const edge = new Edge("valid source token", { endpoint, throwExceptions: true });
 
     edge.setSync(async (logs) => logs);
 
@@ -46,7 +47,7 @@ describe("edge tests", () => {
   });
 
   it("should throw error if logtail sends non 200 status code", async () => {
-    const edge = new Edge("invalid source token", { throwExceptions: true });
+    const edge = new Edge("invalid source token", { endpoint, throwExceptions: true });
 
     edge.setSync(async () => {
       throw new Error("Mocked error in logging");
@@ -64,6 +65,7 @@ describe("edge tests", () => {
     const message: string = String(Math.random());
     const expectedLog = getRandomLog(message);
     const edge = new Edge("valid source token", {
+      endpoint,
       throwExceptions: true,
       warnAboutMissingExecutionContext: false,
     });
@@ -80,7 +82,7 @@ describe("edge tests", () => {
 
   it("should contain context info", async () => {
     const message: string = String(Math.random());
-    const edge = new Edge("valid source token", { throwExceptions: true });
+    const edge = new Edge("valid source token", { endpoint, throwExceptions: true });
 
     edge.setSync(async (logs) => logs);
 
@@ -94,7 +96,7 @@ describe("edge tests", () => {
 
   it("should warn about missing ExecutionContext only once", async () => {
     const message: string = String(Math.random());
-    const edge = new Edge("valid source token", { throwExceptions: true });
+    const edge = new Edge("valid source token", { endpoint, throwExceptions: true });
 
     edge.setSync(async (logs) => logs);
 
@@ -114,6 +116,7 @@ describe("edge tests", () => {
   it("should skip stack context capture when captureStackContext is false", async () => {
     const message: string = String(Math.random());
     const edge = new Edge("valid source token", {
+      endpoint,
       throwExceptions: true,
       warnAboutMissingExecutionContext: false,
       captureStackContext: false,
@@ -128,6 +131,7 @@ describe("edge tests", () => {
   it("should include stack context by default", async () => {
     const message: string = String(Math.random());
     const edge = new Edge("valid source token", {
+      endpoint,
       throwExceptions: true,
       warnAboutMissingExecutionContext: false,
     });
@@ -144,6 +148,7 @@ describe("edge tests", () => {
   it("should include stack context when captureStackContext is explicitly true", async () => {
     const message: string = String(Math.random());
     const edge = new Edge("valid source token", {
+      endpoint,
       throwExceptions: true,
       warnAboutMissingExecutionContext: false,
       captureStackContext: true,
@@ -160,7 +165,7 @@ describe("edge tests", () => {
 
   it("should not warn about missing ExecutionContext if set", async () => {
     const message: string = String(Math.random());
-    const edge = new Edge("valid source token", { throwExceptions: true });
+    const edge = new Edge("valid source token", { endpoint, throwExceptions: true });
     edge.setSync(async (logs) => logs);
 
     const edgeWithCtx = edge.withExecutionContext({
@@ -178,7 +183,7 @@ describe("edge tests", () => {
 
   it("should send logs after the flush timeout of an ended request was dropped", async () => {
     jest.useFakeTimers();
-    const edge = new Edge("valid source token", { warnAboutMissingExecutionContext: false });
+    const edge = new Edge("valid source token", { endpoint, warnAboutMissingExecutionContext: false });
     const synced: string[] = [];
     edge.setSync(async (logs) => {
       synced.push(...logs.map((log) => log.message));
@@ -222,6 +227,7 @@ describe("edge tests", () => {
 
     it("should abort a request after 10 seconds by default and retry it like any other failed request", async () => {
       const edge = new Edge("valid source token", {
+        endpoint,
         retryCount: 1,
         // A single sync slot: the retry can only be sent once the aborted request has released it
         syncMax: 1,
@@ -241,6 +247,7 @@ describe("edge tests", () => {
 
     it("should not abort requests when timeout is 0", async () => {
       const edge = new Edge("valid source token", {
+        endpoint,
         timeout: 0,
         throwExceptions: true,
         warnAboutMissingExecutionContext: false,
@@ -260,6 +267,7 @@ describe("edge tests", () => {
     it("should not leave the timeout behind after a successful request", async () => {
       fetchMock.mockResolvedValue(new Response(null, { status: 202 }));
       const edge = new Edge("valid source token", {
+        endpoint,
         throwExceptions: true,
         warnAboutMissingExecutionContext: false,
       });
@@ -280,7 +288,7 @@ describe("request batches", () => {
   });
 
   function getEdge(options: Partial<ILogtailEdgeOptions> = {}, syncMilliseconds = 0) {
-    const edge = new Edge("valid source token", { throwExceptions: true, batchInterval: 10, ...options });
+    const edge = new Edge("valid source token", { endpoint, throwExceptions: true, batchInterval: 10, ...options });
     const batches: ILogtailLog[][] = [];
     edge.setSync(async (logs) => {
       await new Promise((resolve) => setTimeout(resolve, syncMilliseconds));
