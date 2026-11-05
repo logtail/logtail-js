@@ -1,0 +1,7 @@
+{
+  "name": "better-stack-node-example",
+  "private": true,
+  "dependencies": {
+    "@logtail/js": "^0.5.13"
+  }
+}

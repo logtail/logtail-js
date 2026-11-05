@@ -1,0 +1,9 @@
+{
+  "name": "better-stack-bunyan-example",
+  "private": true,
+  "dependencies": {
+    "@logtail/bunyan": "^0.5.13",
+    "@logtail/node": "^0.5.13",
+    "bunyan": "^1.8.15"
+  }
+}

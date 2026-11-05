@@ -1,0 +1,338 @@
+name: E2E
+
+# Proves that the clients still deliver logs to Better Stack. Every job creates its own javascript source through the
+# Telemetry API, warms it up, runs one example project under example-project/ (what its README tells customers to
+# run) with that source's token and ingesting host, reads the stored rows back through the testing team's SQL API
+# connection, checks them exactly against e2e/expected-<flavour>.json (nothing missing, extra or duplicated), and
+# deletes the source again, together with sources of earlier runs left behind for more than 3 hours.
+# e2e/plan.mjs plans one job per leg and flavour:
+#   flavours  node (@logtail/js on Node.js), bun (the same example on Bun), winston, pino, bunyan, koa (a Koa app
+#             serving one request), browser (a page in headless Chrome), edge (a Cloudflare Worker under wrangler dev)
+#   floor     Node.js 18 and Bun 1.0 with the oldest winston, pino, bunyan and koa the peerDependencies allow
+#   latest    the newest Node.js and Bun releases, each library's newest release, Chrome Stable and the newest
+#             wrangler with its workerd; installing anything else than exactly these fails the job
+#   canary    the newest Node.js nightly, Bun canary, each library's next release when one is ahead, Chrome Canary,
+#             and the Worker on the newest compatibility date its workerd supports
+# browser and edge have no floor. The floor runs on the oldest Ubuntu image GitHub offers, latest and canary on
+# ubuntu-latest, so a new runner image is covered as well. One more job runs the node example with an invalid source
+# token, which must make it exit non-zero.
+# Every job checks, before it creates a source, that the runtime, the @logtail packages (the tarballs packed here, or
+# npm's newest releases on the schedule) and the library are the planned versions, and writes them into its summary.
+# Pushes to master and pull requests build the packages from the checkout as the Release workflow does and install
+# their tarballs. The daily schedule installs the newest releases from npm, which is what a customer gets today. A
+# failure on master or on the schedule files a Linear issue (notify_linear_failure.yml), at low priority when only
+# the canary failed. Pull requests from forks run only the plan and the invalid token job: they get no secrets, so
+# they cannot create a source.
+#
+# Secrets: TEST_TEAM_TELEMETRY_API, TEST_TEAM_CONNECTION_USERNAME, TEST_TEAM_CONNECTION_PASSWORD (Better Stack's E2E
+# testing team), LINEAR_* (see notify_linear_failure.yml).
+#
+# One job, or exact versions: Actions → E2E → Run workflow, pick the leg and the flavour and optionally set
+# node-version (e.g. 22.11.0 or 28.0.0-nightly20261104d36e9ba1f8), bun-version or library-version (with one flavour,
+# e.g. pino 9.5.0), which replace the planned versions of every job that runs. That is how a failure is bisected to
+# one release.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  schedule:
+    - cron: '15 6 * * *'
+  workflow_dispatch:
+    inputs:
+      leg:
+        description: 'Leg to run'
+        type: choice
+        options: [all, floor, latest, canary]
+        default: all
+      flavour:
+        description: 'Example project to run'
+        type: choice
+        options: [all, node, bun, winston, pino, bunyan, koa, browser, edge]
+        default: all
+      source:
+        description: 'checkout: the packages built from this checkout, as the Release workflow builds them. npm: their newest releases, what a customer installs'
+        type: choice
+        options: [checkout, npm]
+        default: checkout
+      node-version:
+        description: 'One exact Node.js version (e.g. 22.11.0) instead of the planned one'
+        type: string
+      bun-version:
+        description: 'One exact Bun version (e.g. 1.2.0) instead of the planned one'
+        type: string
+      library-version:
+        description: 'One exact version of the flavour''s library (e.g. pino 9.5.0) instead of the planned one'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      reject: ${{ steps.plan.outputs.reject }}
+
+    steps:
+      - name: "[Setup] Checkout code"
+        uses: actions/checkout@v7
+
+      - name: "[Setup] Node.js"
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          package-manager-cache: false
+
+      - name: "[Test] plan.test.mjs"
+        run: node --test e2e/plan.test.mjs
+
+      - name: "[Setup] Plan the jobs"
+        id: plan
+        env:
+          LEG: ${{ inputs.leg || 'all' }}
+          FLAVOUR: ${{ inputs.flavour || 'all' }}
+          NODE_VERSION: ${{ inputs.node-version }}
+          BUN_VERSION: ${{ inputs.bun-version }}
+          LIBRARY_VERSION: ${{ inputs.library-version }}
+          # The schedule tests what a customer installs today, pushes and pull requests test the checkout.
+          CLIENT_FROM: ${{ github.event_name == 'schedule' && 'npm' || inputs.source || 'checkout' }}
+        run: |
+          PLAN=$(node e2e/plan.mjs --leg "$LEG" --flavour "$FLAVOUR" --source "$CLIENT_FROM" --node "$NODE_VERSION" --bun "$BUN_VERSION" --library "$LIBRARY_VERSION")
+          echo "matrix=$(jq -c .matrix <<<"$PLAN")" >> "$GITHUB_OUTPUT"
+          echo "reject=$(jq -c .reject <<<"$PLAN")" >> "$GITHUB_OUTPUT"
+          jq . <<<"$PLAN"
+
+  test:
+    needs: plan
+    name: ${{ matrix.name }}
+    # Forks and Dependabot get no repository secrets, so their pull requests run only the plan.
+    if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+
+    env:
+      LEG: ${{ matrix.leg }}
+      FLAVOUR: ${{ matrix.flavour }}
+      EXAMPLE: ${{ matrix.example }}
+      CLIENT_FROM: ${{ matrix.source }}
+      PLANNED_NODE: ${{ matrix.node }}
+      PLANNED_BUN: ${{ matrix.bun }}
+      PLANNED_CHROME: ${{ matrix.chrome }}
+      LIBRARY: ${{ matrix.library }}
+      LIBRARY_VERSION: ${{ matrix.library_version }}
+      WRANGLER: ${{ matrix.wrangler }}
+      WORKERD: ${{ matrix.workerd }}
+      COMPATIBILITY_DATE: ${{ matrix.compatibility_date }}
+      WRANGLER_SEND_METRICS: false
+
+    steps:
+      - name: "[Setup] Checkout code"
+        uses: actions/checkout@v7
+
+      # The build runs on the Node.js the Release workflow uses, whatever the leg runs the example on: Node.js 18
+      # cannot run the build tools.
+      - name: "[Setup] Node.js 22 for the build"
+        if: ${{ matrix.source == 'checkout' }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22.x
+          package-manager-cache: false
+
+      - name: "[Setup] Build and pack the packages as the Release workflow does"
+        if: ${{ matrix.source == 'checkout' }}
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+          bash e2e/client.sh pack
+
+      - name: "[Setup] Node.js ${{ matrix.node }}"
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+
+      - name: "[Setup] Bun ${{ matrix.bun }}"
+        if: ${{ matrix.bun != '' }}
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ matrix.bun }}
+
+      - name: "[Setup] Chrome ${{ matrix.chrome }}"
+        if: ${{ matrix.chrome != '' }}
+        run: |
+          # Chrome for Testing in exactly the planned version, rather than whichever Chrome the runner image has.
+          curl -fsSL -o "$RUNNER_TEMP/chrome.zip" "https://storage.googleapis.com/chrome-for-testing-public/$PLANNED_CHROME/linux64/chrome-linux64.zip"
+          unzip -q "$RUNNER_TEMP/chrome.zip" -d "$RUNNER_TEMP"
+          echo "CHROME=$RUNNER_TEMP/chrome-linux64/chrome" >> "$GITHUB_ENV"
+          # playwright-core drives that Chrome, it downloads no browser of its own.
+          npm install --prefix e2e/browser --no-audit --no-fund --no-package-lock
+
+      - name: "[Setup] Install the client and the leg's versions"
+        run: bash e2e/client.sh install
+
+      - name: "[Verify] Installed versions are the planned ones"
+        run: |
+          FAILED=0
+          bash e2e/client.sh check || FAILED=1
+          NODE=$(node -p process.versions.node)
+          case "$FLAVOUR" in
+            bun) RUNTIME="Bun $(bun --revision)" ;;
+            browser) RUNTIME="$("$CHROME" --version), npm on Node.js $NODE" ;;
+            edge) RUNTIME="wrangler dev with compatibility date $COMPATIBILITY_DATE, on Node.js $NODE" ;;
+            *) RUNTIME="Node.js $NODE" ;;
+          esac
+          echo "- $RUNTIME, $(cat out/installed.md)" | tee -a out/versions.md "$GITHUB_STEP_SUMMARY"
+          if [ "$NODE" != "$PLANNED_NODE" ]; then
+            echo "::error::Node.js $NODE is running, but the plan asks for $PLANNED_NODE."
+            FAILED=1
+          fi
+          # Bun canary is whatever canary build setup-bun finds, so it only reports.
+          if [ -n "$PLANNED_BUN" ] && [ "$PLANNED_BUN" != canary ] && [ "$(bun --version)" != "$PLANNED_BUN" ]; then
+            echo "::error::Bun $(bun --version) is running, but the plan asks for $PLANNED_BUN."
+            FAILED=1
+          fi
+          if [ -n "$PLANNED_CHROME" ] && [[ "$("$CHROME" --version)" != *" $PLANNED_CHROME"* ]]; then
+            echo "::error::$("$CHROME" --version) is installed, but the plan asks for Chrome $PLANNED_CHROME."
+            FAILED=1
+          fi
+          exit "$FAILED"
+
+      # Before a source is created: a client that cannot even load with these versions needs no round trip.
+      - name: "[Verify] The client loads with these versions"
+        run: bash e2e/run-example.sh load
+
+      - name: "[Setup] Create a source"
+        id: source
+        uses: ./.github/actions/create-source
+        with:
+          api-token: ${{ secrets.TEST_TEAM_TELEMETRY_API }}
+          name: e2e-js-gh${{ github.run_id }}a${{ github.run_attempt }}-${{ matrix.leg }}-${{ matrix.flavour }}
+          platform: javascript
+
+      - name: "[Test] Run the example project"
+        env:
+          BETTER_STACK_SOURCE_TOKEN: ${{ steps.source.outputs.token }}
+          BETTER_STACK_INGESTING_HOST: ${{ steps.source.outputs.ingesting-host }}
+        run: bash e2e/run-example.sh run
+
+      - name: "[Verify] Read the rows back"
+        uses: ./.github/actions/verify-logs
+        with:
+          connection-username: ${{ secrets.TEST_TEAM_CONNECTION_USERNAME }}
+          connection-password: ${{ secrets.TEST_TEAM_CONNECTION_PASSWORD }}
+          connect-host: ${{ steps.source.outputs.connect-host }}
+          collection: ${{ steps.source.outputs.collection }}
+          expected: e2e/expected-${{ matrix.flavour }}.json
+
+      - name: "[Cleanup] Delete this job's source and stale ones of earlier runs"
+        if: ${{ always() }}
+        uses: ./.github/actions/cleanup-sources
+        with:
+          api-token: ${{ secrets.TEST_TEAM_TELEMETRY_API }}
+          prefix: e2e-js-
+          id: ${{ steps.source.outputs.id }}
+
+      - name: "[Report] Job summary"
+        if: ${{ always() }}
+        run: |
+          if [ -f out/summary.md ]; then
+            { echo; cat out/summary.md; } >> "$GITHUB_STEP_SUMMARY"
+            # The Linear issue names the job and links the run, so it gets the versions, the read-back and the
+            # cleanup only when that left something behind. Without a read-back summary the notifier takes the
+            # job's ::error:: lines instead.
+            mkdir -p report
+            { cat out/versions.md; echo; cat out/summary.md; } > report/summary.md
+            if grep -q '❌' out/cleanup.md 2>/dev/null; then { echo; cat out/cleanup.md; } >> report/summary.md; fi
+          else
+            { echo; echo "❌ Stopped before the rows were read back, see the failed step."; } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f out/cleanup.md ]; then { echo; cat out/cleanup.md; } >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: "[Report] Hand the summary to the Linear issue"
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-summary-${{ matrix.name }}
+          path: report/summary.md
+          if-no-files-found: ignore
+          retention-days: 7
+          # A re-run attempt uploads under the same name.
+          overwrite: true
+
+  # The node example with a source token Better Stack does not know: the client counts the rejected logs as not
+  # synced, and the example has to say so and exit non-zero. Needs no secrets, so forks run it too.
+  reject:
+    needs: plan
+    name: ${{ fromJSON(needs.plan.outputs.reject).name }}
+    if: ${{ needs.plan.outputs.reject != 'null' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      EXAMPLE: example-project/node
+      CLIENT_FROM: ${{ fromJSON(needs.plan.outputs.reject).source }}
+
+    steps:
+      - name: "[Setup] Checkout code"
+        uses: actions/checkout@v7
+
+      - name: "[Setup] Node.js 22 for the build"
+        if: ${{ env.CLIENT_FROM == 'checkout' }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22.x
+          package-manager-cache: false
+
+      - name: "[Setup] Build and pack the packages as the Release workflow does"
+        if: ${{ env.CLIENT_FROM == 'checkout' }}
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+          bash e2e/client.sh pack
+
+      - name: "[Setup] Node.js ${{ fromJSON(needs.plan.outputs.reject).node }}"
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ fromJSON(needs.plan.outputs.reject).node }}
+          package-manager-cache: false
+
+      - name: "[Setup] Install the client"
+        run: |
+          bash e2e/client.sh install
+          bash e2e/client.sh check
+
+      - name: "[Test] The example fails with an invalid source token"
+        working-directory: example-project/node
+        env:
+          BETTER_STACK_SOURCE_TOKEN: INVALID_TOKEN
+          BETTER_STACK_INGESTING_HOST: in.logs.betterstack.com
+        run: |
+          if node index.js > ../../out/reject.log 2>&1; then
+            cat ../../out/reject.log
+            echo "::error::The node example exited 0 with an invalid source token."
+            exit 1
+          fi
+          cat ../../out/reject.log
+          if ! grep -q 'Not all logs have been synced!' ../../out/reject.log; then
+            echo "::error::The node example failed, but not because Better Stack rejected its logs: $(tail -n 1 ../../out/reject.log)"
+            exit 1
+          fi
+
+  notify-linear:
+    if: ${{ failure() && (github.ref == 'refs/heads/master' || github.event_name == 'schedule') }}
+    needs: [test, reject]
+    # The notifier reads the failed jobs, their summary artifacts and their annotations.
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+    uses: ./.github/workflows/notify_linear_failure.yml
+    with:
+      job_summaries: true
+    secrets: inherit

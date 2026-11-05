@@ -1,0 +1,153 @@
+name: "Notify Linear on failure"
+
+# Files a Linear issue for a failed run: "E2E failure: <workflow name> (<owner/repo>)" at High priority, listing the
+# failed jobs and steps with their errors, or with their summaries when job_summaries is set. When every failed job's
+# name starts with "canary" (pre-release runtime or dependencies), the title says "E2E canary failure" and the
+# priority is Low. While an issue with the same title is still open, the run is added to it as a comment instead,
+# so a test that keeps failing every day makes one issue, not one per day.
+# Secrets: LINEAR_API_KEY, LINEAR_TEAM_TELEMETRY_ID, LINEAR_STATUS_PLAN_ID, LINEAR_PROJECT_INGESTION_FOR_EVERYTHING_ID,
+# LINEAR_ASSIGNEE_PETR_ID.
+on:
+  workflow_call:
+    inputs:
+      job_summaries:
+        description: >-
+          Adds each failed job's summary to the issue, or its errors when it has none. A job hands its summary over as
+          an artifact named "e2e-summary-<job name>" holding summary.md.
+        type: boolean
+        default: false
+
+jobs:
+  create-linear-issue:
+    runs-on: ubuntu-latest
+    # A caller must grant checks: read as well (the errors come from the annotations), or this job cannot start.
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+    steps:
+      - name: "Gather failure context"
+        id: ctx
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id || github.run_id }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt || github.run_attempt }}
+          JOB_SUMMARIES: ${{ inputs.job_summaries }}
+        run: |
+          JOBS=$(gh api \
+            "repos/${{ github.repository }}/actions/runs/$RUN_ID/attempts/$RUN_ATTEMPT/jobs" \
+            --paginate \
+            --jq '.jobs[]
+                    | select(.conclusion == "failure")
+                    | {id, name, steps: ([.steps[] | select(.conclusion == "failure") | .name] | join(", "))}
+                    | @json')
+
+          FAILED=""
+          while read -r job; do
+            [ -n "$job" ] || continue
+            ID=$(jq -r .id <<<"$job")
+            NAME=$(jq -r .name <<<"$job")
+            STEPS=$(jq -r .steps <<<"$job")
+            FAILED="$FAILED### $NAME"$'\n\n'"Failed at **${STEPS}**"$'\n\n'
+            # A job's summary already says why it failed. Otherwise, or when the job stopped before writing it, the
+            # issue gets its ::error:: lines, without the runner's closing "Process completed with exit code 1."
+            SUMMARY_DIR="summaries/$ID"
+            if [ "$JOB_SUMMARIES" = true ]; then
+              gh run download "$RUN_ID" -R "${{ github.repository }}" -n "e2e-summary-$NAME" -D "$SUMMARY_DIR" >/dev/null 2>&1 || true
+            fi
+            if [ -f "$SUMMARY_DIR/summary.md" ]; then
+              FAILED="$FAILED$(cat "$SUMMARY_DIR/summary.md")"$'\n\n'
+            else
+              ERRORS=$(gh api "repos/${{ github.repository }}/check-runs/$ID/annotations" \
+                --jq '[.[] | select(.annotation_level == "failure" and (.message | startswith("Process completed with exit code") | not)) | .message | gsub("\n"; " ")] | unique | .[] | "- \(.)"') || ERRORS=""
+              FAILED="$FAILED${ERRORS:+$ERRORS$'\n\n'}"
+            fi
+          done <<<"$JOBS"
+          # Canary only when there are failed jobs and all of them are canary jobs.
+          CANARY=false
+          if [ -n "$JOBS" ] && jq -se 'all(.[]; .name | startswith("canary"))' <<<"$JOBS" >/dev/null; then CANARY=true; fi
+
+          while [[ "$FAILED" == *$'\n' ]]; do FAILED="${FAILED%$'\n'}"; done
+          if [ -z "$FAILED" ]; then
+            FAILED="_(no failed jobs reported by the API yet)_"
+          elif [ "${#FAILED}" -gt 20000 ]; then
+            FAILED="${FAILED:0:20000}"$'\n\n'"_(cut at 20,000 characters, the rest is in the run)_"
+          fi
+          printf '%s\n' "$FAILED" > failed_jobs.md
+          echo "canary=$CANARY" >> "$GITHUB_OUTPUT"
+
+      - name: "Create the Linear issue, or comment on the open one with the same title"
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_TELEMETRY_ID }}
+          LINEAR_STATUS_PLAN_ID: ${{ secrets.LINEAR_STATUS_PLAN_ID }}
+          LINEAR_PROJECT_INGESTION_FOR_EVERYTHING_ID: ${{ secrets.LINEAR_PROJECT_INGESTION_FOR_EVERYTHING_ID }}
+          LINEAR_ASSIGNEE_PETR_ID: ${{ secrets.LINEAR_ASSIGNEE_PETR_ID }}
+          CANARY: ${{ steps.ctx.outputs.canary }}
+          REPOSITORY: ${{ github.repository }}
+          WORKFLOW: ${{ github.event.workflow_run.name || github.workflow }}
+          REF_NAME: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          RUN_URL: ${{ github.event.workflow_run.html_url || format('{0}/{1}/actions/runs/{2}', github.server_url, github.repository, github.run_id) }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt || github.run_attempt }}
+          EVENT_NAME: ${{ github.event.workflow_run.event || github.event_name }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.workflow_run.head_commit.message || github.event.head_commit.message }}
+        run: |
+          if [ "$CANARY" = true ]; then
+            TITLE="E2E canary failure: $WORKFLOW ($REPOSITORY)"; PRIORITY=4
+          else
+            TITLE="E2E failure: $WORKFLOW ($REPOSITORY)"; PRIORITY=2
+          fi
+
+          # head_commit is only populated on push events; skip the subject otherwise
+          COMMIT_LINE="**Commit:** \`${SHA:0:7}\`"
+          [ -z "$COMMIT_MESSAGE" ] || COMMIT_LINE="$COMMIT_LINE: $(printf '%s' "$COMMIT_MESSAGE" | head -n1)"
+          ATTEMPT_NOTE=""
+          [ "$RUN_ATTEMPT" = 1 ] || ATTEMPT_NOTE=" (attempt #$RUN_ATTEMPT)"
+          {
+            echo "**$WORKFLOW** failed on \`$REF_NAME\` via \`$EVENT_NAME\`$ATTEMPT_NOTE"
+            echo
+            echo "**Failing jobs:**"
+            echo
+            cat failed_jobs.md
+            echo
+            echo "$COMMIT_LINE"
+            echo
+            echo "[View failing run]($RUN_URL)"
+          } > description.md
+
+          linear() {
+            curl -sS --fail-with-body -X POST https://api.linear.app/graphql \
+              -H "Authorization: $LINEAR_API_KEY" -H 'Content-Type: application/json' -d "$1"
+          }
+
+          # Open means any state but done, canceled or marked as a duplicate. Better a second issue than none: when the
+          # lookup fails, a new issue is created.
+          FIND=$(jq -nc --arg title "$TITLE" --arg teamId "$LINEAR_TEAM_ID" '{
+            query: "query ($title: String!, $teamId: ID!) { issues(filter: {title: {eq: $title}, team: {id: {eq: $teamId}}, state: {type: {nin: [\"completed\", \"canceled\", \"duplicate\"]}}}, first: 1) { nodes { id url } } }",
+            variables: {title: $title, teamId: $teamId}
+          }')
+          FOUND=$(linear "$FIND") || { echo "::warning::looking for an open issue titled \"$TITLE\" failed: $FOUND"; FOUND='{}'; }
+          OPEN=$(jq -r '.data.issues.nodes[0] // empty | "\(.id) \(.url)"' <<<"$FOUND")
+
+          if [ -n "$OPEN" ]; then
+            read -r ISSUE_ID ISSUE_URL <<<"$OPEN"
+            PAYLOAD=$(jq -nc --arg issueId "$ISSUE_ID" --rawfile body description.md '{
+              query: "mutation ($input: CommentCreateInput!) { commentCreate(input: $input) { success } }",
+              variables: {input: {issueId: $issueId, body: $body}}
+            }')
+            RES=$(linear "$PAYLOAD") || true
+            jq -e '.data.commentCreate.success' <<<"$RES" >/dev/null || { echo "::error::commenting on $ISSUE_URL failed: $RES"; exit 1; }
+            echo "added this run to the open issue $ISSUE_URL"
+          else
+            PAYLOAD=$(jq -nc --arg title "$TITLE" --rawfile description description.md --arg teamId "$LINEAR_TEAM_ID" \
+              --arg assigneeId "$LINEAR_ASSIGNEE_PETR_ID" --arg stateId "$LINEAR_STATUS_PLAN_ID" \
+              --arg projectId "$LINEAR_PROJECT_INGESTION_FOR_EVERYTHING_ID" --argjson priority "$PRIORITY" '{
+              query: "mutation ($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { url } } }",
+              variables: {input: {title: $title, description: $description, teamId: $teamId, assigneeId: $assigneeId,
+                stateId: $stateId, projectId: $projectId, priority: $priority}}
+            }')
+            RES=$(linear "$PAYLOAD") || true
+            ISSUE_URL=$(jq -er '.data.issueCreate.issue.url' <<<"$RES") || { echo "::error::creating the issue failed: $RES"; exit 1; }
+            echo "created $ISSUE_URL"
+          fi

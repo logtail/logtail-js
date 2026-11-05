@@ -1,0 +1,46 @@
+# Creates a Better Stack source through the Telemetry API and waits until ingest reliably accepts its token.
+# The logic is in run.sh, which reads only environment variables, so it runs the same way outside of Actions.
+name: "Create a Better Stack source"
+description: "Creates a source, warms it up until ingest accepts its token and outputs where to send and read logs"
+
+inputs:
+  api-token:
+    description: "Telemetry API token of the team the source is created in"
+    required: true
+  name:
+    description: "Name of the new source"
+    required: true
+  platform:
+    description: "Platform of the new source, as the Telemetry API names it"
+    required: true
+
+outputs:
+  id:
+    description: "Source id"
+    value: ${{ steps.run.outputs.id }}
+  token:
+    description: "Source token for ingest (masked in the logs)"
+    value: ${{ steps.run.outputs.token }}
+  ingesting-host:
+    description: "Host to send logs to"
+    value: ${{ steps.run.outputs.ingesting-host }}
+  data-region:
+    description: "Data region the source stores its logs in"
+    value: ${{ steps.run.outputs.data-region }}
+  collection:
+    description: "Collection name for the SQL API, t<team id>_<table name>"
+    value: ${{ steps.run.outputs.collection }}
+  connect-host:
+    description: "SQL API host that reads this source"
+    value: ${{ steps.run.outputs.connect-host }}
+
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_API_TOKEN: ${{ inputs.api-token }}
+        INPUT_NAME: ${{ inputs.name }}
+        INPUT_PLATFORM: ${{ inputs.platform }}
+      run: bash "${{ github.action_path }}/run.sh"

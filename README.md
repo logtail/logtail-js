@@ -10,7 +10,7 @@
 [![npm @logtail/node](https://img.shields.io/npm/v/@logtail/node?color=success&label=npm%20%40logtail%2Fnode)](https://www.npmjs.com/package/@logtail/node)
 [![npm @logtail/browser](https://img.shields.io/npm/v/@logtail/browser?color=success&label=npm%20%40logtail%2Fbrowser)](https://www.npmjs.com/package/@logtail/browser)
 [![Tests](https://github.com/logtail/logtail-js/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/logtail/logtail-js/actions/workflows/tests.yml)
-[![E2E Tests](https://github.com/logtail/logtail-js/actions/workflows/end-to-end.yml/badge.svg?branch=master)](https://github.com/logtail/logtail-js/actions/workflows/end-to-end.yml)
+[![E2E](https://github.com/logtail/logtail-js/actions/workflows/e2e.yml/badge.svg?branch=master)](https://github.com/logtail/logtail-js/actions/workflows/e2e.yml)
 
 Experience SQL-compatible structured log management based on ClickHouse. [Learn more ⇗](https://betterstack.com/logs)
 

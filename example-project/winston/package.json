@@ -1,0 +1,9 @@
+{
+  "name": "better-stack-winston-example",
+  "private": true,
+  "dependencies": {
+    "@logtail/node": "^0.5.13",
+    "@logtail/winston": "^0.5.13",
+    "winston": "^3.19.0"
+  }
+}

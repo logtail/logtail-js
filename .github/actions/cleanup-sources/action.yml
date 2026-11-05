@@ -1,0 +1,33 @@
+# Deletes the run's source and stale sources of earlier runs of the same test, and never fails the job.
+# The logic is in run.sh, which reads only environment variables, so it runs the same way outside of Actions.
+name: "Clean up Better Stack sources"
+description: "Deletes this run's source and sources of earlier runs, named with the same prefix, that are older than stale-hours"
+
+inputs:
+  api-token:
+    description: "Telemetry API token of the team the sources are in"
+    required: true
+  prefix:
+    description: "Name prefix of this test's sources, only those are swept"
+    required: true
+  id:
+    description: "Id of this run's source, deleted whatever its age"
+    default: ""
+  stale-hours:
+    description: "Sources with the prefix older than this many hours are left over from earlier runs"
+    default: "3"
+  out:
+    description: "Directory for cleanup.md"
+    default: out
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        INPUT_API_TOKEN: ${{ inputs.api-token }}
+        INPUT_PREFIX: ${{ inputs.prefix }}
+        INPUT_ID: ${{ inputs.id }}
+        INPUT_STALE_HOURS: ${{ inputs.stale-hours }}
+        INPUT_OUT: ${{ inputs.out }}
+      run: bash "${{ github.action_path }}/run.sh"
