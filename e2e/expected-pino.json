@@ -1,0 +1,23 @@
+[
+  {
+    "level": "debug",
+    "message": "I am using Better Stack!"
+  },
+  {
+    "level": "info",
+    "message": "An interesting event occurred!"
+  },
+  {
+    "level": "warn",
+    "message": "Something is not quite right, better check on it.",
+    "contains": {
+      "user": { "username": "someuser", "email": "someuser@example.com" },
+      "additional_info": { "tried_accessing": "/url/of/error" }
+    }
+  },
+  {
+    "level": "error",
+    "message": "Oops! An runtime ERROR occurred!",
+    "contains": { "err": { "type": "Error", "message": "Testing error", "stack": "Error: Testing error\n    at " } }
+  }
+]

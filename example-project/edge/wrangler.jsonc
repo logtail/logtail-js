@@ -1,0 +1,9 @@
+// Configuration of the example Worker for wrangler, Cloudflare's CLI: `npx wrangler dev` runs it locally,
+// `npx wrangler deploy` deploys it to Cloudflare.
+{
+  "name": "better-stack-edge-example",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  // BETTER_STACK_SOURCE_TOKEN and BETTER_STACK_INGESTING_HOST come from .dev.vars locally,
+  // and from `npx wrangler secret put <name>` once deployed.
+}
