@@ -1,6 +1,6 @@
 {
   "name": "@logtail/koa",
-  "version": "0.5.13",
+  "version": "0.6.0",
   "description": "Better Stack Koa logger (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -45,8 +45,8 @@
     "supertest": "^7.0.0"
   },
   "dependencies": {
-    "@logtail/node": "^0.5.13",
-    "@logtail/types": "^0.5.12",
+    "@logtail/node": "^0.6.0",
+    "@logtail/types": "^0.6.0",
     "rambda": "^9.2.1"
   },
   "peerDependencies": {
