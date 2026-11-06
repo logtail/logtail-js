@@ -1,6 +1,6 @@
 {
   "name": "@logtail/core",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Better Stack logging core (formerly Logtail)",
   "keywords": [
     "Better Stack",

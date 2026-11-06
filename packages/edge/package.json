@@ -1,6 +1,6 @@
 {
   "name": "@logtail/edge",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Better Stack Edge runtime logger (formerly Logtail)",
   "keywords": [
     "Better Stack",
@@ -40,7 +40,7 @@
     "url": "https://github.com/logtail/logtail-js/issues"
   },
   "dependencies": {
-    "@logtail/core": "^0.6.0",
+    "@logtail/core": "^0.6.1",
     "@logtail/types": "^0.6.0",
     "@msgpack/msgpack": "^2.5.1",
     "stack-trace": "0.0.10"
