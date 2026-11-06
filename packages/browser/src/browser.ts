@@ -49,17 +49,7 @@ export class Browser extends Base {
    * @returns Promise<ILogtailLog> after syncing
    */
   public async log<TContext extends Context>(message: string, level?: ILogLevel, context: TContext = {} as TContext) {
-    // Wrap context in an object, if it's not already
-    if (typeof context !== "object") {
-      const wrappedContext: unknown = { extra: context };
-      context = wrappedContext as TContext;
-    }
-    if (context instanceof Error) {
-      const wrappedContext: unknown = { error: context };
-      context = wrappedContext as TContext;
-    }
-
-    context = { ...this.getCurrentContext(), ...context };
+    context = { ...this.getCurrentContext(), ...this._wrapContext(context) };
 
     return super.log(message, level, context);
   }

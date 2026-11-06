@@ -95,7 +95,7 @@ export class Edge extends Base {
   ): Promise<ILogtailLog & TContext> {
     // Only capture stack context if enabled (default: true)
     const stackContext = this._options.captureStackContext !== false ? getStackContext(this) : {};
-    context = { ...stackContext, ...context };
+    context = { ...stackContext, ...this._wrapContext(context) };
 
     if (ctx) {
       // Process/sync the log in the request's own batch, and keep the request alive until it is sent or dropped

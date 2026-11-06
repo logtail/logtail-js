@@ -258,6 +258,23 @@ class Logtail {
   }
 
   /**
+   * Wraps a context that is an Error in `error`, and one that is not an object in `extra`, so that it is kept as one
+   * field of the log. Loggers adding context of their own call it first: spreading an Error copies none of its fields.
+   */
+  protected _wrapContext<TContext extends Context>(context: TContext): TContext {
+    if (typeof context !== "object") {
+      const wrappedContext: unknown = { extra: context };
+      return wrappedContext as TContext;
+    }
+    if (context instanceof Error) {
+      const wrappedContext: unknown = { error: context };
+      return wrappedContext as TContext;
+    }
+
+    return context;
+  }
+
+  /**
    * Logs an entry like `log()`, pushing it with `batch`, the push function of a batch (see `_makeBatch()`)
    */
   protected async _log<TContext extends Context>(
@@ -266,15 +283,7 @@ class Logtail {
     context: TContext = {} as TContext,
     batch: (log: ILogtailLog) => Promise<ILogtailLog>,
   ): Promise<ILogtailLog & TContext> {
-    // Wrap context in an object, if it's not already
-    if (typeof context !== "object") {
-      const wrappedContext: unknown = { extra: context };
-      context = wrappedContext as TContext;
-    }
-    if (context instanceof Error) {
-      const wrappedContext: unknown = { error: context };
-      context = wrappedContext as TContext;
-    }
+    context = this._wrapContext(context);
 
     if (this._options.sendLogsToConsoleOutput) {
       switch (level) {

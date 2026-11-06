@@ -393,6 +393,32 @@ describe("node tests", () => {
     expect(result.context).toBeDefined();
     expect(result.context.runtime).toBeDefined();
   });
+
+  it("should keep an Error passed as context in the error field, next to the stack context", async () => {
+    const node = new Node("test", { endpoint, throwExceptions: true });
+    node.setSync(async (logs) => logs);
+
+    const log = await node.error("boom", new Error("bad thing"));
+
+    expect(log.message).toBe("boom");
+    expect(log.error).toEqual({
+      name: "Error",
+      message: "bad thing",
+      stack: expect.stringMatching(/^Error: bad thing\n    at /),
+    });
+    expect(log.context.runtime.file).toMatch(/node\.test\.ts$/);
+  });
+
+  it("should keep a context that is not an object in the extra field, next to the stack context", async () => {
+    const node = new Node("test", { endpoint, throwExceptions: true });
+    node.setSync(async (logs) => logs);
+
+    const log = await node.log("boom", LogLevel.Info, "some detail" as any);
+
+    expect(Object.keys(log).sort()).toEqual(["context", "dt", "extra", "level", "message"]);
+    expect(log.extra).toBe("some detail");
+    expect(log.context.runtime.file).toMatch(/node\.test\.ts$/);
+  });
 });
 
 describe("replaceConsoleMethods", () => {

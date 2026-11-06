@@ -181,6 +181,59 @@ describe("edge tests", () => {
     expect((console.warn as Mock).mock.calls).toHaveLength(0);
   });
 
+  it("should keep an Error passed as context in the error field, next to the stack context", async () => {
+    const edge = new Edge("valid source token", {
+      endpoint,
+      throwExceptions: true,
+      warnAboutMissingExecutionContext: false,
+    });
+    edge.setSync(async (logs) => logs);
+
+    const log = await edge.error("boom", new Error("bad thing"));
+
+    expect(log.message).toBe("boom");
+    expect(log.error).toEqual({
+      name: "Error",
+      message: "bad thing",
+      stack: expect.stringMatching(/^Error: bad thing\n    at /),
+    });
+    expect(typeof log.context.runtime.file).toBe("string");
+  });
+
+  it("should keep an Error passed as context in the error field when logging with an ExecutionContext", async () => {
+    const edge = new Edge("valid source token", { endpoint, throwExceptions: true });
+    edge.setSync(async (logs) => logs);
+    const logger = edge.withExecutionContext({
+      waitUntil() {},
+      passThroughOnException() {},
+    } as unknown as ExecutionContext);
+
+    const log = await logger.error("boom", new Error("bad thing"));
+
+    expect(log.message).toBe("boom");
+    expect(log.error).toEqual({
+      name: "Error",
+      message: "bad thing",
+      stack: expect.stringMatching(/^Error: bad thing\n    at /),
+    });
+    expect(log.context.runtime.file).toMatch(/edge\.test\.ts$/);
+  });
+
+  it("should keep a context that is not an object in the extra field, next to the stack context", async () => {
+    const edge = new Edge("valid source token", {
+      endpoint,
+      throwExceptions: true,
+      warnAboutMissingExecutionContext: false,
+    });
+    edge.setSync(async (logs) => logs);
+
+    const log = await edge.log("boom", LogLevel.Info, "some detail");
+
+    expect(Object.keys(log).sort()).toEqual(["context", "dt", "extra", "level", "message"]);
+    expect(log.extra).toBe("some detail");
+    expect(typeof log.context.runtime.file).toBe("string");
+  });
+
   it("should send logs after the flush timeout of an ended request was dropped", async () => {
     jest.useFakeTimers();
     const edge = new Edge("valid source token", { endpoint, warnAboutMissingExecutionContext: false });
