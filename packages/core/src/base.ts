@@ -125,7 +125,7 @@ class Logtail {
   public constructor(sourceToken: string, options?: Partial<ILogtailOptions>) {
     // First, check we have a valid source token
     if (typeof sourceToken !== "string" || sourceToken === "") {
-      throw new Error("Logtail source token missing");
+      throw new Error("Better Stack source token missing");
     }
 
     // Store the source token, to use for syncing with Better Stack
@@ -298,7 +298,7 @@ class Logtail {
 
     // Check that we have a sync function
     if (typeof this._sync !== "function") {
-      throw new Error("No Logtail logger sync function provided");
+      throw new Error("Better Stack logger has no sync function. Set one with setSync().");
     }
 
     // Increment log count
@@ -379,7 +379,7 @@ class Logtail {
         if (this._options.contextObjectCircularRefWarn) {
           this._consoleOutput(
             "warn",
-            `[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.`,
+            `Better Stack logger found a circular reference in a log's context and omitted it. Please do not use circular references in your logs.`,
           );
         }
         return "<omitted circular reference>";
@@ -387,7 +387,7 @@ class Logtail {
       if (this._options.contextObjectMaxDepthWarn) {
         this._consoleOutput(
           "warn",
-          `[Logtail] Max depth of ${this._options.contextObjectMaxDepth} reached when serializing logs. Please do not use excessive object depth in your logs.`,
+          `Better Stack logger reached the max depth of ${this._options.contextObjectMaxDepth} in a log's context and omitted the rest. Please do not use excessive object depth in your logs.`,
         );
       }
       return `<omitted context beyond configured max depth: ${this._options.contextObjectMaxDepth}>`;

@@ -11,11 +11,15 @@ describe("base class tests", () => {
     expect((base as any)._sourceToken).toEqual(sourceToken);
   });
 
+  it("should throw when the source token is empty", () => {
+    expect(() => new Base("", { endpoint })).toThrow("Better Stack source token missing");
+  });
+
   it("should throw if a `sync` method is missing", async () => {
     const base = new Base("testing", { endpoint, throwExceptions: true });
 
     // Expect logging to throw an error, since we're missing a `sync` func
-    await expect(base.log("Test")).rejects.toThrow(/sync/);
+    await expect(base.log("Test")).rejects.toThrow("Better Stack logger has no sync function. Set one with setSync().");
   });
 
   it("should add an implicit `dt` timestamp", async () => {
@@ -304,6 +308,23 @@ describe("base class tests", () => {
 
     // Context should contain a stack trace
     expect(log.stack).toBe(e.stack);
+  });
+
+  it("should warn when a log's context is nested beyond the max depth", async () => {
+    const base = new Base("testing", { endpoint, throwExceptions: true, contextObjectMaxDepth: 1 });
+    base.setSync(async (logs) => logs);
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    try {
+      const log = await base.info("Deep", { outer: { inner: "value" } });
+
+      expect(log.outer).toBe("<omitted context beyond configured max depth: 1>");
+      expect(warn).toHaveBeenCalledWith(
+        "Better Stack logger reached the max depth of 1 in a log's context and omitted the rest. Please do not use excessive object depth in your logs.",
+      );
+    } finally {
+      warn.mockRestore();
+    }
   });
 
   it("should not ignore exceptions if `ignoreExceptions` opt == false and `throwExceptions` opt == true", async () => {
@@ -722,7 +743,7 @@ describe("replaceConsoleMethods", () => {
     expect(logs[0].self).toEqual({ name: "loop", self: "<omitted circular reference>" });
     expect(warn).toHaveBeenCalledTimes(2);
     expect(warn).toHaveBeenLastCalledWith(
-      "[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.",
+      "Better Stack logger found a circular reference in a log's context and omitted it. Please do not use circular references in your logs.",
     );
   });
 

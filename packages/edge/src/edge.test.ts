@@ -76,7 +76,7 @@ describe("edge tests", () => {
     expect(echoedLog.message).toEqual(expectedLog.message);
     expect((console.warn as Mock).mock.calls).toHaveLength(1);
     expect((console.warn as Mock).mock.calls[0][0]).toBe(
-      "[Logtail] Found a circular reference when serializing logs. Please do not use circular references in your logs.",
+      "Better Stack logger found a circular reference in a log's context and omitted it. Please do not use circular references in your logs.",
     );
   });
 
