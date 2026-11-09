@@ -48,11 +48,12 @@ jq -e 'type == "array" and length > 0 and all(.[]; type == "object" and has("lev
 WANT=$(jq length "$INPUT_EXPECTED")
 
 # Writes the rows as JSONEachRow into $2, or nothing while the collection does not exist: it is created with the
-# source's first stored row.
+# source's first stored row. The connection user may run 4 logs queries at a time and every job of every client
+# repo reads back as that user, so ?wait=true queues the query for up to 60 s instead of answering HTTP 429.
 sql() {
   local code
-  code=$(curl -sS -m 60 -o "$2" -w '%{http_code}' -u "$INPUT_CONNECTION_USERNAME:$INPUT_CONNECTION_PASSWORD" \
-    -H 'Content-Type: plain/text' --data-binary "$1 FORMAT JSONEachRow" "https://$INPUT_CONNECT_HOST/") || code=000
+  code=$(curl -sS -m 90 -o "$2" -w '%{http_code}' -u "$INPUT_CONNECTION_USERNAME:$INPUT_CONNECTION_PASSWORD" \
+    -H 'Content-Type: plain/text' --data-binary "$1 FORMAT JSONEachRow" "https://$INPUT_CONNECT_HOST/?wait=true") || code=000
   if [ "$code" = 500 ] && grep -qE 'CLUSTER_DOESNT_EXIST|NAMED_COLLECTION_DOESNT_EXIST|UNKNOWN_TABLE' "$2"; then : > "$2"; return; fi
   [ "$code" = 200 ] || fail "the SQL API on $INPUT_CONNECT_HOST answered HTTP $code: $(head -c 300 "$2" 2>/dev/null)"
 }
