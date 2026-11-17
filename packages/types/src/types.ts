@@ -92,7 +92,7 @@ export interface ILogtailOptions {
   sendLogsToBetterStack: boolean;
 
   /**
-   * Function to be used to calculate size of logs in bytes (to evaluate batchSizeKiB). JSON length by default.
+   * Function to be used to calculate size of logs in bytes (to evaluate batchSizeKiB). Serialized JSON UTF-8 byte length by default.
    **/
   calculateLogSizeBytes: (logs: ILogtailLog) => number;
 

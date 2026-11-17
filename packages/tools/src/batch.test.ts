@@ -292,6 +292,44 @@ describe("batch tests", () => {
     expect(called).toHaveBeenCalledTimes(10);
   });
 
+  it("should flush when serialized UTF-8 logs reach the byte limit", async () => {
+    const log: ILogtailLog = {
+      dt: new Date("2026-01-01T00:00:00.000Z"),
+      level: LogLevel.Info,
+      message: "界".repeat(100),
+    };
+    const sent: ILogtailLog[][] = [];
+    const sizeBytes = 2 * Buffer.byteLength(JSON.stringify(log) + ",", "utf8");
+    const batcher = makeBatch(1000, 10000, 0, 0, sizeBytes);
+    const push = batcher.initPusher(async (batch: ILogtailLog[]) => {
+      sent.push(batch);
+    });
+
+    const first = push(log);
+    expect(sent).toEqual([]);
+    const second = push(log);
+    const sentAtByteLimit = sent.slice();
+    await batcher.flush();
+    await Promise.all([first, second]);
+
+    expect(sentAtByteLimit).toEqual([[log, log]]);
+  });
+
+  it("should skip the size calculator when byte batching is disabled", async () => {
+    const calculateSize = jest.fn(() => {
+      throw new Error("size calculation disabled");
+    });
+    const batcher = makeBatch(2, 10000, 0, 0, 0, calculateSize);
+    const sent = jest.fn();
+    const push = batcher.initPusher(sent);
+    const logs = [getRandomLog(), getRandomLog()];
+
+    await Promise.all(logs.map(push));
+
+    expect(sent).toHaveBeenCalledWith(logs);
+    expect(calculateSize).not.toHaveBeenCalled();
+  });
+
   it("should send later logs when the flush timeout was dropped without firing", async () => {
     jest.useFakeTimers();
     const sent: ILogtailLog[][] = [];
@@ -425,7 +463,7 @@ describe("batch tests", () => {
 });
 
 describe("JSON log size calculator", () => {
-  it("should calculate log size as JSON length", async () => {
+  it("should calculate ASCII log size as JSON length", async () => {
     const log: ILogtailLog = {
       dt: new Date(),
       level: LogLevel.Info,
@@ -436,5 +474,30 @@ describe("JSON log size calculator", () => {
     const expectedLogSizeBytes = '{"dt":"????-??-??T??:??:??.???Z","level":"INFO","message":"My message"},'.length;
 
     expect(actualLogSizeBytes).toEqual(expectedLogSizeBytes);
+  });
+});
+
+describe("UTF-8 JSON log size calculator", () => {
+  it.each([
+    "",
+    "ASCII",
+    "é",
+    "界",
+    "😀",
+    "aé界😀",
+    { clé界: "value" },
+    '"\\\n\t\u0000',
+    "\ud800",
+    "\udc00",
+    "\ud800x\udc00",
+  ])("should count serialized bytes for %j", (message) => {
+    const log: ILogtailLog = {
+      dt: new Date("2026-01-01T00:00:00.000Z"),
+      level: LogLevel.Info,
+      message: typeof message === "string" ? message : "context",
+      context: { value: message },
+    };
+
+    expect(calculateJsonLogSizeBytes(log)).toBe(Buffer.byteLength(JSON.stringify(log) + ",", "utf8"));
   });
 });
