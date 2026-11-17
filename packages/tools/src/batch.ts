@@ -45,9 +45,9 @@ const DEFAULT_RETRY_COUNT = 3;
 const DEFAULT_RETRY_BACKOFF = 100;
 
 /*
- * Default function for computing log size (serialized JSON length + 1 for comma)
+ * Default function for computing log size (serialized JSON UTF-8 bytes + 1 for comma)
  */
-export const calculateJsonLogSizeBytes = (log: ILogtailLog) => JSON.stringify(log).length + 1;
+export const calculateJsonLogSizeBytes = (log: ILogtailLog) => new TextEncoder().encode(JSON.stringify(log)).length + 1;
 
 /**
  * batch the buffer coming in, process them and then resolve
